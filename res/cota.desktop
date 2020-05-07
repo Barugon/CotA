@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=CotA
+GenericName=Companion of the Avatar
+Icon=cota.png
+Exec=cota
+Terminal=false
+

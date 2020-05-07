@@ -1,0 +1,6 @@
+.vscode
+**/*.rs.bk
+/target
+/json/target
+/thread_pool/target
+Cargo.lock

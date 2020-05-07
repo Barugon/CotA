@@ -1,0 +1,19 @@
+[package]
+authors = ["Barugon"]
+description = "Companion of the Avatar"
+edition = "2018"
+name = "cota"
+version = "2.4.3"
+
+[dependencies]
+thread-pool = { path = "../thread-pool" }
+gdk = { version = "*", features = ["v3_22"] }
+gdk-pixbuf = { version = "*", features = ["v2_36_8"] }
+gio = { version = "*", features = ["v2_60"] }
+glib = { version = "*", features = ["v2_60"] }
+gtk = { version = "*", features = ["v3_22_30"] }
+chrono = "*"
+num_cpus = "*"
+num-format = "*"
+regex = "*"
+serde_json = "*"
