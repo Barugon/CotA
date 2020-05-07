@@ -1,11 +1,11 @@
 {
-	"folders": [
-		{
-			"path": "."
-		},
-		{
-			"path": "../thread-pool"
-		}
-	],
+  "folders": [
+    {
+      "path": "."
+    },
+    {
+      "path": "../thread-pool"
+    }
+  ],
   "settings": {}
 }
