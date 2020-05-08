@@ -1,5 +1,7 @@
 # Companion of the Avatar
 
+> Note: I recently inadvertently deleted this repo. My apologies to anyone who had it starred or forked.
+
 CotA is a small application that nicely displays the stats recorded to chat logs from Shroud of the Avatar.  
 > Hint: *press F5 to refresh the display after typing `/stats` in-game.*
 
