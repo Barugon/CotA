@@ -115,10 +115,12 @@ impl StatsNode for Node {
           avatars.add_item(GodotString::from_str(&name), idx as i64 + 1);
         }
 
-        let avatar = avatars.get_item_text(0);
-        if !avatar.is_empty() {
-          self.populate_dates(data, Some(avatar.to_utf8().as_str()));
-          return;
+        if avatars.get_item_count() > 0 {
+          let avatar = avatars.get_item_text(0);
+          if !avatar.is_empty() {
+            self.populate_dates(data, Some(avatar.to_utf8().as_str()));
+            return;
+          }
         }
       }
     }
