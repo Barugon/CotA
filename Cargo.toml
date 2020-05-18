@@ -1,19 +1,17 @@
 [package]
+name = "cota_gd"
+version = "3.0.0"
 authors = ["Barugon"]
-description = "Companion of the Avatar"
 edition = "2018"
-name = "cota"
-version = "2.4.3"
 
 [dependencies]
-thread-pool = { path = "../thread-pool" }
-gdk = { version = "*", features = ["v3_22"] }
-gdk-pixbuf = { version = "*", features = ["v2_36_8"] }
-gio = { version = "*", features = ["v2_60"] }
-glib = { version = "*", features = ["v2_60"] }
-gtk = { version = "*", features = ["v3_22_30"] }
 chrono = "*"
+dirs = "*"
+gdnative = "*"
 num_cpus = "*"
 num-format = "*"
 regex = "*"
-serde_json = "*"
+thread-pool = { path = "../thread-pool" }
+
+[lib]
+crate-type = ["cdylib"]

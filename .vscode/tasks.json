@@ -1,0 +1,58 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "shell",
+      "command": "./build",
+      "args": [
+        "build"
+      ],
+      "problemMatcher": [
+        "$rustc"
+      ],
+      "group": "build",
+      "label": "Build Linux debug"
+    },
+    {
+      "type": "shell",
+      "command": "./build",
+      "args": [
+        "build",
+        "--release"
+      ],
+      "problemMatcher": [
+        "$rustc"
+      ],
+      "group": "build",
+      "label": "Build Linux release"
+    },
+    {
+      "type": "shell",
+      "command": "./build",
+      "args": [
+        "build",
+        "--target=x86_64-pc-windows-gnu",
+        "--release"
+      ],
+      "problemMatcher": [
+        "$rustc"
+      ],
+      "group": "build",
+      "label": "Build Windows release"
+    },
+    {
+      "type": "shell",
+      "command": "./build",
+      "args": [
+        "build",
+        "--target=x86_64-apple-darwin",
+        "--release"
+      ],
+      "problemMatcher": [
+        "$rustc"
+      ],
+      "group": "build",
+      "label": "Build Mac release"
+    }
+  ]
+}

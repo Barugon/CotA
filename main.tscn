@@ -1,0 +1,121 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://main.gdns" type="Script" id=1]
+[ext_resource path="res://main.tres" type="Theme" id=2]
+[ext_resource path="res://Stats.gdns" type="Script" id=3]
+
+[node name="Main" type="VBoxContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 6.0
+margin_top = 6.0
+margin_right = -6.0
+margin_bottom = -6.0
+theme = ExtResource( 2 )
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Menu" type="HBoxContainer" parent="."]
+margin_right = 468.0
+margin_bottom = 22.0
+
+[node name="File" type="MenuButton" parent="Menu"]
+margin_right = 35.0
+margin_bottom = 22.0
+text = "File"
+switch_on_hover = true
+
+[node name="View" type="MenuButton" parent="Menu"]
+margin_left = 39.0
+margin_right = 81.0
+margin_bottom = 22.0
+text = "View"
+switch_on_hover = true
+
+[node name="Help" type="MenuButton" parent="Menu"]
+margin_left = 85.0
+margin_right = 127.0
+margin_bottom = 22.0
+text = "Help"
+switch_on_hover = true
+
+[node name="Tabs" type="TabContainer" parent="."]
+margin_top = 26.0
+margin_right = 468.0
+margin_bottom = 628.0
+size_flags_vertical = 3
+tab_align = 0
+
+[node name="Stats" type="VBoxContainer" parent="Tabs"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 5.0
+margin_top = 29.0
+margin_right = -5.0
+margin_bottom = -5.0
+script = ExtResource( 3 )
+
+[node name="Tools" type="HBoxContainer" parent="Tabs/Stats"]
+margin_right = 458.0
+margin_bottom = 22.0
+
+[node name="Label" type="Label" parent="Tabs/Stats/Tools"]
+margin_right = 52.0
+margin_bottom = 22.0
+text = "Avatar:"
+
+[node name="Avatars" type="OptionButton" parent="Tabs/Stats/Tools"]
+margin_left = 56.0
+margin_right = 228.0
+margin_bottom = 22.0
+size_flags_horizontal = 3
+
+[node name="Dates" type="OptionButton" parent="Tabs/Stats/Tools"]
+margin_left = 232.0
+margin_right = 404.0
+margin_bottom = 22.0
+size_flags_horizontal = 3
+
+[node name="Button" type="Button" parent="Tabs/Stats/Tools"]
+margin_left = 408.0
+margin_right = 458.0
+margin_bottom = 22.0
+text = "Notes"
+
+[node name="Tree" type="Tree" parent="Tabs/Stats"]
+margin_top = 26.0
+margin_right = 458.0
+margin_bottom = 542.0
+size_flags_vertical = 3
+columns = 2
+hide_folding = true
+hide_root = true
+select_mode = 1
+
+[node name="Status" type="Label" parent="Tabs/Stats"]
+margin_top = 546.0
+margin_right = 458.0
+margin_bottom = 568.0
+size_flags_vertical = 0
+align = 1
+
+[node name="Portals" type="Panel" parent="Tabs"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 5.0
+margin_top = 29.0
+margin_right = -5.0
+margin_bottom = -5.0
+size_flags_vertical = 3
+
+[node name="Experience" type="VBoxContainer" parent="Tabs"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 5.0
+margin_top = 29.0
+margin_right = -5.0
+margin_bottom = -5.0

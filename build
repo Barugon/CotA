@@ -1,0 +1,62 @@
+#! /bin/bash
+
+DIR="$(dirname "$0")"
+RELEASE=0
+OS="linux"
+
+for PARAM in $@; do
+  if [ "$PARAM" == "--release" ]; then
+    RELEASE=1
+  elif [ "$PARAM" == "--target=x86_64-pc-windows-gnu" ]; then
+    OS="windows"
+  elif [ "$PARAM" == "--target=x86_64-apple-darwin" ]; then
+    OS="mac"
+  fi
+done
+
+if [ $OS == "linux" ]; then
+  if [ $RELEASE -eq 1 ]; then
+    SRC="$DIR/target/release/libcota_gd.so"
+  else
+    SRC="$DIR/target/debug/libcota_gd.so"
+  fi
+  if [ ! -d "$DIR/out/linux/lib" ]; then
+    mkdir -p "$DIR/out/linux/lib" > /dev/null
+  fi
+  DST="$DIR/out/linux/lib/libcota_gd.so"
+elif [ $OS == "windows" ]; then
+  if [ $RELEASE -eq 1 ]; then
+    SRC="$DIR/target/x86_64-pc-windows-gnu/release/cota_gd.dll"
+  else
+    SRC="$DIR/target/x86_64-pc-windows-gnu/debug/cota_gd.dll"
+  fi
+  if [ ! -d "$DIR/out/windows/lib" ]; then
+    mkdir -p "$DIR/out/windows/lib" > /dev/null
+  fi
+  DST="$DIR/out/windows/lib/cota_gd.dll"
+elif [ $OS == "mac" ]; then
+  export PATH="$(pwd)/osxcross/target/bin:$PATH"
+  export C_INCLUDE_PATH="$(pwd)/osxcross/target/SDK/MacOSX10.10.sdk/usr/include"
+  export LIBZ_SYS_STATIC=1
+  export CC=o64-clang
+  export CXX=o64-clang++
+  if [ $RELEASE -eq 1 ]; then
+    SRC="$DIR/target/x86_64-apple-darwin/release/libcota_gd.dylib"
+  else
+    SRC="$DIR/target/x86_64-apple-darwin/debug/libcota_gd.dylib"
+  fi
+  if [ ! -d "$DIR/out/mac/lib" ]; then
+    mkdir -p "$DIR/out/mac/lib" > /dev/null
+  fi
+  DST="$DIR/out/mac/lib/libcota_gd.dylib"
+else
+  echo "Unknown OS"
+  exit
+fi
+
+if cargo "$@"; then
+  cp "$SRC" "$DST"
+  if [ $RELEASE -eq 1 ] && [ "$OS" != "mac" ]; then
+    strip "$DST"
+  fi 
+fi

@@ -1,0 +1,5 @@
+[gd_resource type="GDNativeLibrary" format=2]
+
+[resource]
+entry/X11.64 = "res://out/linux/lib/libcota_gd.so"
+dependency/X11.64 = [  ]

@@ -1,6 +1,9 @@
-.vscode
+.import
+.vscode/settings.json
 **/*.rs.bk
-/target
-/json/target
-/thread_pool/target
 Cargo.lock
+json/target
+osxcross
+out
+target
+thread_pool/target
