@@ -87,7 +87,7 @@ margin_right = 458.0
 margin_bottom = 22.0
 text = "Notes"
 
-[node name="Tree" type="Tree" parent="Tabs/Stats"]
+[node name="List" type="Tree" parent="Tabs/Stats"]
 margin_top = 26.0
 margin_right = 458.0
 margin_bottom = 542.0

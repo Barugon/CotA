@@ -1,5 +1,7 @@
 [gd_resource type="GDNativeLibrary" format=2]
 
 [resource]
+entry/OSX.64 = "res://out/mac/lib/libcota_gd.dylib"
 entry/X11.64 = "res://out/linux/lib/libcota_gd.so"
+dependency/OSX.64 = [  ]
 dependency/X11.64 = [  ]
