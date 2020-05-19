@@ -25,6 +25,7 @@ margin_bottom = 22.0
 margin_right = 35.0
 margin_bottom = 22.0
 text = "File"
+items = [ "Log Folder...", null, 0, false, false, 0, 0, null, "", false, "", null, 0, false, true, -1, 0, null, "", true, "Quit", null, 0, false, false, 1, 0, null, "", false ]
 switch_on_hover = true
 
 [node name="View" type="MenuButton" parent="Menu"]
@@ -32,6 +33,7 @@ margin_left = 39.0
 margin_right = 81.0
 margin_bottom = 22.0
 text = "View"
+items = [ "Refresh Stats", null, 0, false, false, 0, 0, null, "", false, "", null, 0, false, true, -1, 0, null, "", true, "Effective Resists", null, 0, false, false, 1, 0, null, "", false, "Filter Stats...", null, 0, false, false, 2, 0, null, "", false, "Reset View", null, 0, false, false, 3, 0, null, "", false ]
 switch_on_hover = true
 
 [node name="Help" type="MenuButton" parent="Menu"]
@@ -39,6 +41,7 @@ margin_left = 85.0
 margin_right = 127.0
 margin_bottom = 22.0
 text = "Help"
+items = [ "About", null, 0, false, false, 0, 0, null, "", false ]
 switch_on_hover = true
 
 [node name="Tabs" type="TabContainer" parent="."]

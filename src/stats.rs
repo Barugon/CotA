@@ -23,6 +23,16 @@ impl Stats {
   fn _ready(&mut self, owner: Node) {
     unsafe {
       let object = &owner.to_object();
+      if let Some(mut main) = owner.get_main() {
+        let _ = main.connect(
+          GodotString::from_str("log_folder_change"),
+          Some(*object),
+          GodotString::from_str("set_log_folder"),
+          VariantArray::new(),
+          0,
+        );
+      }
+
       let signal = GodotString::from_str("item_selected");
       if let Some(mut avatars) = owner.get_avatars() {
         let _ = avatars.connect(
@@ -80,9 +90,19 @@ impl Stats {
     }
     owner.populate_stats(&self.data, None, None);
   }
+
+  #[export]
+  fn set_log_folder(&mut self, owner: Node, folder: GodotString) {
+    godot_print!("Folder: {}", folder.to_utf8().as_str());
+
+    let path = std::path::Path::new(folder.to_utf8().as_str()).to_path_buf();
+    self.data = LogData::new(path);
+    owner.populate_avatars(&self.data);
+  }
 }
 
 trait StatsNode {
+  fn get_main(&self) -> Option<Node>;
   fn get_avatars(&self) -> Option<OptionButton>;
   fn populate_avatars(&self, data: &LogData);
   fn get_current_avatar(&self) -> Option<GodotString>;
@@ -96,6 +116,12 @@ trait StatsNode {
 }
 
 impl StatsNode for Node {
+  fn get_main(&self) -> Option<Node> {
+    unsafe {
+      return self.get_node(NodePath::from_str("/root/Main"));
+    }
+  }
+
   fn get_avatars(&self) -> Option<OptionButton> {
     unsafe {
       if let Some(avatars) = self.get_node(NodePath::from_str("Tools/Avatars")) {
