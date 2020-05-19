@@ -51,29 +51,6 @@ macro_rules! ok {
   }};
 }
 
-#[macro_export]
-macro_rules! t {
-  ($txt:expr) => {
-    Translate::new($txt).get()
-  };
-}
-
-pub struct Translate<'a> {
-  txt: &'a str,
-}
-
-impl Translate<'_> {
-  pub fn new(txt: &str) -> Translate {
-    Translate {
-      txt: txt,
-    }
-  }
-
-  pub fn get(&self) -> &str {
-    self.txt
-  }
-}
-
 pub fn ascii_starts_with_ignore_case(container: &[u8], pattern: &[u8]) -> bool {
   if pattern.is_empty() || container.len() < pattern.len() {
     return false;

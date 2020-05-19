@@ -222,12 +222,11 @@ impl StatsNode for Node {
             }
           }
         }
-        let date = timestamp_to_view_date(ts);
-        let text = t!("Showing stats from {}").replacen("{}", &date, 1);
+        let text = format!("Showing stats from {}", timestamp_to_view_date(ts));
         self.set_status_message(Some(&text));
         return;
       }
-      let text = t!("No stats found for {}").replacen("{}", avatar, 1);
+      let text = format!("No stats found for {}", avatar);
       self.set_status_message(Some(&text));
       return;
     }
