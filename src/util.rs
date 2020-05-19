@@ -85,10 +85,8 @@ pub fn ascii_equals_ignore_case(left: &[u8], right: &[u8]) -> bool {
 }
 
 pub fn get_locale() -> Locale {
-  let os = gdnative::OS::godot_singleton();
-  let name = os.get_locale();
-  let utf8 = name.to_utf8();
-  let name = utf8.as_str();
+  let name = gdnative::OS::godot_singleton().get_locale();
+  let name = name.to_utf8().as_str().replace('_', "-");
   let mut iter = Locale::available_names().iter();
 
   // Search for an exact match.
@@ -105,7 +103,7 @@ pub fn get_locale() -> Locale {
     }
   }
 
-  Locale::en
+  Locale::en_US_POSIX
 }
 
 pub trait ToDisplayString {
