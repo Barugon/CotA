@@ -234,14 +234,27 @@ impl StatsNode for Node {
       if let Some(stats) = data.get_stats(avatar, ts) {
         if let Some(parent) = tree.create_item(None, -1) {
           let locale = get_locale();
+          let mut alt_bg = false;
           for (name, value) in stats.iter() {
             if let Ok(num) = value.replacen(',', ".", 1).parse::<f64>() {
               if let Some(mut item) = tree.create_item(parent.cast::<Object>(), -1) {
                 let value = &num.to_display_string(&locale);
                 let tip = GodotString::from_str(&format!("{} = {}", name, value));
+                let bg = if alt_bg {
+                  alt_bg = false;
+                  Color::rgb(0.16, 0.16, 0.16)
+                } else {
+                  alt_bg = true;
+                  Color::rgb(0.18, 0.18, 0.18)
+                };
+
+                item.set_selectable(0, false);
+                item.set_selectable(1, false);
+                item.set_custom_bg_color(0, bg, false);
+                item.set_custom_bg_color(1, bg, false);
+                item.set_custom_color(0, Color::rgb(0.4, 0.6, 0.7));
                 item.set_tooltip(0, tip.new_ref());
                 item.set_tooltip(1, tip);
-                item.set_custom_color(0, Color::rgb(0.4, 0.6, 0.7));
                 item.set_text(0, GodotString::from_str(name));
                 item.set_text(1, GodotString::from_str(&value));
               }
