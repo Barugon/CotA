@@ -4,7 +4,7 @@
 [ext_resource path="res://main.tres" type="Theme" id=2]
 [ext_resource path="res://Stats.gdns" type="Script" id=3]
 
-[node name="Main" type="VBoxContainer"]
+[node name="Main" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 6.0
@@ -13,22 +13,23 @@ margin_right = -6.0
 margin_bottom = -6.0
 theme = ExtResource( 2 )
 script = ExtResource( 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
-[node name="Menu" type="HBoxContainer" parent="."]
+[node name="Layout" type="VBoxContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Menu" type="HBoxContainer" parent="Layout"]
 margin_right = 468.0
 margin_bottom = 22.0
 
-[node name="File" type="MenuButton" parent="Menu"]
+[node name="File" type="MenuButton" parent="Layout/Menu"]
 margin_right = 35.0
 margin_bottom = 22.0
 text = "File"
 items = [ "Log Folder...", null, 0, false, false, 0, 0, null, "", false, "", null, 0, false, true, -1, 0, null, "", true, "Quit", null, 0, false, false, 1, 0, null, "", false ]
 switch_on_hover = true
 
-[node name="View" type="MenuButton" parent="Menu"]
+[node name="View" type="MenuButton" parent="Layout/Menu"]
 margin_left = 39.0
 margin_right = 81.0
 margin_bottom = 22.0
@@ -36,7 +37,7 @@ text = "View"
 items = [ "Refresh Stats", null, 0, false, false, 0, 0, null, "", false, "", null, 0, false, true, -1, 0, null, "", true, "Effective Resists", null, 0, false, false, 1, 0, null, "", false, "Filter Stats...", null, 0, false, false, 2, 0, null, "", false, "Reset View", null, 0, false, false, 3, 0, null, "", false ]
 switch_on_hover = true
 
-[node name="Help" type="MenuButton" parent="Menu"]
+[node name="Help" type="MenuButton" parent="Layout/Menu"]
 margin_left = 85.0
 margin_right = 127.0
 margin_bottom = 22.0
@@ -44,14 +45,14 @@ text = "Help"
 items = [ "About", null, 0, false, false, 0, 0, null, "", false ]
 switch_on_hover = true
 
-[node name="Tabs" type="TabContainer" parent="."]
+[node name="Tabs" type="TabContainer" parent="Layout"]
 margin_top = 26.0
 margin_right = 468.0
 margin_bottom = 628.0
 size_flags_vertical = 3
 tab_align = 0
 
-[node name="Stats" type="VBoxContainer" parent="Tabs"]
+[node name="Stats" type="VBoxContainer" parent="Layout/Tabs"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 5.0
@@ -60,34 +61,34 @@ margin_right = -5.0
 margin_bottom = -5.0
 script = ExtResource( 3 )
 
-[node name="Tools" type="HBoxContainer" parent="Tabs/Stats"]
+[node name="Tools" type="HBoxContainer" parent="Layout/Tabs/Stats"]
 margin_right = 458.0
 margin_bottom = 22.0
 
-[node name="Label" type="Label" parent="Tabs/Stats/Tools"]
+[node name="Label" type="Label" parent="Layout/Tabs/Stats/Tools"]
 margin_right = 52.0
 margin_bottom = 22.0
 text = "Avatar:"
 
-[node name="Avatars" type="OptionButton" parent="Tabs/Stats/Tools"]
+[node name="Avatars" type="OptionButton" parent="Layout/Tabs/Stats/Tools"]
 margin_left = 56.0
 margin_right = 228.0
 margin_bottom = 22.0
 size_flags_horizontal = 3
 
-[node name="Dates" type="OptionButton" parent="Tabs/Stats/Tools"]
+[node name="Dates" type="OptionButton" parent="Layout/Tabs/Stats/Tools"]
 margin_left = 232.0
 margin_right = 404.0
 margin_bottom = 22.0
 size_flags_horizontal = 3
 
-[node name="Button" type="Button" parent="Tabs/Stats/Tools"]
+[node name="Button" type="Button" parent="Layout/Tabs/Stats/Tools"]
 margin_left = 408.0
 margin_right = 458.0
 margin_bottom = 22.0
 text = "Notes"
 
-[node name="List" type="Tree" parent="Tabs/Stats"]
+[node name="List" type="Tree" parent="Layout/Tabs/Stats"]
 margin_top = 26.0
 margin_right = 458.0
 margin_bottom = 542.0
@@ -97,14 +98,14 @@ hide_folding = true
 hide_root = true
 select_mode = 1
 
-[node name="Status" type="Label" parent="Tabs/Stats"]
+[node name="Status" type="Label" parent="Layout/Tabs/Stats"]
 margin_top = 546.0
 margin_right = 458.0
 margin_bottom = 568.0
 size_flags_vertical = 0
 align = 1
 
-[node name="Portals" type="Panel" parent="Tabs"]
+[node name="Portals" type="Panel" parent="Layout/Tabs"]
 visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -114,7 +115,7 @@ margin_right = -5.0
 margin_bottom = -5.0
 size_flags_vertical = 3
 
-[node name="Experience" type="VBoxContainer" parent="Tabs"]
+[node name="Experience" type="VBoxContainer" parent="Layout/Tabs"]
 visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -122,3 +123,15 @@ margin_left = 5.0
 margin_top = 29.0
 margin_right = -5.0
 margin_bottom = -5.0
+
+[node name="FileDialog" type="FileDialog" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = 143.0
+margin_bottom = -72.0
+popup_exclusive = true
+window_title = "Select Log Folder"
+mode = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
