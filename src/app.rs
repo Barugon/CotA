@@ -1,12 +1,14 @@
+use crate::util::*;
 use gdnative::*;
 
 #[derive(NativeClass)]
 #[inherit(Node)]
-#[register_with(Self::register_signals)]
 pub struct App {
+  config: Config,
   file: NodePath,
   _view: NodePath,
   _help: NodePath,
+  file_dialog: NodePath,
 }
 
 const LOG_FOLDER_ID: i64 = 0;
@@ -16,9 +18,11 @@ const QUIT_ID: i64 = 1;
 impl App {
   fn _init(_owner: Node) -> Self {
     App {
+      config: Config::new(),
       file: NodePath::from_str("Layout/Menu/File"),
       _view: NodePath::from_str("Layout/Menu/View"),
       _help: NodePath::from_str("Layout/Menu/Help"),
+      file_dialog: NodePath::from_str("FileDialog"),
     }
   }
 
@@ -52,12 +56,22 @@ impl App {
     }
   }
 
-  // Custom signal for log folder change.
-  fn register_signals(builder: &init::ClassBuilder<Self>) {
-    builder.add_signal(init::Signal {
-      name: "log_folder_change",
-      args: &[],
-    });
+  #[export]
+  fn file_menu_select(&self, owner: Node, id: i64) {
+    match id {
+      LOG_FOLDER_ID => unsafe {
+        if let Some(mut file_dialog) = self.get_file_dialog(owner) {
+          file_dialog.set_current_path(self.config.get_log_folder());
+          file_dialog.popup(Rect2::zero());
+        }
+      },
+      QUIT_ID => unsafe {
+        if let Some(mut scene) = owner.get_tree() {
+          scene.quit(0);
+        }
+      },
+      _ => {}
+    }
   }
 
   fn get_file(&self, owner: Node) -> Option<MenuButton> {
@@ -75,24 +89,18 @@ impl App {
     None
   }
 
-  #[export]
-  fn file_menu_select(&self, owner: Node, id: i64) {
-    match id {
-      LOG_FOLDER_ID => {
-        godot_print!("Log Folder pressed");
-        // unsafe {
-        //   _owner.emit_signal(
-        //     GodotString::from_str("log_folder_change"),
-        //     &[Variant::from_str("/home/barugon")],
-        //   );
-        // }
-      }
-      QUIT_ID => unsafe {
-        if let Some(mut scene) = owner.get_tree() {
-          scene.quit(0);
+  fn get_file_dialog(&self, owner: Node) -> Option<FileDialog> {
+    unsafe {
+      if let Some(file_dialog) = owner.get_node(self.file_dialog.new_ref()) {
+        let file_dialog = file_dialog.cast::<FileDialog>();
+        if file_dialog.is_none() {
+          godot_print!("Unable to cast node FileDialog as FileDialog");
         }
-      },
-      _ => {}
+        return file_dialog;
+      } else {
+        godot_print!("Unable to get node FileDialog");
+      }
     }
+    None
   }
 }

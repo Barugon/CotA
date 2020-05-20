@@ -13,6 +13,9 @@ margin_right = -6.0
 margin_bottom = -6.0
 theme = ExtResource( 2 )
 script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="Layout" type="VBoxContainer" parent="."]
 anchor_right = 1.0
@@ -127,11 +130,14 @@ margin_bottom = -5.0
 [node name="FileDialog" type="FileDialog" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_top = 143.0
-margin_bottom = -72.0
+margin_top = 125.0
+margin_bottom = -100.0
 popup_exclusive = true
 window_title = "Select Log Folder"
 mode = 2
+access = 2
+current_dir = "/home/barugon/Desktop/Dev/Projects/cota"
+current_path = "/home/barugon/Desktop/Dev/Projects/cota/"
 __meta__ = {
 "_edit_use_anchors_": false
 }

@@ -1,4 +1,5 @@
 use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
+use gdnative::*;
 use num_cpus;
 use num_format::Locale;
 use regex::Regex;
@@ -51,6 +52,56 @@ macro_rules! ok {
   }};
 }
 
+pub struct Config {
+  path: GodotString,
+  section: GodotString,
+  folder: GodotString,
+}
+
+impl Config {
+  pub fn new() -> Config {
+    Config {
+      path: GodotString::from_str("user://cota.cfg"),
+      section: GodotString::from_str("main"),
+      folder: GodotString::from_str("log_folder"),
+    }
+  }
+
+  pub fn get_log_folder(&self) -> GodotString {
+    let mut config = ConfigFile::new();
+    if config.load(self.path.new_ref()).is_ok() {
+      let value = config.get_value(
+        self.section.new_ref(),
+        self.folder.new_ref(),
+        Variant::new(),
+      );
+      if !value.is_nil() {
+        return value.to_godot_string();
+      }
+    }
+
+    if let Some(dir) = dirs::config_dir() {
+      let path = dir.join("Portalarium/Shroud of the Avatar/ChatLogs");
+      if let Some(path) = path.to_str() {
+        return GodotString::from_str(path);
+      }
+    };
+    GodotString::new()
+  }
+
+  pub fn set_log_folder(&self, folder: GodotString) {
+    let mut config = ConfigFile::new();
+    let _ = config.load(self.path.new_ref());
+    config.set_value(
+      self.section.new_ref(),
+      self.folder.new_ref(),
+      Variant::from_godot_string(&folder),
+    );
+
+    let _ = config.save(self.path.new_ref());
+  }
+}
+
 pub fn ascii_starts_with_ignore_case(container: &[u8], pattern: &[u8]) -> bool {
   if pattern.is_empty() || container.len() < pattern.len() {
     return false;
@@ -85,7 +136,7 @@ pub fn ascii_equals_ignore_case(left: &[u8], right: &[u8]) -> bool {
 }
 
 pub fn get_locale() -> Locale {
-  let name = gdnative::OS::godot_singleton().get_locale();
+  let name = OS::godot_singleton().get_locale();
   let name = name.to_utf8().as_str().replace('_', "-");
   let mut iter = Locale::available_names().iter();
 
@@ -271,10 +322,10 @@ pub struct LogData {
 }
 
 impl LogData {
-  pub fn new(folder: PathBuf) -> LogData {
+  pub fn new(folder: GodotString) -> LogData {
     let cpus = num_cpus::get();
     LogData {
-      folder: folder,
+      folder: PathBuf::from(folder.to_utf8().as_str()),
       pool: RefCell::new(ThreadPool::new(cpus)),
     }
   }

@@ -4,28 +4,28 @@ use gdnative::*;
 #[derive(NativeClass)]
 #[inherit(Node)]
 pub struct Stats {
+  config: Config,
   data: LogData,
-  main: NodePath,
   avatars: NodePath,
   dates: NodePath,
   list: NodePath,
   status: NodePath,
+  file_dialog: NodePath,
 }
 
 #[methods]
 impl Stats {
   fn _init(_owner: Node) -> Self {
-    let folder = match dirs::config_dir() {
-      Some(folder) => folder.join("Portalarium/Shroud of the Avatar/ChatLogs"),
-      None => std::path::PathBuf::new(),
-    };
+    let config = Config::new();
+    let folder = config.get_log_folder();
     Stats {
+      config: config,
       data: LogData::new(folder),
-      main: NodePath::from_str("/root/Main"),
       avatars: NodePath::from_str("Tools/Avatars"),
       dates: NodePath::from_str("Tools/Dates"),
       list: NodePath::from_str("List"),
       status: NodePath::from_str("Status"),
+      file_dialog: NodePath::from_str("/root/Main/FileDialog"),
     }
   }
 
@@ -33,18 +33,6 @@ impl Stats {
   fn _ready(&mut self, owner: Node) {
     unsafe {
       let object = &owner.to_object();
-      if let Some(mut main) = self.get_main(owner) {
-        if let Err(err) = main.connect(
-          GodotString::from_str("log_folder_change"),
-          Some(*object),
-          GodotString::from_str("set_log_folder"),
-          VariantArray::new(),
-          0,
-        ) {
-          godot_print!("Unable to connect set_log_folder: {:?}", err);
-        }
-      }
-
       let signal = GodotString::from_str("item_selected");
       if let Some(mut avatars) = self.get_avatars(owner) {
         if let Err(err) = avatars.connect(
@@ -69,6 +57,19 @@ impl Stats {
           godot_print!("Unable to connect date_changed: {:?}", err);
         }
       }
+
+      if let Some(mut file_dialog) = self.get_file_dialog(owner) {
+        if let Err(err) = file_dialog.connect(
+          GodotString::from_str("dir_selected"),
+          Some(*object),
+          GodotString::from_str("set_log_folder"),
+          VariantArray::new(),
+          0,
+        ) {
+          godot_print!("Unable to connect set_log_folder: {:?}", err);
+        }
+      }
+
       if let Some(mut list) = self.get_list(owner) {
         list.set_column_expand(0, true);
         list.set_column_min_width(0, 3);
@@ -109,19 +110,9 @@ impl Stats {
 
   #[export]
   fn set_log_folder(&mut self, owner: Node, folder: GodotString) {
-    let path = std::path::Path::new(folder.to_utf8().as_str()).to_path_buf();
-    self.data = LogData::new(path);
+    self.data = LogData::new(folder.new_ref());
+    self.config.set_log_folder(folder);
     self.populate_avatars(owner);
-  }
-
-  fn get_main(&self, owner: Node) -> Option<Node> {
-    unsafe {
-      let main = owner.get_node(self.main.new_ref());
-      if main.is_none() {
-        godot_print!("Unable to get node Main");
-      }
-      main
-    }
   }
 
   fn get_avatars(&self, owner: Node) -> Option<OptionButton> {
@@ -315,5 +306,20 @@ impl Stats {
         }
       }
     }
+  }
+
+  fn get_file_dialog(&self, owner: Node) -> Option<FileDialog> {
+    unsafe {
+      if let Some(file_dialog) = owner.get_node(self.file_dialog.new_ref()) {
+        let file_dialog = file_dialog.cast::<FileDialog>();
+        if file_dialog.is_none() {
+          godot_print!("Unable to cast node FileDialog as FileDialog");
+        }
+        return file_dialog;
+      } else {
+        godot_print!("Unable to get node FileDialog");
+      }
+    }
+    None
   }
 }
