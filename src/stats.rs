@@ -1,3 +1,4 @@
+use crate::menu::*;
 use crate::util::*;
 use gdnative::*;
 
@@ -80,6 +81,23 @@ impl Stats {
       }
     }
     self.populate_avatars(owner);
+  }
+
+  #[export]
+  fn view_menu_select(&mut self, owner: Node, id: i64) {
+    match id {
+      REFRESH_ID => self.populate_avatars(owner),
+      RESISTS_ID => {
+        godot_print!("Effective Resists");
+      }
+      FILTER_ID => {
+        godot_print!("Filter Stats...");
+      }
+      RESET_ID => {
+        godot_print!("Reset View");
+      }
+      _ => {}
+    }
   }
 
   #[export]

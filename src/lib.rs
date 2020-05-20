@@ -2,6 +2,7 @@
 mod util;
 
 mod app;
+mod menu;
 mod stats;
 
 use crate::app::*;
