@@ -62,11 +62,11 @@ impl Stats {
         if let Err(err) = file_dialog.connect(
           GodotString::from_str("dir_selected"),
           Some(*object),
-          GodotString::from_str("set_log_folder"),
+          GodotString::from_str("log_folder_changed"),
           VariantArray::new(),
           0,
         ) {
-          godot_print!("Unable to connect set_log_folder: {:?}", err);
+          godot_print!("Unable to connect log_folder_changed: {:?}", err);
         }
       }
 
@@ -109,7 +109,7 @@ impl Stats {
   }
 
   #[export]
-  fn set_log_folder(&mut self, owner: Node, folder: GodotString) {
+  fn log_folder_changed(&mut self, owner: Node, folder: GodotString) {
     self.data = LogData::new(folder.new_ref());
     self.config.set_log_folder(folder);
     self.populate_avatars(owner);
