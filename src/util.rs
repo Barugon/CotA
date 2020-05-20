@@ -52,20 +52,49 @@ macro_rules! ok {
   }};
 }
 
+pub trait OptionButtonText {
+  fn find_item_index(&self, text: GodotString) -> Option<i64>;
+  fn select_item(&mut self, text: GodotString) -> bool;
+}
+
+impl OptionButtonText for OptionButton {
+  fn find_item_index(&self, text: GodotString) -> Option<i64> {
+    let count = unsafe { self.get_item_count() };
+    for index in 0..count {
+      let item_text = unsafe { self.get_item_text(index) };
+      if item_text == text {
+        return Some(index);
+      }
+    }
+    None
+  }
+
+  fn select_item(&mut self, text: GodotString) -> bool {
+    if let Some(index) = self.find_item_index(text) {
+      unsafe {
+        self.select(index);
+      }
+      return true;
+    }
+    false
+  }
+}
+
 pub struct Config {
-  log_path: GodotString,
+  log_path: Option<GodotString>,
   cfg_path: GodotString,
   section: GodotString,
-  folder_item: GodotString,
+  folder_key: GodotString,
+  avatar_key: GodotString,
 }
 
 impl Config {
   pub fn new() -> Config {
-    let mut log_path = GodotString::new();
+    let mut log_path = None;
     if let Some(dir) = dirs::config_dir() {
       let path = dir.join("Portalarium/Shroud of the Avatar/ChatLogs");
       if let Some(path) = path.to_str() {
-        log_path = GodotString::from_str(path);
+        log_path = Some(GodotString::from_str(path));
       }
     }
 
@@ -73,37 +102,66 @@ impl Config {
       log_path: log_path,
       cfg_path: GodotString::from_str("user://settings.cfg"),
       section: GodotString::from_str("main"),
-      folder_item: GodotString::from_str("log_folder"),
+      folder_key: GodotString::from_str("log_folder"),
+      avatar_key: GodotString::from_str("avatar"),
     }
   }
 
-  pub fn get_log_folder(&self) -> GodotString {
-    // Check for a log folder path in the config.
+  pub fn get_log_folder(&self) -> Option<GodotString> {
+    if let Some(folder) = self.get_value(self.folder_key.new_ref()) {
+      return Some(folder);
+    } else if let Some(folder) = &self.log_path {
+      return Some(folder.new_ref());
+    }
+    None
+  }
+
+  pub fn set_log_folder(&self, folder: Option<GodotString>) {
+    self.set_value(self.folder_key.new_ref(), folder);
+  }
+
+  pub fn get_avatar(&self) -> Option<GodotString> {
+    self.get_value(self.avatar_key.new_ref())
+  }
+
+  pub fn set_avatar(&self, avatar: Option<GodotString>) {
+    self.set_value(self.avatar_key.new_ref(), avatar);
+  }
+
+  pub fn _get_notes(&self, avatar: GodotString) -> Option<GodotString> {
+    if !avatar.is_empty() {}
+    None
+  }
+
+  pub fn _set_notes(&self, avatar: GodotString, _notes: Option<GodotString>) {
+    if !avatar.is_empty() {}
+  }
+
+  fn get_value(&self, key: GodotString) -> Option<GodotString> {
     let mut config = ConfigFile::new();
     if !self.cfg_path.is_empty() && config.load(self.cfg_path.new_ref()).is_ok() {
-      let value = config.get_value(
-        self.section.new_ref(),
-        self.folder_item.new_ref(),
-        Variant::new(),
-      );
-      if !value.is_nil() {
-        return value.to_godot_string();
+      if config.has_section_key(self.section.new_ref(), key.new_ref()) {
+        let value = config.get_value(self.section.new_ref(), key.new_ref(), Variant::new());
+        if !value.is_nil() {
+          return Some(value.to_godot_string());
+        }
       }
     }
-
-    // Use the default.
-    self.log_path.new_ref()
+    None
   }
 
-  pub fn set_log_folder(&self, folder: GodotString) {
+  fn set_value(&self, key: GodotString, value: Option<GodotString>) {
     let mut config = ConfigFile::new();
     let _ = config.load(self.cfg_path.new_ref());
-    config.set_value(
-      self.section.new_ref(),
-      self.folder_item.new_ref(),
-      Variant::from_godot_string(&folder),
-    );
-
+    if let Some(value) = value {
+      config.set_value(
+        self.section.new_ref(),
+        key.new_ref(),
+        Variant::from_godot_string(&value),
+      );
+    } else if config.has_section_key(self.section.new_ref(), key.new_ref()) {
+      config.erase_section_key(self.section.new_ref(), key.new_ref());
+    }
     let _ = config.save(self.cfg_path.new_ref());
   }
 }

@@ -17,7 +17,11 @@ pub struct Stats {
 impl Stats {
   fn _init(_owner: Node) -> Self {
     let config = Config::new();
-    let folder = config.get_log_folder();
+    let folder = if let Some(folder) = config.get_log_folder() {
+      folder
+    } else {
+      GodotString::new()
+    };
     Stats {
       config: config,
       data: LogData::new(folder),
@@ -83,6 +87,8 @@ impl Stats {
     if let Some(avatars) = self.get_avatars(owner) {
       unsafe {
         let avatar = avatars.get_item_text(item);
+        self.config.set_avatar(Some(avatar.new_ref()));
+
         if !avatar.is_empty() {
           self.populate_dates(owner, Some(avatar.to_utf8().as_str()));
           return;
@@ -111,7 +117,7 @@ impl Stats {
   #[export]
   fn log_folder_changed(&mut self, owner: Node, folder: GodotString) {
     self.data = LogData::new(folder.new_ref());
-    self.config.set_log_folder(folder);
+    self.config.set_log_folder(Some(folder));
     self.populate_avatars(owner);
   }
 
@@ -141,7 +147,11 @@ impl Stats {
         }
 
         if avatars.get_item_count() > 0 {
-          let avatar = avatars.get_item_text(0);
+          if let Some(avatar) = self.config.get_avatar() {
+            avatars.select_item(avatar);
+          }
+
+          let avatar = avatars.get_item_text(avatars.get_selected());
           if !avatar.is_empty() {
             self.populate_dates(owner, Some(avatar.to_utf8().as_str()));
             return;

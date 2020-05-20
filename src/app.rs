@@ -63,8 +63,10 @@ impl App {
     match id {
       LOG_FOLDER_ID => unsafe {
         if let Some(mut file_dialog) = self.get_file_dialog(owner) {
+          if let Some(folder) = self.config.get_log_folder() {
+            file_dialog.set_current_path(folder);
+          }
           file_dialog.set_title(self.file_dialog_title.new_ref());
-          file_dialog.set_current_path(self.config.get_log_folder());
           file_dialog.popup(Rect2::zero());
         }
       },
