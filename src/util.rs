@@ -53,26 +53,37 @@ macro_rules! ok {
 }
 
 pub struct Config {
-  path: GodotString,
+  log_path: GodotString,
+  cfg_path: GodotString,
   section: GodotString,
-  folder: GodotString,
+  folder_item: GodotString,
 }
 
 impl Config {
   pub fn new() -> Config {
+    let mut log_path = GodotString::new();
+    if let Some(dir) = dirs::config_dir() {
+      let path = dir.join("Portalarium/Shroud of the Avatar/ChatLogs");
+      if let Some(path) = path.to_str() {
+        log_path = GodotString::from_str(path);
+      }
+    }
+
     Config {
-      path: GodotString::from_str("user://cota.cfg"),
+      log_path: log_path,
+      cfg_path: GodotString::from_str("user://settings.cfg"),
       section: GodotString::from_str("main"),
-      folder: GodotString::from_str("log_folder"),
+      folder_item: GodotString::from_str("log_folder"),
     }
   }
 
   pub fn get_log_folder(&self) -> GodotString {
+    // Check for a log folder path in the config.
     let mut config = ConfigFile::new();
-    if config.load(self.path.new_ref()).is_ok() {
+    if !self.cfg_path.is_empty() && config.load(self.cfg_path.new_ref()).is_ok() {
       let value = config.get_value(
         self.section.new_ref(),
-        self.folder.new_ref(),
+        self.folder_item.new_ref(),
         Variant::new(),
       );
       if !value.is_nil() {
@@ -80,25 +91,20 @@ impl Config {
       }
     }
 
-    if let Some(dir) = dirs::config_dir() {
-      let path = dir.join("Portalarium/Shroud of the Avatar/ChatLogs");
-      if let Some(path) = path.to_str() {
-        return GodotString::from_str(path);
-      }
-    };
-    GodotString::new()
+    // Use the default.
+    self.log_path.new_ref()
   }
 
   pub fn set_log_folder(&self, folder: GodotString) {
     let mut config = ConfigFile::new();
-    let _ = config.load(self.path.new_ref());
+    let _ = config.load(self.cfg_path.new_ref());
     config.set_value(
       self.section.new_ref(),
-      self.folder.new_ref(),
+      self.folder_item.new_ref(),
       Variant::from_godot_string(&folder),
     );
 
-    let _ = config.save(self.path.new_ref());
+    let _ = config.save(self.cfg_path.new_ref());
   }
 }
 

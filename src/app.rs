@@ -9,6 +9,7 @@ pub struct App {
   _view: NodePath,
   _help: NodePath,
   file_dialog: NodePath,
+  file_dialog_title: GodotString,
 }
 
 const LOG_FOLDER_ID: i64 = 0;
@@ -23,6 +24,7 @@ impl App {
       _view: NodePath::from_str("Layout/Menu/View"),
       _help: NodePath::from_str("Layout/Menu/Help"),
       file_dialog: NodePath::from_str("FileDialog"),
+      file_dialog_title: GodotString::from_str("Select Log Folder"),
     }
   }
 
@@ -61,6 +63,7 @@ impl App {
     match id {
       LOG_FOLDER_ID => unsafe {
         if let Some(mut file_dialog) = self.get_file_dialog(owner) {
+          file_dialog.set_title(self.file_dialog_title.new_ref());
           file_dialog.set_current_path(self.config.get_log_folder());
           file_dialog.popup(Rect2::zero());
         }
