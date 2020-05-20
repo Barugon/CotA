@@ -4,7 +4,12 @@ use num_cpus;
 use num_format::Locale;
 use regex::Regex;
 use std::{
-  cell::RefCell, collections::HashSet, fs, path::Path, path::PathBuf, str::SplitWhitespace,
+  cell::RefCell,
+  cmp::Ordering,
+  collections::HashSet,
+  fs,
+  path::{Path, PathBuf},
+  str::SplitWhitespace,
 };
 use thread_pool::*;
 
@@ -166,7 +171,7 @@ impl Config {
   }
 }
 
-pub fn ascii_starts_with_ignore_case(container: &[u8], pattern: &[u8]) -> bool {
+pub fn _ascii_starts_with_ignore_case(container: &[u8], pattern: &[u8]) -> bool {
   if pattern.is_empty() || container.len() < pattern.len() {
     return false;
   }
@@ -184,7 +189,7 @@ pub fn _ascii_contains_ignore_case(container: &[u8], pattern: &[u8]) -> bool {
   if !pattern.is_empty() {
     let mut container = container;
     while container.len() >= pattern.len() {
-      if ascii_starts_with_ignore_case(container, pattern) {
+      if _ascii_starts_with_ignore_case(container, pattern) {
         return true;
       }
 
@@ -195,18 +200,40 @@ pub fn _ascii_contains_ignore_case(container: &[u8], pattern: &[u8]) -> bool {
   false
 }
 
-pub fn ascii_equals_ignore_case(left: &[u8], right: &[u8]) -> bool {
-  left.len() == right.len() && ascii_starts_with_ignore_case(left, right)
+pub fn _ascii_equals_ignore_case(left: &[u8], right: &[u8]) -> bool {
+  left.len() == right.len() && _ascii_starts_with_ignore_case(left, right)
+}
+
+pub fn ascii_compare_ignore_case(left: &[u8], right: &[u8]) -> Ordering {
+  let mut il = left.iter();
+  let mut ir = right.iter();
+  loop {
+    if let Some(cl) = il.next() {
+      if let Some(cr) = ir.next() {
+        match cl.to_ascii_lowercase().cmp(&cr.to_ascii_lowercase()) {
+          Ordering::Less => return Ordering::Less,
+          Ordering::Equal => continue,
+          Ordering::Greater => return Ordering::Greater,
+        }
+      }
+    }
+    return left.len().cmp(&right.len());
+  }
 }
 
 pub fn get_locale() -> Locale {
-  let name = OS::godot_singleton().get_locale();
-  let name = name.to_utf8().as_str().replace('_', "-");
-  let mut iter = Locale::available_names().iter();
+  let names = Locale::available_names();
+  let name = OS::godot_singleton()
+    .get_locale()
+    .to_utf8()
+    .as_str()
+    .replace('_', "-");
 
   // Search for an exact match.
-  if let Some(name) = iter.find(|n| ascii_equals_ignore_case(n.as_bytes(), name.as_bytes())) {
-    if let Ok(locale) = Locale::from_name(name) {
+  if let Ok(pos) =
+    names.binary_search_by(|n| ascii_compare_ignore_case(n.as_bytes(), name.as_bytes()))
+  {
+    if let Ok(locale) = Locale::from_name(names[pos]) {
       return locale;
     }
   } else {
