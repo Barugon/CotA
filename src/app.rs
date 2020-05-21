@@ -27,7 +27,7 @@ impl App {
   #[export]
   fn _ready(&self, owner: Node) {
     unsafe {
-      // Connect the file menu.
+      // Connect the file menu and set shortcuts.
       owner.connect_to(&self.file, "id_pressed", "file_menu_select");
       if let Some(button) = owner.get_node_as::<MenuButton>(&self.file) {
         if let Some(popup) = button.get_popup() {
