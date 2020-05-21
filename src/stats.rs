@@ -24,6 +24,26 @@ enum StatOpts<'a> {
   Filter(&'a str),
 }
 
+struct BgColor {
+  alt: bool,
+}
+
+impl BgColor {
+  fn new() -> Self {
+    Self { alt: false }
+  }
+
+  fn get(&mut self) -> Color {
+    if self.alt {
+      self.alt = false;
+      Color::rgb(0.16, 0.16, 0.16)
+    } else {
+      self.alt = true;
+      Color::rgb(0.18, 0.18, 0.18)
+    }
+  }
+}
+
 #[methods]
 impl Stats {
   fn _init(_owner: Node) -> Self {
@@ -283,7 +303,7 @@ impl Stats {
         if let Some(stats) = self.data.get_stats(avatar, ts) {
           if let Some(parent) = tree.create_item(None, -1) {
             let locale = get_locale();
-            let mut alt_bg = false;
+            let mut bg_color = BgColor::new();
 
             match opts {
               StatOpts::Resists => {
@@ -371,13 +391,8 @@ impl Stats {
                       let name = RESIST_NAMES[pos];
                       let value = value.to_display_string(&locale);
                       let tip = GodotString::from_str(&format!("{} = {}", name, value));
-                      let bg = if alt_bg {
-                        alt_bg = false;
-                        Color::rgb(0.16, 0.16, 0.16)
-                      } else {
-                        alt_bg = true;
-                        Color::rgb(0.18, 0.18, 0.18)
-                      };
+                      let bg = bg_color.get();
+
                       item.set_selectable(0, false);
                       item.set_selectable(1, false);
                       item.set_custom_bg_color(0, bg, false);
@@ -411,13 +426,8 @@ impl Stats {
                     if let Some(mut item) = tree.create_item(parent.cast::<Object>(), -1) {
                       let value = &num.to_display_string(&locale);
                       let tip = GodotString::from_str(&format!("{} = {}", name, value));
-                      let bg = if alt_bg {
-                        alt_bg = false;
-                        Color::rgb(0.16, 0.16, 0.16)
-                      } else {
-                        alt_bg = true;
-                        Color::rgb(0.18, 0.18, 0.18)
-                      };
+                      let bg = bg_color.get();
+
                       item.set_selectable(0, false);
                       item.set_selectable(1, false);
                       item.set_custom_bg_color(0, bg, false);
