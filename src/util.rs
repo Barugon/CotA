@@ -57,6 +57,31 @@ macro_rules! ok {
   }};
 }
 
+pub struct Cycle<T> {
+  index: usize,
+  values: Vec<T>,
+}
+
+impl<T> Cycle<T> {
+  pub fn new(values: Vec<T>) -> Self {
+    assert!(!values.is_empty());
+    Self {
+      index: 0,
+      values: values,
+    }
+  }
+
+  pub fn get(&mut self) -> &T {
+    let index = self.index;
+    self.index = self.index + 1;
+    if self.index >= self.values.len() {
+      self.index = 0;
+    }
+
+    &self.values[index]
+  }
+}
+
 pub trait OptionButtonText {
   fn find_item_index(&self, text: GodotString) -> Option<i64>;
   fn select_item(&mut self, text: GodotString) -> bool;

@@ -24,26 +24,6 @@ enum StatOpts<'a> {
   Filter(&'a str),
 }
 
-struct BgColor {
-  alt: bool,
-}
-
-impl BgColor {
-  fn new() -> Self {
-    Self { alt: false }
-  }
-
-  fn get(&mut self) -> Color {
-    if self.alt {
-      self.alt = false;
-      Color::rgb(0.16, 0.16, 0.16)
-    } else {
-      self.alt = true;
-      Color::rgb(0.18, 0.18, 0.18)
-    }
-  }
-}
-
 #[methods]
 impl Stats {
   fn _init(_owner: Node) -> Self {
@@ -70,7 +50,7 @@ impl Stats {
   #[export]
   fn _ready(&mut self, owner: Node) {
     unsafe {
-      // Connect the view menu.
+      // Connect the view menu and set shortcuts.
       owner.connect_to(&self.view, "id_pressed", "view_menu_select");
       if let Some(button) = owner.get_node_as::<MenuButton>(&self.view) {
         if let Some(popup) = button.get_popup() {
@@ -303,7 +283,10 @@ impl Stats {
         if let Some(stats) = self.data.get_stats(avatar, ts) {
           if let Some(parent) = tree.create_item(None, -1) {
             let locale = get_locale();
-            let mut bg_color = BgColor::new();
+            let mut bg_color = Cycle::new(vec![
+              Color::rgb(0.18, 0.18, 0.18),
+              Color::rgb(0.16, 0.16, 0.16),
+            ]);
 
             match opts {
               StatOpts::Resists => {
@@ -363,14 +346,12 @@ impl Stats {
                 for (name, value) in stats.iter() {
                   if let Some((key, mul)) = resist_stats.get(name) {
                     // Stats possibly use ',' as the decimal separator depending on locale.
-                    if let Ok(mut val) = value.replacen(',', ".", 1).parse::<f64>() {
-                      val *= mul;
-
-                      if let Some(resist) = resist_values.get(key) {
-                        val += resist;
+                    if let Ok(val) = value.replacen(',', ".", 1).parse::<f64>() {
+                      if let Some(resist) = resist_values.get_mut(key) {
+                        *resist += val * mul;
+                      } else {
+                        resist_values.insert(*key, val * mul);
                       }
-
-                      resist_values.insert(*key, val);
                     }
                   }
                 }
@@ -391,7 +372,7 @@ impl Stats {
                       let name = RESIST_NAMES[pos];
                       let value = value.to_display_string(&locale);
                       let tip = GodotString::from_str(&format!("{} = {}", name, value));
-                      let bg = bg_color.get();
+                      let bg = *bg_color.get();
 
                       item.set_selectable(0, false);
                       item.set_selectable(1, false);
@@ -422,11 +403,12 @@ impl Stats {
                     }
                   }
 
+                  // Stats possibly use ',' as the decimal separator depending on locale.
                   if let Ok(num) = value.replacen(',', ".", 1).parse::<f64>() {
                     if let Some(mut item) = tree.create_item(parent.cast::<Object>(), -1) {
                       let value = &num.to_display_string(&locale);
                       let tip = GodotString::from_str(&format!("{} = {}", name, value));
-                      let bg = bg_color.get();
+                      let bg = *bg_color.get();
 
                       item.set_selectable(0, false);
                       item.set_selectable(1, false);
@@ -461,10 +443,10 @@ impl Stats {
 
   fn set_status_message(&self, owner: Node, text: Option<&str>) {
     unsafe {
-      if let Some(mut status) = owner.get_node_as::<Label>(&self.status) {
+      if let Some(mut label) = owner.get_node_as::<Label>(&self.status) {
         match text {
-          Some(text) => status.set_text(GodotString::from_str(text)),
-          None => status.set_text(GodotString::new()),
+          Some(text) => label.set_text(GodotString::from_str(text)),
+          None => label.set_text(GodotString::new()),
         }
       }
     }
