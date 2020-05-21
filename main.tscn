@@ -184,9 +184,9 @@ anchor_bottom = 1.0
 margin_left = 8.0
 margin_top = 8.0
 margin_right = -8.0
-margin_bottom = -39.0
+margin_bottom = -38.0
 
 [node name="TextEdit" type="TextEdit" parent="NotesDialog/VBoxContainer"]
 margin_right = 352.0
-margin_bottom = 328.0
+margin_bottom = 329.0
 size_flags_vertical = 3

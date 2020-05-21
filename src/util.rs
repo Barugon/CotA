@@ -85,6 +85,83 @@ impl OptionButtonText for OptionButton {
   }
 }
 
+pub trait GetNode {
+  fn get_node_as<T: GodotObject>(self, path: &NodePath) -> Option<T>;
+}
+
+impl GetNode for Node {
+  fn get_node_as<T: GodotObject>(self, path: &NodePath) -> Option<T> {
+    unsafe {
+      if let Some(node) = self.get_node(path.new_ref()) {
+        let node = node.cast::<T>();
+        if node.is_none() {
+          let name = path.to_godot_string();
+          godot_print!(
+            "Unable to cast node {} as {:?}",
+            name.to_utf8().as_str(),
+            std::any::type_name::<T>()
+          );
+        }
+        return node;
+      } else {
+        let name = path.to_godot_string();
+        godot_print!("Unable to get node {}", name.to_utf8().as_str());
+      }
+    }
+    None
+  }
+}
+
+pub trait ConnectTo {
+  fn connect_to(self, path: &NodePath, signal: &str, slot: &str) -> bool;
+}
+
+impl ConnectTo for Node {
+  fn connect_to(self, path: &NodePath, signal: &str, slot: &str) -> bool {
+    unsafe {
+      if let Some(mut node) = self.get_node(path.new_ref()) {
+        // Get the popup is this is a menu button.
+        if let Some(button) = node.cast::<MenuButton>() {
+          if let Some(popup) = button.get_popup() {
+            node = popup.to_node();
+          }
+        }
+
+        if let Err(err) = node.connect(
+          GodotString::from_str(signal),
+          Some(self.to_object()),
+          GodotString::from_str(slot),
+          VariantArray::new(),
+          0,
+        ) {
+          godot_print!("Unable to connect {}: {:?}", slot, err);
+        } else {
+          return true;
+        }
+      } else {
+        let name = path.to_godot_string();
+        godot_print!("Unable to get node {}", name.to_utf8().as_str());
+      }
+    }
+    false
+  }
+}
+
+pub trait SetShortcut {
+  fn set_shortcut(self, id: i64, key: i64, ctrl: bool);
+}
+
+impl SetShortcut for PopupMenu {
+  fn set_shortcut(mut self, id: i64, key: i64, ctrl: bool) {
+    let mut input = InputEventKey::new();
+    input.set_control(ctrl);
+    input.set_scancode(key);
+    unsafe {
+      self.set_item_accelerator(self.get_item_index(id), input.get_scancode_with_modifiers());
+    }
+  }
+}
+
 pub struct Config {
   log_path: Option<GodotString>,
   cfg_path: GodotString,
