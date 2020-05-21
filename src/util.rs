@@ -110,11 +110,11 @@ impl OptionButtonText for OptionButton {
   }
 }
 
-pub trait GetNode {
+pub trait GetNodeAs {
   fn get_node_as<T: GodotObject>(self, path: &NodePath) -> Option<T>;
 }
 
-impl GetNode for Node {
+impl GetNodeAs for Node {
   fn get_node_as<T: GodotObject>(self, path: &NodePath) -> Option<T> {
     unsafe {
       if let Some(node) = self.get_node(path.new_ref()) {
