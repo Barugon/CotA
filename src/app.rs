@@ -127,7 +127,7 @@ impl App {
             file_dialog.set_current_path(folder);
           }
           file_dialog.set_title(self.file_dialog_title.new_ref());
-          file_dialog.popup(Rect2::zero());
+          file_dialog.popup_centered(Vector2::zero());
         }
       },
       QUIT_ID => unsafe {

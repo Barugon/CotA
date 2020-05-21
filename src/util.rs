@@ -171,7 +171,7 @@ impl Config {
   }
 }
 
-pub fn _ascii_starts_with_ignore_case(container: &[u8], pattern: &[u8]) -> bool {
+pub fn ascii_starts_with_ignore_case(container: &[u8], pattern: &[u8]) -> bool {
   if pattern.is_empty() || container.len() < pattern.len() {
     return false;
   }
@@ -185,11 +185,11 @@ pub fn _ascii_starts_with_ignore_case(container: &[u8], pattern: &[u8]) -> bool 
   return true;
 }
 
-pub fn _ascii_contains_ignore_case(container: &[u8], pattern: &[u8]) -> bool {
+pub fn ascii_contains_ignore_case(container: &[u8], pattern: &[u8]) -> bool {
   if !pattern.is_empty() {
     let mut container = container;
     while container.len() >= pattern.len() {
-      if _ascii_starts_with_ignore_case(container, pattern) {
+      if ascii_starts_with_ignore_case(container, pattern) {
         return true;
       }
 
@@ -201,7 +201,7 @@ pub fn _ascii_contains_ignore_case(container: &[u8], pattern: &[u8]) -> bool {
 }
 
 pub fn _ascii_equals_ignore_case(left: &[u8], right: &[u8]) -> bool {
-  left.len() == right.len() && _ascii_starts_with_ignore_case(left, right)
+  left.len() == right.len() && ascii_starts_with_ignore_case(left, right)
 }
 
 pub fn ascii_compare_ignore_case(left: &[u8], right: &[u8]) -> Ordering {

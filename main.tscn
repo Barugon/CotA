@@ -91,7 +91,7 @@ margin_right = 458.0
 margin_bottom = 22.0
 text = "Notes"
 
-[node name="List" type="Tree" parent="Layout/Tabs/Stats"]
+[node name="Tree" type="Tree" parent="Layout/Tabs/Stats"]
 margin_top = 26.0
 margin_right = 458.0
 margin_bottom = 542.0
@@ -127,7 +127,7 @@ margin_top = 29.0
 margin_right = -5.0
 margin_bottom = -5.0
 
-[node name="FileDialog" type="FileDialog" parent="."]
+[node name="FolderDialog" type="FileDialog" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_top = 125.0
@@ -141,3 +141,29 @@ current_path = "/home/barugon/Desktop/Dev/Projects/cota/"
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="FilterDialog" type="ConfirmationDialog" parent="."]
+margin_left = 117.0
+margin_top = 274.0
+margin_right = 348.0
+margin_bottom = 344.0
+popup_exclusive = true
+window_title = "Filter Stats..."
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBoxContainer" type="VBoxContainer" parent="FilterDialog"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = -38.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="FilterText" type="LineEdit" parent="FilterDialog/VBoxContainer"]
+margin_right = 215.0
+margin_bottom = 22.0
