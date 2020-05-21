@@ -141,25 +141,16 @@ impl Stats {
         }
       }
       RESET_ID => {
-        if let Some(mut dialog) = self.get_filter_dialog(owner) {
-          // The filter dialog is up. Since the escape key was
-          // pressed, close the dialog instead of resetting
-          // the stats view.
-          unsafe {
-            if dialog.is_visible() {
-              dialog.hide();
-              return;
+        if !self.close_dialogs(owner) {
+          if let Some(avatar) = self.get_current_avatar(owner) {
+            if let Some(ts) = self.get_current_date(owner) {
+              self.populate_stats_tree(
+                owner,
+                Some(avatar.to_utf8().as_str()),
+                Some(ts),
+                StatOpts::None,
+              );
             }
-          }
-        }
-        if let Some(avatar) = self.get_current_avatar(owner) {
-          if let Some(ts) = self.get_current_date(owner) {
-            self.populate_stats_tree(
-              owner,
-              Some(avatar.to_utf8().as_str()),
-              Some(ts),
-              StatOpts::None,
-            );
           }
         }
       }
@@ -352,7 +343,13 @@ impl Stats {
     None
   }
 
-  fn populate_stats_tree(&self, owner: Node, avatar: Option<&str>, ts: Option<i64>, opts: StatOpts) {
+  fn populate_stats_tree(
+    &self,
+    owner: Node,
+    avatar: Option<&str>,
+    ts: Option<i64>,
+    opts: StatOpts,
+  ) {
     self.set_status_message(owner, None);
     unsafe {
       let mut tree = some!(self.get_stats_tree(owner));
@@ -594,5 +591,27 @@ impl Stats {
       }
     }
     None
+  }
+
+  fn close_dialogs(&self, owner: Node) -> bool {
+    if let Some(mut dialog) = self.get_folder_dialog(owner) {
+      unsafe {
+        if dialog.is_visible() {
+          dialog.hide();
+          return true;
+        }
+      }
+    }
+
+    if let Some(mut dialog) = self.get_filter_dialog(owner) {
+      unsafe {
+        if dialog.is_visible() {
+          dialog.hide();
+          return true;
+        }
+      }
+    }
+
+    false
   }
 }

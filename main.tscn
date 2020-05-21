@@ -167,3 +167,7 @@ __meta__ = {
 [node name="FilterText" type="LineEdit" parent="FilterDialog/VBoxContainer"]
 margin_right = 215.0
 margin_bottom = 22.0
+
+[node name="NotesDialog" type="ConfirmationDialog" parent="."]
+margin_right = 200.0
+margin_bottom = 70.0

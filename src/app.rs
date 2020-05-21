@@ -23,7 +23,7 @@ impl App {
       view: NodePath::from_str("Layout/Menu/View"),
       help: NodePath::from_str("Layout/Menu/Help"),
       stats: NodePath::from_str("Layout/Tabs/Stats"),
-      file_dialog: NodePath::from_str("FileDialog"),
+      file_dialog: NodePath::from_str("FolderDialog"),
       file_dialog_title: GodotString::from_str("Select Log Folder"),
     }
   }
@@ -169,11 +169,11 @@ impl App {
       if let Some(file_dialog) = owner.get_node(self.file_dialog.new_ref()) {
         let file_dialog = file_dialog.cast::<FileDialog>();
         if file_dialog.is_none() {
-          godot_print!("Unable to cast node FileDialog as FileDialog");
+          godot_print!("Unable to cast node FolderDialog as FileDialog");
         }
         return file_dialog;
       } else {
-        godot_print!("Unable to get node FileDialog");
+        godot_print!("Unable to get node FolderDialog");
       }
     }
     None
