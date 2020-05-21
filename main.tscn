@@ -164,7 +164,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="FilterText" type="LineEdit" parent="FilterDialog/VBoxContainer"]
+[node name="FilterEdit" type="LineEdit" parent="FilterDialog/VBoxContainer"]
 margin_right = 215.0
 margin_bottom = 22.0
 
@@ -186,7 +186,7 @@ margin_top = 8.0
 margin_right = -8.0
 margin_bottom = -38.0
 
-[node name="TextEdit" type="TextEdit" parent="NotesDialog/VBoxContainer"]
+[node name="NotesEdit" type="TextEdit" parent="NotesDialog/VBoxContainer"]
 margin_right = 352.0
 margin_bottom = 329.0
 size_flags_vertical = 3

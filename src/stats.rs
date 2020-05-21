@@ -43,7 +43,7 @@ impl Stats {
       status: NodePath::from_str("Status"),
       folder_dialog: NodePath::from_str("/root/Main/FolderDialog"),
       filter_dialog: NodePath::from_str("/root/Main/FilterDialog"),
-      filter_edit: NodePath::from_str("/root/Main/FilterDialog/VBoxContainer/FilterText"),
+      filter_edit: NodePath::from_str("/root/Main/FilterDialog/VBoxContainer/FilterEdit"),
     }
   }
 
