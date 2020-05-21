@@ -145,7 +145,7 @@ impl ConnectTo for Node {
   fn connect_to(self, path: &NodePath, signal: &str, slot: &str) -> bool {
     unsafe {
       if let Some(mut node) = self.get_node(path.new_ref()) {
-        // Get the popup is this is a menu button.
+        // Get the popup if this is a menu button.
         if let Some(button) = node.cast::<MenuButton>() {
           if let Some(popup) = button.get_popup() {
             node = popup.to_node();
