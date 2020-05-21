@@ -371,7 +371,6 @@ impl Stats {
                     if let Some(mut item) = tree.create_item(parent.cast::<Object>(), -1) {
                       let name = RESIST_NAMES[pos];
                       let value = value.to_display_string(&locale);
-                      let tip = GodotString::from_str(&format!("{} = {}", name, value));
                       let bg = *bg_color.get();
 
                       item.set_selectable(0, false);
@@ -379,8 +378,6 @@ impl Stats {
                       item.set_custom_bg_color(0, bg, false);
                       item.set_custom_bg_color(1, bg, false);
                       item.set_custom_color(0, Color::rgb(0.7, 0.6, 0.4));
-                      item.set_tooltip(0, tip.new_ref());
-                      item.set_tooltip(1, tip);
                       item.set_text(0, GodotString::from_str(name));
                       item.set_text(1, GodotString::from_str(&value));
                     }
@@ -404,10 +401,9 @@ impl Stats {
                   }
 
                   // Stats possibly use ',' as the decimal separator depending on locale.
-                  if let Ok(num) = value.replacen(',', ".", 1).parse::<f64>() {
+                  if let Ok(value) = value.replacen(',', ".", 1).parse::<f64>() {
                     if let Some(mut item) = tree.create_item(parent.cast::<Object>(), -1) {
-                      let value = &num.to_display_string(&locale);
-                      let tip = GodotString::from_str(&format!("{} = {}", name, value));
+                      let value = &value.to_display_string(&locale);
                       let bg = *bg_color.get();
 
                       item.set_selectable(0, false);
@@ -415,8 +411,6 @@ impl Stats {
                       item.set_custom_bg_color(0, bg, false);
                       item.set_custom_bg_color(1, bg, false);
                       item.set_custom_color(0, Color::rgb(0.4, 0.6, 0.7));
-                      item.set_tooltip(0, tip.new_ref());
-                      item.set_tooltip(1, tip);
                       item.set_text(0, GodotString::from_str(name));
                       item.set_text(1, GodotString::from_str(&value));
                     }
