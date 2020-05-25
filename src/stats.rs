@@ -127,16 +127,14 @@ impl Stats {
         }
       }
       RESET_ID => {
-        if !self.close_dialogs(owner) {
-          if let Some(avatar) = self.get_current_avatar(owner) {
-            if let Some(ts) = self.get_current_date(owner) {
-              self.populate_stats(
-                owner,
-                Some(avatar.to_utf8().as_str()),
-                Some(ts),
-                StatOpts::None,
-              );
-            }
+        if let Some(avatar) = self.get_current_avatar(owner) {
+          if let Some(ts) = self.get_current_date(owner) {
+            self.populate_stats(
+              owner,
+              Some(avatar.to_utf8().as_str()),
+              Some(ts),
+              StatOpts::None,
+            );
           }
         }
       }
@@ -496,21 +494,5 @@ impl Stats {
         }
       }
     }
-  }
-
-  fn close_dialogs(&self, owner: Node) -> bool {
-    let paths = [&self.folder_dialog, &self.filter_dialog, &self.notes_dialog];
-    for path in paths.iter() {
-      if let Some(mut dialog) = owner.get_node_as::<Control>(path) {
-        unsafe {
-          if dialog.is_visible() {
-            dialog.hide();
-            return true;
-          }
-        }
-      }
-    }
-
-    false
   }
 }

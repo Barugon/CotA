@@ -134,7 +134,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 margin_top = 125.0
 margin_bottom = -100.0
-popup_exclusive = true
 window_title = "Open a Directory"
 mode = 2
 access = 2
@@ -149,7 +148,6 @@ margin_left = 117.0
 margin_top = 274.0
 margin_right = 348.0
 margin_bottom = 344.0
-popup_exclusive = true
 window_title = "Filter Stats..."
 __meta__ = {
 "_edit_use_anchors_": false
