@@ -10,6 +10,8 @@ pub struct App {
   help: NodePath,
   file_dialog: NodePath,
   file_dialog_title: GodotString,
+  about_dialog: NodePath,
+  about_version: NodePath,
 }
 
 #[methods]
@@ -21,6 +23,8 @@ impl App {
       help: NodePath::from_str("Layout/Menu/Help"),
       file_dialog: NodePath::from_str("FolderDialog"),
       file_dialog_title: GodotString::from_str("Select Log Folder"),
+      about_dialog: NodePath::from_str("AboutDialog"),
+      about_version: NodePath::from_str("AboutDialog/VBoxContainer/Version"),
     }
   }
 
@@ -64,10 +68,17 @@ impl App {
   }
 
   #[export]
-  fn help_menu_select(&self, _owner: Node, id: i64) {
+  fn help_menu_select(&self, owner: Node, id: i64) {
     match id {
       ABOUT_ID => {
-        godot_print!("About");
+        if let Some(mut dialog) = owner.get_node_as::<AcceptDialog>(&self.about_dialog) {
+          unsafe {
+            if let Some(mut label) = owner.get_node_as::<Label>(&self.about_version) {
+              label.set_text(GodotString::from_str(&format!("v{}", env!("CARGO_PKG_VERSION"))));
+            }
+            dialog.popup_centered(Vector2::zero());
+          }
+        }
       }
       _ => {}
     }
