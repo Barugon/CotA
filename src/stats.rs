@@ -11,11 +11,14 @@ pub struct Stats {
   view: NodePath,
   avatars: NodePath,
   dates: NodePath,
+  notes: NodePath,
   tree: NodePath,
   status: NodePath,
   folder_dialog: NodePath,
   filter_dialog: NodePath,
   filter_edit: NodePath,
+  notes_dialog: NodePath,
+  notes_edit: NodePath,
 }
 
 enum StatOpts<'a> {
@@ -39,11 +42,14 @@ impl Stats {
       view: NodePath::from_str("/root/Main/Layout/Menu/View"),
       avatars: NodePath::from_str("Tools/Avatars"),
       dates: NodePath::from_str("Tools/Dates"),
+      notes: NodePath::from_str("Tools/Notes"),
       tree: NodePath::from_str("Tree"),
       status: NodePath::from_str("Status"),
       folder_dialog: NodePath::from_str("/root/Main/FolderDialog"),
       filter_dialog: NodePath::from_str("/root/Main/FilterDialog"),
       filter_edit: NodePath::from_str("/root/Main/FilterDialog/VBoxContainer/FilterEdit"),
+      notes_dialog: NodePath::from_str("/root/Main/NotesDialog"),
+      notes_edit: NodePath::from_str("/root/Main/NotesDialog/VBoxContainer/NotesEdit"),
     }
   }
 
@@ -68,6 +74,12 @@ impl Stats {
 
       // Connect the dates button.
       owner.connect_to(&self.dates, "item_selected", "date_changed");
+
+      // Connect the notes button.
+      owner.connect_to(&self.notes, "pressed", "notes_clicked");
+
+      // Connect the notes dialog.
+      owner.connect_to(&self.notes_dialog, "confirmed", "notes_changed");
 
       // Connect the log folder dialog.
       owner.connect_to(&self.folder_dialog, "dir_selected", "log_folder_changed");
@@ -195,9 +207,40 @@ impl Stats {
     }
   }
 
+  #[export]
+  fn notes_clicked(&self, owner: Node) {
+    if let Some(mut dialog) = owner.get_node_as::<ConfirmationDialog>(&self.notes_dialog) {
+      if let Some(mut edit) = owner.get_node_as::<TextEdit>(&self.notes_edit) {
+        if let Some(avatar) = self.get_current_avatar(owner) {
+          unsafe {
+            let text = if let Some(text) = self.config.get_notes(avatar) {
+              text
+            } else {
+              GodotString::new()
+            };
+            edit.set_text(text);
+            dialog.popup_centered(Vector2::zero());
+            edit.grab_focus();
+          }
+        }
+      }
+    }
+  }
+
+  #[export]
+  fn notes_changed(&self, owner: Node) {
+    if let Some(mut edit) = owner.get_node_as::<TextEdit>(&self.notes_edit) {
+      let text = unsafe { edit.get_text() };
+      if let Some(avatar) = self.get_current_avatar(owner) {
+        self.config.set_notes(avatar, Some(text));
+      }
+    }
+  }
+
   fn populate_avatars(&self, owner: Node) {
     if let Some(mut button) = owner.get_node_as::<OptionButton>(&self.avatars) {
       unsafe {
+        self.enable_notes(owner, false);
         button.clear();
 
         let names = self.data.get_avatars();
@@ -212,6 +255,7 @@ impl Stats {
 
           let avatar = button.get_item_text(button.get_selected());
           if !avatar.is_empty() {
+            self.enable_notes(owner, true);
             self.populate_dates(owner, Some(avatar.to_utf8().as_str()));
             return;
           }
@@ -270,6 +314,14 @@ impl Stats {
       }
     }
     None
+  }
+
+  fn enable_notes(&self, owner: Node, enable: bool) {
+    if let Some(mut button) = owner.get_node_as::<Button>(&self.notes) {
+      unsafe {
+        button.set_disabled(!enable);
+      }
+    }
   }
 
   fn populate_stats(&self, owner: Node, avatar: Option<&str>, ts: Option<i64>, opts: StatOpts) {
@@ -436,8 +488,8 @@ impl Stats {
   }
 
   fn set_status_message(&self, owner: Node, text: Option<&str>) {
-    unsafe {
-      if let Some(mut label) = owner.get_node_as::<Label>(&self.status) {
+    if let Some(mut label) = owner.get_node_as::<Label>(&self.status) {
+      unsafe {
         match text {
           Some(text) => label.set_text(GodotString::from_str(text)),
           None => label.set_text(GodotString::new()),
@@ -447,7 +499,7 @@ impl Stats {
   }
 
   fn close_dialogs(&self, owner: Node) -> bool {
-    let paths = [&self.folder_dialog, &self.filter_dialog];
+    let paths = [&self.folder_dialog, &self.filter_dialog, &self.notes_dialog];
     for path in paths.iter() {
       if let Some(mut dialog) = owner.get_node_as::<Control>(path) {
         unsafe {

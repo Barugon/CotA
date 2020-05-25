@@ -214,6 +214,13 @@ impl Config {
     }
   }
 
+  fn notes_key(avatar: GodotString) -> GodotString {
+    GodotString::from_str(&format!(
+      "{}_notes",
+      avatar.to_utf8().as_str().replace(' ', "_")
+    ))
+  }
+
   pub fn get_log_folder(&self) -> Option<GodotString> {
     if let Some(folder) = self.get_value(self.folder_key.new_ref()) {
       return Some(folder);
@@ -235,13 +242,17 @@ impl Config {
     self.set_value(self.avatar_key.new_ref(), avatar);
   }
 
-  pub fn _get_notes(&self, avatar: GodotString) -> Option<GodotString> {
-    if !avatar.is_empty() {}
+  pub fn get_notes(&self, avatar: GodotString) -> Option<GodotString> {
+    if !avatar.is_empty() {
+      return self.get_value(Config::notes_key(avatar));
+    }
     None
   }
 
-  pub fn _set_notes(&self, avatar: GodotString, _notes: Option<GodotString>) {
-    if !avatar.is_empty() {}
+  pub fn set_notes(&self, avatar: GodotString, notes: Option<GodotString>) {
+    if !avatar.is_empty() {
+      self.set_value(Config::notes_key(avatar), notes);
+    }
   }
 
   fn get_value(&self, key: GodotString) -> Option<GodotString> {
