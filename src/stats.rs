@@ -47,9 +47,9 @@ impl Stats {
       status: NodePath::from_str("Status"),
       folder_dialog: NodePath::from_str("/root/Main/FolderDialog"),
       filter_dialog: NodePath::from_str("/root/Main/FilterDialog"),
-      filter_edit: NodePath::from_str("/root/Main/FilterDialog/VBoxContainer/FilterEdit"),
+      filter_edit: NodePath::from_str("/root/Main/FilterDialog/Layout/FilterEdit"),
       notes_dialog: NodePath::from_str("/root/Main/NotesDialog"),
-      notes_edit: NodePath::from_str("/root/Main/NotesDialog/VBoxContainer/NotesEdit"),
+      notes_edit: NodePath::from_str("/root/Main/NotesDialog/Layout/NotesEdit"),
     }
   }
 
@@ -211,12 +211,14 @@ impl Stats {
       if let Some(mut edit) = owner.get_node_as::<TextEdit>(&self.notes_edit) {
         if let Some(avatar) = self.get_current_avatar(owner) {
           unsafe {
+            let title = GodotString::from_str(&format!("Notes for {}", avatar.to_utf8().as_str()));
             let text = if let Some(text) = self.config.get_notes(avatar) {
               text
             } else {
               GodotString::new()
             };
             edit.set_text(text);
+            dialog.set_title(title);
             dialog.popup_centered(Vector2::zero());
             edit.grab_focus();
           }

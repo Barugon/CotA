@@ -46,7 +46,7 @@ margin_left = 85.0
 margin_right = 127.0
 margin_bottom = 22.0
 text = "Help"
-items = [ "About", null, 0, false, false, 0, 0, null, "", false ]
+items = [ "About...", null, 0, false, false, 0, 0, null, "", false ]
 switch_on_hover = true
 
 [node name="Tabs" type="TabContainer" parent="Layout"]
@@ -120,6 +120,54 @@ margin_right = -5.0
 margin_bottom = -5.0
 size_flags_vertical = 3
 
+[node name="Layout" type="GridContainer" parent="Layout/Tabs/Portals"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = -8.0
+columns = 5
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="BloodRiverName" type="RichTextLabel" parent="Layout/Tabs/Portals/Layout"]
+margin_right = 136.0
+margin_bottom = 22.0
+size_flags_horizontal = 3
+bbcode_enabled = true
+scroll_active = false
+
+[node name="Label1" type="Label" parent="Layout/Tabs/Portals/Layout"]
+margin_left = 140.0
+margin_right = 148.0
+margin_bottom = 22.0
+
+[node name="BloodRiverPhase" type="RichTextLabel" parent="Layout/Tabs/Portals/Layout"]
+margin_left = 152.0
+margin_right = 288.0
+margin_bottom = 22.0
+size_flags_horizontal = 3
+bbcode_enabled = true
+scroll_active = false
+
+[node name="Label2" type="Label" parent="Layout/Tabs/Portals/Layout"]
+margin_left = 292.0
+margin_right = 300.0
+margin_bottom = 22.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="BloodRiverTime" type="RichTextLabel" parent="Layout/Tabs/Portals/Layout"]
+margin_left = 304.0
+margin_right = 440.0
+margin_bottom = 22.0
+size_flags_horizontal = 3
+bbcode_enabled = true
+scroll_active = false
+
 [node name="Experience" type="VBoxContainer" parent="Layout/Tabs"]
 visible = false
 anchor_right = 1.0
@@ -148,12 +196,12 @@ margin_left = 117.0
 margin_top = 274.0
 margin_right = 348.0
 margin_bottom = 344.0
-window_title = "Filter Stats..."
+window_title = "Filter Stats"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="VBoxContainer" type="VBoxContainer" parent="FilterDialog"]
+[node name="Layout" type="VBoxContainer" parent="FilterDialog"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 8.0
@@ -164,7 +212,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="FilterEdit" type="LineEdit" parent="FilterDialog/VBoxContainer"]
+[node name="FilterEdit" type="LineEdit" parent="FilterDialog/Layout"]
 margin_right = 215.0
 margin_bottom = 22.0
 
@@ -178,7 +226,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="VBoxContainer" type="VBoxContainer" parent="NotesDialog"]
+[node name="Layout" type="VBoxContainer" parent="NotesDialog"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 8.0
@@ -186,7 +234,7 @@ margin_top = 8.0
 margin_right = -8.0
 margin_bottom = -38.0
 
-[node name="NotesEdit" type="TextEdit" parent="NotesDialog/VBoxContainer"]
+[node name="NotesEdit" type="TextEdit" parent="NotesDialog/Layout"]
 margin_right = 352.0
 margin_bottom = 329.0
 size_flags_vertical = 3
@@ -201,7 +249,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="VBoxContainer" type="VBoxContainer" parent="AboutDialog"]
+[node name="Layout" type="VBoxContainer" parent="AboutDialog"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 8.0
@@ -212,19 +260,19 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="TextureRect" type="TextureRect" parent="AboutDialog/VBoxContainer"]
+[node name="Icon" type="TextureRect" parent="AboutDialog/Layout"]
 margin_right = 296.0
 margin_bottom = 150.0
 texture = ExtResource( 4 )
 stretch_mode = 4
 
-[node name="Version" type="Label" parent="AboutDialog/VBoxContainer"]
+[node name="Version" type="Label" parent="AboutDialog/Layout"]
 margin_top = 154.0
 margin_right = 296.0
 margin_bottom = 176.0
 align = 1
 
-[node name="Creator" type="Label" parent="AboutDialog/VBoxContainer"]
+[node name="Creator" type="Label" parent="AboutDialog/Layout"]
 margin_top = 180.0
 margin_right = 296.0
 margin_bottom = 202.0

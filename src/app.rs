@@ -24,7 +24,7 @@ impl App {
       file_dialog: NodePath::from_str("FolderDialog"),
       file_dialog_title: GodotString::from_str("Select Log Folder"),
       about_dialog: NodePath::from_str("AboutDialog"),
-      about_version: NodePath::from_str("AboutDialog/VBoxContainer/Version"),
+      about_version: NodePath::from_str("AboutDialog/Layout/Version"),
     }
   }
 
