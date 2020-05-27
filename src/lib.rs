@@ -3,14 +3,17 @@ mod util;
 
 mod app;
 mod menu;
+mod portals;
 mod stats;
 
 use crate::app::*;
+use crate::portals::*;
 use crate::stats::*;
 use gdnative::*;
 
 fn init(handle: gdnative::init::InitHandle) {
   handle.add_class::<App>();
+  handle.add_class::<Portals>();
   handle.add_class::<Stats>();
 }
 

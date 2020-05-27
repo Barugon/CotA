@@ -12,6 +12,9 @@ pub struct App {
   file_dialog_title: GodotString,
   about_dialog: NodePath,
   about_version: NodePath,
+  portals_timer: NodePath,
+  update_signal: GodotString,
+  tabs: NodePath,
 }
 
 #[methods]
@@ -19,12 +22,15 @@ impl App {
   fn _init(_owner: Node) -> Self {
     App {
       config: Config::new(),
-      file: NodePath::from_str("Layout/Menu/File"),
-      help: NodePath::from_str("Layout/Menu/Help"),
+      file: NodePath::from_str("VBox/Menu/File"),
+      help: NodePath::from_str("VBox/Menu/Help"),
       file_dialog: NodePath::from_str("FolderDialog"),
       file_dialog_title: GodotString::from_str("Select Log Folder"),
       about_dialog: NodePath::from_str("AboutDialog"),
-      about_version: NodePath::from_str("AboutDialog/Layout/Version"),
+      about_version: NodePath::from_str("AboutDialog/VBox/Version"),
+      portals_timer: NodePath::from_str("VBox/Tabs/Portals/Timer"),
+      tabs: NodePath::from_str("VBox/Tabs"),
+      update_signal: GodotString::from_str("timeout"),
     }
   }
 
@@ -43,6 +49,9 @@ impl App {
 
       // Connect the help menu.
       owner.connect_to(&self.help, "id_pressed", "help_menu_select");
+
+      // Connect the tabs.
+      owner.connect_to(&self.tabs, "tab_changed", "tab_changed");
     }
   }
 
@@ -74,13 +83,30 @@ impl App {
         if let Some(mut dialog) = owner.get_node_as::<AcceptDialog>(&self.about_dialog) {
           unsafe {
             if let Some(mut label) = owner.get_node_as::<Label>(&self.about_version) {
-              label.set_text(GodotString::from_str(&format!("v{}", env!("CARGO_PKG_VERSION"))));
+              label.set_text(GodotString::from_str(&format!(
+                "v{}",
+                env!("CARGO_PKG_VERSION")
+              )));
             }
             dialog.popup_centered(Vector2::zero());
           }
         }
       }
       _ => {}
+    }
+  }
+
+  #[export]
+  fn tab_changed(&self, owner: Node, idx: i64) {
+    if let Some(mut timer) = owner.get_node_as::<Timer>(&self.portals_timer) {
+      unsafe {
+        if idx == PORTALS_IDX {
+          timer.start(-1.0);
+          timer.emit_signal(self.update_signal.new_ref(), &[]);
+        } else {
+          timer.stop();
+        }
+      }
     }
   }
 }
