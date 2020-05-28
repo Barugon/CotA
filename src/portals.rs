@@ -109,7 +109,7 @@ impl Portals {
 
       let mut time_label = some!(owner.get_node_as::<RichTextLabel>(&self.times[rift]));
       time_label.set_bbcode(GodotString::from_str(&format!(
-        "[right][color=#FFFFFF]Closes in {:02}m {:02}s[/color][/right]",
+        "[right][color=#FFFFFF]closes in {:02}m {:02}s[/color][/right]",
         minutes, seconds
       )));
 
@@ -134,7 +134,7 @@ impl Portals {
 
         let mut time_label = some!(owner.get_node_as::<RichTextLabel>(&self.times[rift]));
         time_label.set_bbcode(GodotString::from_str(&format!(
-          "[right][color=#808080]Opens in {:02}m {:02}s[/color][/right]",
+          "[right][color=#808080]opens in {:02}m {:02}s[/color][/right]",
           minutes, seconds
         )));
 
@@ -157,7 +157,7 @@ impl Portals {
 
         // The Lost Vale is currently open.
         lost_vale_label.set_bbcode(GodotString::from_str(&format!(
-          "[color=#B8FFE3][center]Lost Vale closes in {:02}m {:02}s[/center][/color]",
+          "[center][color=#B8FFE3]Lost Vale[/color] [color=#FFFFFF]closes in {:02}m {:02}s[/color][/center]",
           minutes, seconds
         )));
       } else {

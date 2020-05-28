@@ -20,20 +20,20 @@ if [ $OS == "linux" ]; then
   else
     SRC="$DIR/target/debug/libcota.so"
   fi
-  if [ ! -d "$DIR/out/linux/lib" ]; then
-    mkdir -p "$DIR/out/linux/lib" > /dev/null
+  if [ ! -d "$DIR/godot/out/linux/lib" ]; then
+    mkdir -p "$DIR/godot/out/linux/lib" > /dev/null
   fi
-  DST="$DIR/out/linux/lib/libcota.so"
+  DST="$DIR/godot/out/linux/lib/libcota.so"
 elif [ $OS == "windows" ]; then
   if [ $RELEASE -eq 1 ]; then
     SRC="$DIR/target/x86_64-pc-windows-gnu/release/cota.dll"
   else
     SRC="$DIR/target/x86_64-pc-windows-gnu/debug/cota.dll"
   fi
-  if [ ! -d "$DIR/out/windows/lib" ]; then
-    mkdir -p "$DIR/out/windows/lib" > /dev/null
+  if [ ! -d "$DIR/godot/out/windows/lib" ]; then
+    mkdir -p "$DIR/godot/out/windows/lib" > /dev/null
   fi
-  DST="$DIR/out/windows/lib/cota.dll"
+  DST="$DIR/godot/out/windows/lib/cota.dll"
 elif [ $OS == "mac" ]; then
   export PATH="$(pwd)/osxcross/target/bin:$PATH"
   export C_INCLUDE_PATH="$(pwd)/osxcross/target/SDK/MacOSX10.10.sdk/usr/include"
@@ -45,10 +45,10 @@ elif [ $OS == "mac" ]; then
   else
     SRC="$DIR/target/x86_64-apple-darwin/debug/libcota.dylib"
   fi
-  if [ ! -d "$DIR/out/mac/lib" ]; then
-    mkdir -p "$DIR/out/mac/lib" > /dev/null
+  if [ ! -d "$DIR/godot/out/mac/lib" ]; then
+    mkdir -p "$DIR/godot/out/mac/lib" > /dev/null
   fi
-  DST="$DIR/out/mac/lib/libcota.dylib"
+  DST="$DIR/godot/out/mac/lib/libcota.dylib"
 else
   echo "Unknown OS"
   exit
