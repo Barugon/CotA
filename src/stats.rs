@@ -92,9 +92,6 @@ impl Stats {
 
       // Set some stats tree properties.
       if let Some(mut tree) = owner.get_node_as::<Tree>(&self.tree) {
-        tree.set_column_title(0, GodotString::from_str("Name"));
-        tree.set_column_title(1, GodotString::from_str("Value"));
-        // tree.set_column_titles_visible(true);
         tree.set_column_expand(0, true);
         tree.set_column_min_width(0, 3);
       }
@@ -435,6 +432,7 @@ impl Stats {
                       item.set_custom_color(0, Color::rgb(0.7, 0.6, 0.4));
                       item.set_text(0, GodotString::from_str(name));
                       item.set_text(1, GodotString::from_str(&value));
+                      item.set_text_align(1, TreeItem::ALIGN_CENTER);
                     }
                   }
                 }
@@ -468,6 +466,7 @@ impl Stats {
                       item.set_custom_color(0, Color::rgb(0.4, 0.6, 0.7));
                       item.set_text(0, GodotString::from_str(name));
                       item.set_text(1, GodotString::from_str(&value));
+                      item.set_text_align(1, TreeItem::ALIGN_CENTER);
                     }
                   }
                 }
