@@ -1,75 +1,75 @@
-Alchemy,1
-Alchemy Mastery,2
-Armor Enchantment,2
-Bait Recovery,1
-Batching Materials - Butchery,1
-Batching Materials - Milling,1
-Batching Materials - Smelting,1
-Batching Materials - Tanning,1
-Batching Materials - Textiles,1
-Blacksmithing,1
-Blacksmithing Masterwork,1
-Blacksmithing Mastery,2
-Blacksmithing Repair,1
-Blacksmithing Salvage,1
-Butchery,1
-Carpentry,1
-Carpentry Masterwork,1
-Carpentry Mastery,2
-Carpentry Repair,1
-Carpentry Salvage,1
-Cooking,1
-Efficient Refine - Butchery,2
-Efficient Refine - Milling,2
-Efficient Refine - Smelting,2
-Efficient Refine - Tanning,2
-Efficient Refine - Textiles,2
-Enchanting,1
-Fetid Water Fishing,1
-Field Dressing,1
-Fishing,1
-Foraging,1
-Forestry,1
-Freshwater Fishing,1
-Harvest Plants,1
-Lava Fishing,1
-Masterwork Blade,1
-Masterwork Bludgeon Weapon,1
-Masterwork Chain Armor,1
-Masterwork Cloth Armor,1
-Masterwork Leather Armor,1
-Masterwork Plate Armor,1
-Masterwork Polearm Weapon,1
-Masterwork Ranged Weapon,1
-Masterwork Shield,1
-Meticulous Collection - Field Dressing,2
-Meticulous Collection - Foraging,2
-Meticulous Collection - Forestry,2
-Meticulous Collection - Mining,1
-Milling,1
-Mining,1
-Saltwater Fishing,1
-Smelting,1
-Sow Seed Bonus,1
-Survey - Field Dressing,1
-Survey - Foraging,2
-Survey - Forestry,1
-Survey - Mining,1
-Swift Gathering - Field Dressing,1
-Swift Gathering - Foraging,1
-Swift Gathering - Forestry,1
-Swift Gathering - Mining,1
-Swift Refine - Butchery,1
-Swift Refine - Milling,1
-Swift Refine - Smelting,1
-Swift Refine - Tanning,1
-Swift Refine - Textiles,1
-Tailoring,1
-Tailoring Masterwork,1
-Tailoring Mastery,2
-Tailoring Repair,1
-Tailoring Salvage,1
-Tanning,1
-Textiles,1
-Water Plants,1
-Weapon Enchantment,2
+Alchemy,1,2021
+Alchemy Mastery,2,?
+Armor Enchantment,2,2065
+Bait Recovery,1,2043
+Batching Materials - Butchery,1,2066
+Batching Materials - Milling,1,2067
+Batching Materials - Smelting,1,2070
+Batching Materials - Tanning,1,2069
+Batching Materials - Textiles,1,2068
+Blacksmithing,1,2020
+Blacksmithing Masterwork,1,2059
+Blacksmithing Mastery,2,?
+Blacksmithing Repair,1,2030
+Blacksmithing Salvage,1,2031
+Butchery,1,2025
+Carpentry,1,2023
+Carpentry Masterwork,1,2060
+Carpentry Mastery,2,?
+Carpentry Repair,1,2032
+Carpentry Salvage,1,2033
+Cooking,1,2024
+Efficient Refine - Butchery,2,2071
+Efficient Refine - Milling,2,2072
+Efficient Refine - Smelting,2,2075
+Efficient Refine - Tanning,2,2074
+Efficient Refine - Textiles,2,2073
+Enchanting,1,2050
+Fetid Water Fishing,1,?
+Field Dressing,1,2037
+Fishing,1,2042
+Foraging,1,2039
+Forestry,1,2040
+Freshwater Fishing,1,?
+Harvest Plants,1,857
+Lava Fishing,1,?
+Masterwork Blade,1,2045
+Masterwork Bludgeon Weapon,1,2052
+Masterwork Chain Armor,1,2046
+Masterwork Cloth Armor,1,2055
+Masterwork Leather Armor,1,2056
+Masterwork Plate Armor,1,2047
+Masterwork Polearm Weapon,1,2053
+Masterwork Ranged Weapon,1,2054
+Masterwork Shield,1,2062
+Meticulous Collection - Field Dressing,2,2013
+Meticulous Collection - Foraging,2,2014
+Meticulous Collection - Forestry,2,2011
+Meticulous Collection - Mining,1,2010
+Milling,1,2026
+Mining,1,2041
+Saltwater Fishing,1,?
+Smelting,1,2027
+Sow Seed Bonus,1,860
+Survey - Field Dressing,1,2008
+Survey - Foraging,2,2009
+Survey - Forestry,1,2006
+Survey - Mining,1,2005
+Swift Gathering - Field Dressing,1,2003
+Swift Gathering - Foraging,1,2004
+Swift Gathering - Forestry,1,2001
+Swift Gathering - Mining,1,2000
+Swift Refine - Butchery,1,2002
+Swift Refine - Milling,1,2012
+Swift Refine - Smelting,1,2017
+Swift Refine - Tanning,1,2016
+Swift Refine - Textiles,1,2015
+Tailoring,1,2022
+Tailoring Masterwork,1,2061
+Tailoring Mastery,2,?
+Tailoring Repair,1,2034
+Tailoring Salvage,1,2035
+Tanning,1,2028
+Textiles,1,2029
+Water Plants,1,855
+Weapon Enchantment,2,2064
