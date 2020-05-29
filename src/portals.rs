@@ -7,7 +7,15 @@ pub struct Portals {
   places: [NodePath; 8],
   phases: [NodePath; 8],
   times: [NodePath; 8],
-  lost_vale: NodePath,
+  lost_vale_name: NodePath,
+  lost_vale_time: NodePath,
+  color_name: GodotString,
+  opened_color: Variant,
+  closed_color: Variant,
+  opened_rift_color: Variant,
+  closed_rift_color: Variant,
+  opened_vale_color: Variant,
+  closed_vale_color: Variant,
   timer: NodePath,
 }
 
@@ -45,7 +53,15 @@ impl Portals {
         NodePath::from_str("VBox/Grid/BrittanyGraveyardTime"),
         NodePath::from_str("VBox/Grid/EtceterTime"),
       ],
-      lost_vale: NodePath::from_str("VBox/HBox/LostVale"),
+      lost_vale_name: NodePath::from_str("VBox/HBox/LostValeName"),
+      lost_vale_time: NodePath::from_str("VBox/HBox/LostValeTime"),
+      color_name: GodotString::from_str("custom_colors/font_color"),
+      opened_color: Variant::from_color(&Color::rgb(1.0, 1.0, 1.0)),
+      closed_color: Variant::from_color(&Color::rgb(0.5, 0.5, 0.5)),
+      opened_rift_color: Variant::from_color(&Color::rgb(0.7, 0.9, 1.0)),
+      closed_rift_color: Variant::from_color(&Color::rgb(0.4, 0.6, 0.7)),
+      opened_vale_color: Variant::from_color(&Color::rgb(0.9, 1.0, 0.7)),
+      closed_vale_color: Variant::from_color(&Color::rgb(0.6, 0.7, 0.4)),
       timer: NodePath::from_str("Timer"),
     }
   }
@@ -71,45 +87,19 @@ impl Portals {
       seconds -= 60;
     }
 
-    const PLACES: [&str; 8] = [
-      "Blood River",
-      "Solace Bridge",
-      "Highvale",
-      "Brookside",
-      "Owl's Head",
-      "Westend",
-      "Brittany Graveyard",
-      "Etceter",
-    ];
-
-    const PHASES: [&str; 8] = [
-      "New Moon",
-      "Waxing Crescent",
-      "First Quarter",
-      "Waxing Gibbous",
-      "Full Moon",
-      "Waning Gibbous",
-      "Third Quarter",
-      "Waning Crescent",
-    ];
-
+    // #B8FFE3
     unsafe {
       // The first rift is the active one.
-      let mut place_label = some!(owner.get_node_as::<RichTextLabel>(&self.places[rift]));
-      place_label.set_bbcode(GodotString::from_str(&format!(
-        "[color=#B8E3FF]{}[/color]",
-        PLACES[rift]
-      )));
+      let mut place_label = some!(owner.get_node_as::<Label>(&self.places[rift]));
+      place_label.set(self.color_name.new_ref(), self.opened_rift_color.clone());
 
-      let mut phase_label = some!(owner.get_node_as::<RichTextLabel>(&self.phases[rift]));
-      phase_label.set_bbcode(GodotString::from_str(&format!(
-        "[center][color=#FFFFFF]{}[/color][/center]",
-        PHASES[rift]
-      )));
+      let mut phase_label = some!(owner.get_node_as::<Label>(&self.phases[rift]));
+      phase_label.set(self.color_name.new_ref(), self.opened_color.clone());
 
-      let mut time_label = some!(owner.get_node_as::<RichTextLabel>(&self.times[rift]));
-      time_label.set_bbcode(GodotString::from_str(&format!(
-        "[right][color=#FFFFFF]closes in {:02}m {:02}s[/color][/right]",
+      let mut time_label = some!(owner.get_node_as::<Label>(&self.times[rift]));
+      time_label.set(self.color_name.new_ref(), self.opened_color.clone());
+      time_label.set_text(GodotString::from_str(&format!(
+        "closes in {:02}m {:02}s",
         minutes, seconds
       )));
 
@@ -120,21 +110,16 @@ impl Portals {
         }
 
         // Draw the inactive lunar rifts in a less pronounced way.
-        let mut place_label = some!(owner.get_node_as::<RichTextLabel>(&self.places[rift]));
-        place_label.set_bbcode(GodotString::from_str(&format!(
-          "[color=#3C6880]{}[/color]",
-          PLACES[rift]
-        )));
+        let mut place_label = some!(owner.get_node_as::<Label>(&self.places[rift]));
+        place_label.set(self.color_name.new_ref(), self.closed_rift_color.clone());
 
-        let mut phase_label = some!(owner.get_node_as::<RichTextLabel>(&self.phases[rift]));
-        phase_label.set_bbcode(GodotString::from_str(&format!(
-          "[center][color=#808080]{}[/color][/center]",
-          PHASES[rift]
-        )));
+        let mut phase_label = some!(owner.get_node_as::<Label>(&self.phases[rift]));
+        phase_label.set(self.color_name.new_ref(), self.closed_color.clone());
 
-        let mut time_label = some!(owner.get_node_as::<RichTextLabel>(&self.times[rift]));
-        time_label.set_bbcode(GodotString::from_str(&format!(
-          "[right][color=#808080]opens in {:02}m {:02}s[/color][/right]",
+        let mut time_label = some!(owner.get_node_as::<Label>(&self.times[rift]));
+        time_label.set(self.color_name.new_ref(), self.closed_color.clone());
+        time_label.set_text(GodotString::from_str(&format!(
+          "opens in {:02}m {:02}s",
           minutes, seconds
         )));
 
@@ -148,7 +133,8 @@ impl Portals {
       }
 
       // Update the Lost Vale countdown.
-      let mut lost_vale_label = some!(owner.get_node_as::<RichTextLabel>(&self.lost_vale));
+      let mut lost_vale_name = some!(owner.get_node_as::<Label>(&self.lost_vale_name));
+      let mut lost_vale_time = some!(owner.get_node_as::<Label>(&self.lost_vale_time));
       let countdown = get_lost_vale_countdown();
       if countdown < 0.0 {
         let remaining = countdown.abs();
@@ -156,8 +142,10 @@ impl Portals {
         let seconds = (60.0 * (remaining - minutes as f64) + 0.5) as i32;
 
         // The Lost Vale is currently open.
-        lost_vale_label.set_bbcode(GodotString::from_str(&format!(
-          "[center][color=#B8FFE3]Lost Vale[/color] [color=#FFFFFF]closes in {:02}m {:02}s[/color][/center]",
+        lost_vale_name.set(self.color_name.new_ref(), self.opened_vale_color.clone());
+        lost_vale_time.set(self.color_name.new_ref(), self.opened_color.clone());
+        lost_vale_time.set_text(GodotString::from_str(&format!(
+          "closes in {:02}m {:02}s",
           minutes, seconds
         )));
       } else {
@@ -165,9 +153,13 @@ impl Portals {
         let seconds = (60.0 * (countdown - minutes as f64) + 0.5) as i32;
 
         // The Lost Vale is currently closed.
-        lost_vale_label.set_bbcode(GodotString::from_str(&format!(
-          "[center][color=#3C8068]Lost Vale[/color] [color=#808080]opens in {:02}h {:02}m {:02}s[/color][/center]",
-          minutes / 60, minutes % 60, seconds
+        lost_vale_name.set(self.color_name.new_ref(), self.closed_vale_color.clone());
+        lost_vale_time.set(self.color_name.new_ref(), self.closed_color.clone());
+        lost_vale_time.set_text(GodotString::from_str(&format!(
+          "opens in {:02}h {:02}m {:02}s",
+          minutes / 60,
+          minutes % 60,
+          seconds
         )));
       }
     }

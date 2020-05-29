@@ -62,6 +62,7 @@ size_flags_vertical = 3
 tab_align = 0
 
 [node name="Stats" type="VBoxContainer" parent="VBox/Tabs"]
+visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 5.0
@@ -98,15 +99,27 @@ margin_bottom = 22.0
 disabled = true
 text = "Notes"
 
-[node name="Tree" type="Tree" parent="VBox/Tabs/Stats"]
+[node name="Panel" type="Panel" parent="VBox/Tabs/Stats"]
 margin_top = 26.0
 margin_right = 458.0
 margin_bottom = 542.0
+size_flags_vertical = 3
+
+[node name="Tree" type="Tree" parent="VBox/Tabs/Stats/Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 1.0
+margin_top = 1.0
+margin_right = -1.0
+margin_bottom = -1.0
 size_flags_vertical = 3
 columns = 2
 hide_folding = true
 hide_root = true
 select_mode = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="Status" type="Label" parent="VBox/Tabs/Stats"]
 margin_top = 546.0
@@ -116,7 +129,6 @@ size_flags_vertical = 0
 align = 1
 
 [node name="Portals" type="Panel" parent="VBox/Tabs"]
-visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 5.0
@@ -140,329 +152,247 @@ __meta__ = {
 [node name="Grid" type="GridContainer" parent="VBox/Tabs/Portals/VBox"]
 margin_right = 442.0
 margin_bottom = 204.0
-columns = 5
+columns = 3
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="BloodRiverName" type="RichTextLabel" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_right = 136.0
+[node name="BloodRiverName" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_right = 144.0
 margin_bottom = 22.0
 size_flags_horizontal = 3
-bbcode_enabled = true
-scroll_active = false
+custom_colors/font_color = Color( 0.235294, 0.407843, 0.501961, 1 )
+text = "Blood River"
 
-[node name="Label1" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 140.0
-margin_right = 148.0
-margin_bottom = 22.0
-
-[node name="BloodRiverPhase" type="RichTextLabel" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 152.0
-margin_right = 288.0
+[node name="BloodRiverPhase" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 148.0
+margin_right = 292.0
 margin_bottom = 22.0
 size_flags_horizontal = 3
-bbcode_enabled = true
-scroll_active = false
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "New Moon"
+align = 1
 
-[node name="Label2" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 292.0
-margin_right = 300.0
-margin_bottom = 22.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="BloodRiverTime" type="RichTextLabel" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 304.0
+[node name="BloodRiverTime" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 296.0
 margin_right = 440.0
 margin_bottom = 22.0
 size_flags_horizontal = 3
-bbcode_enabled = true
-scroll_active = false
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "opens in 00m 00s"
+align = 2
 
-[node name="SolaceBridgeName" type="RichTextLabel" parent="VBox/Tabs/Portals/VBox/Grid"]
+[node name="SolaceBridgeName" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
 margin_top = 26.0
-margin_right = 136.0
+margin_right = 144.0
 margin_bottom = 48.0
-bbcode_enabled = true
-scroll_active = false
+custom_colors/font_color = Color( 0.235294, 0.407843, 0.501961, 1 )
+text = "Solace Bridge"
 
-[node name="Label3" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 140.0
+[node name="SolaceBridgePhase" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 148.0
 margin_top = 26.0
-margin_right = 148.0
+margin_right = 292.0
 margin_bottom = 48.0
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "Waxing Crescent"
+align = 1
 
-[node name="SolaceBridgePhase" type="RichTextLabel" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 152.0
-margin_top = 26.0
-margin_right = 288.0
-margin_bottom = 48.0
-bbcode_enabled = true
-scroll_active = false
-
-[node name="Label4" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 292.0
-margin_top = 26.0
-margin_right = 300.0
-margin_bottom = 48.0
-
-[node name="SolaceBridgeTime" type="RichTextLabel" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 304.0
+[node name="SolaceBridgeTime" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 296.0
 margin_top = 26.0
 margin_right = 440.0
 margin_bottom = 48.0
-bbcode_enabled = true
-scroll_active = false
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "opens in 00m 00s"
+align = 2
 
-[node name="HighvaleName" type="RichTextLabel" parent="VBox/Tabs/Portals/VBox/Grid"]
+[node name="HighvaleName" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
 margin_top = 52.0
-margin_right = 136.0
+margin_right = 144.0
 margin_bottom = 74.0
-bbcode_enabled = true
-scroll_active = false
+custom_colors/font_color = Color( 0.235294, 0.407843, 0.501961, 1 )
+text = "Highvale"
 
-[node name="Label5" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 140.0
+[node name="HighvalePhase" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 148.0
 margin_top = 52.0
-margin_right = 148.0
+margin_right = 292.0
 margin_bottom = 74.0
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "First Quarter"
+align = 1
 
-[node name="HighvalePhase" type="RichTextLabel" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 152.0
-margin_top = 52.0
-margin_right = 288.0
-margin_bottom = 74.0
-bbcode_enabled = true
-scroll_active = false
-
-[node name="Label6" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 292.0
-margin_top = 52.0
-margin_right = 300.0
-margin_bottom = 74.0
-
-[node name="HighvaleTime" type="RichTextLabel" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 304.0
+[node name="HighvaleTime" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 296.0
 margin_top = 52.0
 margin_right = 440.0
 margin_bottom = 74.0
-bbcode_enabled = true
-scroll_active = false
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "opens in 00m 00s"
+align = 2
 
-[node name="BrooksideName" type="RichTextLabel" parent="VBox/Tabs/Portals/VBox/Grid"]
+[node name="BrooksideName" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
 margin_top = 78.0
-margin_right = 136.0
+margin_right = 144.0
 margin_bottom = 100.0
-bbcode_enabled = true
-scroll_active = false
+custom_colors/font_color = Color( 0.235294, 0.407843, 0.501961, 1 )
+text = "Brookside"
 
-[node name="Label7" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 140.0
+[node name="BrooksidePhase" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 148.0
 margin_top = 78.0
-margin_right = 148.0
+margin_right = 292.0
 margin_bottom = 100.0
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "Waxing Gibbous"
+align = 1
 
-[node name="BrooksidePhase" type="RichTextLabel" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 152.0
-margin_top = 78.0
-margin_right = 288.0
-margin_bottom = 100.0
-bbcode_enabled = true
-scroll_active = false
-
-[node name="Label8" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 292.0
-margin_top = 78.0
-margin_right = 300.0
-margin_bottom = 100.0
-
-[node name="BrooksideTime" type="RichTextLabel" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 304.0
+[node name="BrooksideTime" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 296.0
 margin_top = 78.0
 margin_right = 440.0
 margin_bottom = 100.0
-bbcode_enabled = true
-scroll_active = false
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "opens in 00m 00s"
+align = 2
 
-[node name="OwlsHeadName" type="RichTextLabel" parent="VBox/Tabs/Portals/VBox/Grid"]
+[node name="OwlsHeadName" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
 margin_top = 104.0
-margin_right = 136.0
+margin_right = 144.0
 margin_bottom = 126.0
-bbcode_enabled = true
-scroll_active = false
+custom_colors/font_color = Color( 0.235294, 0.407843, 0.501961, 1 )
+text = "Owl's Head"
 
-[node name="Label9" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 140.0
+[node name="OwlsHeadPhase" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 148.0
 margin_top = 104.0
-margin_right = 148.0
+margin_right = 292.0
 margin_bottom = 126.0
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "Full Moon"
+align = 1
 
-[node name="OwlsHeadPhase" type="RichTextLabel" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 152.0
-margin_top = 104.0
-margin_right = 288.0
-margin_bottom = 126.0
-bbcode_enabled = true
-scroll_active = false
-
-[node name="Label10" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 292.0
-margin_top = 104.0
-margin_right = 300.0
-margin_bottom = 126.0
-
-[node name="OwlsHeadTime" type="RichTextLabel" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 304.0
+[node name="OwlsHeadTime" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 296.0
 margin_top = 104.0
 margin_right = 440.0
 margin_bottom = 126.0
-bbcode_enabled = true
-scroll_active = false
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "opens in 00m 00s"
+align = 2
 
-[node name="WestendName" type="RichTextLabel" parent="VBox/Tabs/Portals/VBox/Grid"]
+[node name="WestendName" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
 margin_top = 130.0
-margin_right = 136.0
+margin_right = 144.0
 margin_bottom = 152.0
-bbcode_enabled = true
-scroll_active = false
+custom_colors/font_color = Color( 0.235294, 0.407843, 0.501961, 1 )
+text = "Westend"
 
-[node name="Label11" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 140.0
+[node name="WestendPhase" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 148.0
 margin_top = 130.0
-margin_right = 148.0
+margin_right = 292.0
 margin_bottom = 152.0
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "Waning Gibbous"
+align = 1
 
-[node name="WestendPhase" type="RichTextLabel" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 152.0
-margin_top = 130.0
-margin_right = 288.0
-margin_bottom = 152.0
-bbcode_enabled = true
-scroll_active = false
-
-[node name="Label12" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 292.0
-margin_top = 130.0
-margin_right = 300.0
-margin_bottom = 152.0
-
-[node name="WestendTime" type="RichTextLabel" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 304.0
+[node name="WestendTime" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 296.0
 margin_top = 130.0
 margin_right = 440.0
 margin_bottom = 152.0
-bbcode_enabled = true
-scroll_active = false
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "opens in 00m 00s"
+align = 2
 
-[node name="BrittanyGraveyardName" type="RichTextLabel" parent="VBox/Tabs/Portals/VBox/Grid"]
+[node name="BrittanyGraveyardName" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
 margin_top = 156.0
-margin_right = 136.0
+margin_right = 144.0
 margin_bottom = 178.0
-bbcode_enabled = true
-scroll_active = false
+custom_colors/font_color = Color( 0.235294, 0.407843, 0.501961, 1 )
+text = "Brittany Graveyard"
 
-[node name="Label13" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 140.0
+[node name="BrittanyGraveyardPhase" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 148.0
 margin_top = 156.0
-margin_right = 148.0
+margin_right = 292.0
 margin_bottom = 178.0
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "Third Quarter"
+align = 1
 
-[node name="BrittanyGraveyardPhase" type="RichTextLabel" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 152.0
-margin_top = 156.0
-margin_right = 288.0
-margin_bottom = 178.0
-bbcode_enabled = true
-scroll_active = false
-
-[node name="Label14" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 292.0
-margin_top = 156.0
-margin_right = 300.0
-margin_bottom = 178.0
-
-[node name="BrittanyGraveyardTime" type="RichTextLabel" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 304.0
+[node name="BrittanyGraveyardTime" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 296.0
 margin_top = 156.0
 margin_right = 440.0
 margin_bottom = 178.0
-bbcode_enabled = true
-scroll_active = false
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "opens in 00m 00s"
+align = 2
 
-[node name="EtceterName" type="RichTextLabel" parent="VBox/Tabs/Portals/VBox/Grid"]
+[node name="EtceterName" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
 margin_top = 182.0
-margin_right = 136.0
+margin_right = 144.0
 margin_bottom = 204.0
-bbcode_enabled = true
-scroll_active = false
+custom_colors/font_color = Color( 0.235294, 0.407843, 0.501961, 1 )
+text = "Etceter"
 
-[node name="Label15" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 140.0
+[node name="EtceterPhase" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 148.0
 margin_top = 182.0
-margin_right = 148.0
+margin_right = 292.0
 margin_bottom = 204.0
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "Waning Crescent"
+align = 1
 
-[node name="EtceterPhase" type="RichTextLabel" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 152.0
-margin_top = 182.0
-margin_right = 288.0
-margin_bottom = 204.0
-bbcode_enabled = true
-scroll_active = false
-
-[node name="Label16" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 292.0
-margin_top = 182.0
-margin_right = 300.0
-margin_bottom = 204.0
-
-[node name="EtceterTime" type="RichTextLabel" parent="VBox/Tabs/Portals/VBox/Grid"]
-margin_left = 304.0
+[node name="EtceterTime" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 296.0
 margin_top = 182.0
 margin_right = 440.0
 margin_bottom = 204.0
-bbcode_enabled = true
-scroll_active = false
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "opens in 00m 00s"
+align = 2
 
-[node name="Label1" type="Label" parent="VBox/Tabs/Portals/VBox"]
+[node name="Spacer1" type="Container" parent="VBox/Tabs/Portals/VBox"]
 margin_top = 208.0
 margin_right = 442.0
-margin_bottom = 230.0
+margin_bottom = 233.0
+rect_min_size = Vector2( 0, 25 )
 
 [node name="HBox" type="HBoxContainer" parent="VBox/Tabs/Portals/VBox"]
-margin_top = 234.0
+margin_top = 237.0
 margin_right = 442.0
-margin_bottom = 256.0
+margin_bottom = 259.0
+alignment = 1
 
-[node name="Label1" type="Label" parent="VBox/Tabs/Portals/VBox/HBox"]
-margin_right = 8.0
+[node name="LostValeName" type="Label" parent="VBox/Tabs/Portals/VBox/HBox"]
+margin_left = 110.0
+margin_right = 176.0
 margin_bottom = 22.0
+custom_colors/font_color = Color( 0.407843, 0.501961, 0.235294, 1 )
+text = "Lost Vale"
 
-[node name="LostVale" type="RichTextLabel" parent="VBox/Tabs/Portals/VBox/HBox"]
-margin_left = 12.0
-margin_right = 430.0
+[node name="LostValeTime" type="Label" parent="VBox/Tabs/Portals/VBox/HBox"]
+margin_left = 180.0
+margin_right = 331.0
 margin_bottom = 22.0
-size_flags_horizontal = 3
-bbcode_enabled = true
-scroll_active = false
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "opens in 00h 00m 00s"
 
-[node name="Label2" type="Label" parent="VBox/Tabs/Portals/VBox/HBox"]
-margin_left = 434.0
+[node name="Spacer2" type="Container" parent="VBox/Tabs/Portals/VBox"]
+margin_top = 263.0
 margin_right = 442.0
-margin_bottom = 22.0
-
-[node name="Label2" type="Label" parent="VBox/Tabs/Portals/VBox"]
-margin_top = 260.0
-margin_right = 442.0
-margin_bottom = 354.0
+margin_bottom = 356.0
 size_flags_vertical = 3
 
 [node name="Notice" type="RichTextLabel" parent="VBox/Tabs/Portals/VBox"]
-margin_top = 358.0
+margin_top = 360.0
 margin_right = 442.0
-margin_bottom = 452.0
+margin_bottom = 453.0
 size_flags_vertical = 3
 bbcode_enabled = true
 bbcode_text = "[center][color=#A08658]The accuracy of this portal chronometer
@@ -479,15 +409,15 @@ clock to synchronize with Internet time.
 "
 scroll_active = false
 
-[node name="Label3" type="Label" parent="VBox/Tabs/Portals/VBox"]
-margin_top = 456.0
+[node name="Spacer3" type="Container" parent="VBox/Tabs/Portals/VBox"]
+margin_top = 457.0
 margin_right = 442.0
 margin_bottom = 552.0
 size_flags_vertical = 3
 
 [node name="Timer" type="Timer" parent="VBox/Tabs/Portals"]
 
-[node name="Experience" type="Panel" parent="VBox/Tabs"]
+[node name="Experience" type="VBoxContainer" parent="VBox/Tabs"]
 visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -498,6 +428,19 @@ margin_bottom = -5.0
 script = ExtResource( 6 )
 
 [node name="VBox" type="VBoxContainer" parent="VBox/Tabs/Experience"]
+margin_right = 458.0
+margin_bottom = 568.0
+size_flags_vertical = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="AdvPanel" type="Panel" parent="VBox/Tabs/Experience/VBox"]
+margin_right = 458.0
+margin_bottom = 282.0
+size_flags_vertical = 3
+
+[node name="AdvVBox" type="VBoxContainer" parent="VBox/Tabs/Experience/VBox/AdvPanel"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 8.0
@@ -508,147 +451,176 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="AdvTree" type="Tree" parent="VBox/Tabs/Experience/VBox"]
+[node name="AdvTreePanel" type="Panel" parent="VBox/Tabs/Experience/VBox/AdvPanel/AdvVBox"]
 margin_right = 442.0
-margin_bottom = 205.0
+margin_bottom = 206.0
 size_flags_vertical = 3
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Spacer1" type="Container" parent="VBox/Tabs/Experience/VBox"]
-margin_top = 209.0
+[node name="AdvTree" type="Tree" parent="VBox/Tabs/Experience/VBox/AdvPanel/AdvVBox/AdvTreePanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 1.0
+margin_top = 1.0
+margin_right = -1.0
+margin_bottom = -1.0
+size_flags_vertical = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Spacer1" type="Container" parent="VBox/Tabs/Experience/VBox/AdvPanel/AdvVBox"]
+margin_top = 210.0
 margin_right = 442.0
-margin_bottom = 213.0
+margin_bottom = 214.0
 rect_min_size = Vector2( 0, 4 )
 
-[node name="AdvLvlHBox" type="HBoxContainer" parent="VBox/Tabs/Experience/VBox"]
-margin_top = 217.0
+[node name="AdvLvlHBox" type="HBoxContainer" parent="VBox/Tabs/Experience/VBox/AdvPanel/AdvVBox"]
+margin_top = 218.0
 margin_right = 442.0
-margin_bottom = 239.0
+margin_bottom = 240.0
 size_flags_horizontal = 3
 
-[node name="Label1" type="Label" parent="VBox/Tabs/Experience/VBox/AdvLvlHBox"]
+[node name="CurrentLabel" type="Label" parent="VBox/Tabs/Experience/VBox/AdvPanel/AdvVBox/AdvLvlHBox"]
 margin_right = 93.0
 margin_bottom = 22.0
+custom_colors/font_color = Color( 0.811765, 0.811765, 0.811765, 1 )
 text = "Current Level"
 
-[node name="CurrentEdit" type="LineEdit" parent="VBox/Tabs/Experience/VBox/AdvLvlHBox"]
+[node name="CurrentEdit" type="LineEdit" parent="VBox/Tabs/Experience/VBox/AdvPanel/AdvVBox/AdvLvlHBox"]
 margin_left = 97.0
 margin_right = 216.0
 margin_bottom = 22.0
 size_flags_horizontal = 3
+editable = false
 
-[node name="Spacer" type="Container" parent="VBox/Tabs/Experience/VBox/AdvLvlHBox"]
+[node name="Spacer" type="Container" parent="VBox/Tabs/Experience/VBox/AdvPanel/AdvVBox/AdvLvlHBox"]
 margin_left = 220.0
 margin_right = 230.0
 margin_bottom = 22.0
 rect_min_size = Vector2( 10, 0 )
 
-[node name="Label2" type="Label" parent="VBox/Tabs/Experience/VBox/AdvLvlHBox"]
+[node name="TargetLabel" type="Label" parent="VBox/Tabs/Experience/VBox/AdvPanel/AdvVBox/AdvLvlHBox"]
 margin_left = 234.0
 margin_right = 319.0
 margin_bottom = 22.0
+custom_colors/font_color = Color( 0.811765, 0.811765, 0.811765, 1 )
 text = "Target Level"
 
-[node name="TargetEdit" type="LineEdit" parent="VBox/Tabs/Experience/VBox/AdvLvlHBox"]
+[node name="TargetEdit" type="LineEdit" parent="VBox/Tabs/Experience/VBox/AdvPanel/AdvVBox/AdvLvlHBox"]
 margin_left = 323.0
 margin_right = 442.0
 margin_bottom = 22.0
 size_flags_horizontal = 3
+editable = false
 
-[node name="AdvResHBox" type="HBoxContainer" parent="VBox/Tabs/Experience/VBox"]
-margin_top = 243.0
+[node name="AdvResHBox" type="HBoxContainer" parent="VBox/Tabs/Experience/VBox/AdvPanel/AdvVBox"]
+margin_top = 244.0
 margin_right = 442.0
-margin_bottom = 265.0
+margin_bottom = 266.0
 
-[node name="Label" type="Label" parent="VBox/Tabs/Experience/VBox/AdvResHBox"]
+[node name="Label" type="Label" parent="VBox/Tabs/Experience/VBox/AdvPanel/AdvVBox/AdvResHBox"]
 margin_right = 211.0
 margin_bottom = 22.0
 text = "Adventurer Experience Needed:"
 
-[node name="Result" type="Label" parent="VBox/Tabs/Experience/VBox/AdvResHBox"]
+[node name="Result" type="Label" parent="VBox/Tabs/Experience/VBox/AdvPanel/AdvVBox/AdvResHBox"]
 margin_left = 215.0
 margin_right = 442.0
 margin_bottom = 22.0
 size_flags_horizontal = 3
 
-[node name="Spacer2" type="Container" parent="VBox/Tabs/Experience/VBox"]
-margin_top = 269.0
-margin_right = 442.0
-margin_bottom = 271.0
-rect_min_size = Vector2( 0, 2 )
-
-[node name="ColorRect" type="ColorRect" parent="VBox/Tabs/Experience/VBox"]
-margin_top = 275.0
-margin_right = 442.0
-margin_bottom = 276.0
-rect_min_size = Vector2( 0, 1 )
-color = Color( 0.12549, 0.12549, 0.12549, 1 )
-
-[node name="Spacer3" type="Container" parent="VBox/Tabs/Experience/VBox"]
-margin_top = 280.0
-margin_right = 442.0
-margin_bottom = 282.0
-rect_min_size = Vector2( 0, 2 )
-
-[node name="ProTree" type="Tree" parent="VBox/Tabs/Experience/VBox"]
+[node name="ProPanel" type="Panel" parent="VBox/Tabs/Experience/VBox"]
 margin_top = 286.0
-margin_right = 442.0
-margin_bottom = 491.0
+margin_right = 458.0
+margin_bottom = 568.0
 size_flags_vertical = 3
 
-[node name="Spacer4" type="Container" parent="VBox/Tabs/Experience/VBox"]
-margin_top = 495.0
+[node name="ProVBox" type="VBoxContainer" parent="VBox/Tabs/Experience/VBox/ProPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = -8.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ProTreePanel" type="Panel" parent="VBox/Tabs/Experience/VBox/ProPanel/ProVBox"]
 margin_right = 442.0
-margin_bottom = 499.0
+margin_bottom = 206.0
+size_flags_vertical = 3
+
+[node name="ProTree" type="Tree" parent="VBox/Tabs/Experience/VBox/ProPanel/ProVBox/ProTreePanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 1.0
+margin_top = 1.0
+margin_right = -1.0
+margin_bottom = -1.0
+size_flags_vertical = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Spacer4" type="Container" parent="VBox/Tabs/Experience/VBox/ProPanel/ProVBox"]
+margin_top = 210.0
+margin_right = 442.0
+margin_bottom = 214.0
 rect_min_size = Vector2( 0, 4 )
 
-[node name="ProLvlHBox" type="HBoxContainer" parent="VBox/Tabs/Experience/VBox"]
-margin_top = 503.0
+[node name="ProLvlHBox" type="HBoxContainer" parent="VBox/Tabs/Experience/VBox/ProPanel/ProVBox"]
+margin_top = 218.0
 margin_right = 442.0
-margin_bottom = 525.0
+margin_bottom = 240.0
 
-[node name="Label1" type="Label" parent="VBox/Tabs/Experience/VBox/ProLvlHBox"]
+[node name="CurrentLabel" type="Label" parent="VBox/Tabs/Experience/VBox/ProPanel/ProVBox/ProLvlHBox"]
 margin_right = 93.0
 margin_bottom = 22.0
+custom_colors/font_color = Color( 0.811765, 0.811765, 0.811765, 1 )
 text = "Current Level"
 
-[node name="CurrentEdit" type="LineEdit" parent="VBox/Tabs/Experience/VBox/ProLvlHBox"]
+[node name="CurrentEdit" type="LineEdit" parent="VBox/Tabs/Experience/VBox/ProPanel/ProVBox/ProLvlHBox"]
 margin_left = 97.0
 margin_right = 216.0
 margin_bottom = 22.0
 size_flags_horizontal = 3
+editable = false
 
-[node name="Spacer" type="Container" parent="VBox/Tabs/Experience/VBox/ProLvlHBox"]
+[node name="Spacer" type="Container" parent="VBox/Tabs/Experience/VBox/ProPanel/ProVBox/ProLvlHBox"]
 margin_left = 220.0
 margin_right = 230.0
 margin_bottom = 22.0
 rect_min_size = Vector2( 10, 0 )
 
-[node name="Label2" type="Label" parent="VBox/Tabs/Experience/VBox/ProLvlHBox"]
+[node name="TargetLabel" type="Label" parent="VBox/Tabs/Experience/VBox/ProPanel/ProVBox/ProLvlHBox"]
 margin_left = 234.0
 margin_right = 319.0
 margin_bottom = 22.0
+custom_colors/font_color = Color( 0.811765, 0.811765, 0.811765, 1 )
 text = "Target Level"
 
-[node name="TargetEdit" type="LineEdit" parent="VBox/Tabs/Experience/VBox/ProLvlHBox"]
+[node name="TargetEdit" type="LineEdit" parent="VBox/Tabs/Experience/VBox/ProPanel/ProVBox/ProLvlHBox"]
 margin_left = 323.0
 margin_right = 442.0
 margin_bottom = 22.0
 size_flags_horizontal = 3
+editable = false
 
-[node name="ProResHBox" type="HBoxContainer" parent="VBox/Tabs/Experience/VBox"]
-margin_top = 529.0
+[node name="ProResHBox" type="HBoxContainer" parent="VBox/Tabs/Experience/VBox/ProPanel/ProVBox"]
+margin_top = 244.0
 margin_right = 442.0
-margin_bottom = 551.0
+margin_bottom = 266.0
 
-[node name="Label" type="Label" parent="VBox/Tabs/Experience/VBox/ProResHBox"]
+[node name="Label" type="Label" parent="VBox/Tabs/Experience/VBox/ProPanel/ProVBox/ProResHBox"]
 margin_right = 197.0
 margin_bottom = 22.0
 text = "Producer Experience Needed:"
 
-[node name="Result" type="Label" parent="VBox/Tabs/Experience/VBox/ProResHBox"]
+[node name="Result" type="Label" parent="VBox/Tabs/Experience/VBox/ProPanel/ProVBox/ProResHBox"]
 margin_left = 201.0
 margin_right = 442.0
 margin_bottom = 22.0

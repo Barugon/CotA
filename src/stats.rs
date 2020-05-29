@@ -43,7 +43,7 @@ impl Stats {
       avatars: NodePath::from_str("Tools/Avatars"),
       dates: NodePath::from_str("Tools/Dates"),
       notes: NodePath::from_str("Tools/Notes"),
-      tree: NodePath::from_str("Tree"),
+      tree: NodePath::from_str("Panel/Tree"),
       status: NodePath::from_str("Status"),
       folder_dialog: NodePath::from_str("/root/Main/FolderDialog"),
       filter_dialog: NodePath::from_str("/root/Main/FilterDialog"),
