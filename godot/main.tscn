@@ -1,0 +1,746 @@
+[gd_scene load_steps=7 format=2]
+
+[ext_resource path="res://main.gdns" type="Script" id=1]
+[ext_resource path="res://main.tres" type="Theme" id=2]
+[ext_resource path="res://stats.gdns" type="Script" id=3]
+[ext_resource path="res://icon.png" type="Texture" id=4]
+[ext_resource path="res://portals.gdns" type="Script" id=5]
+[ext_resource path="res://experience.gdns" type="Script" id=6]
+
+[node name="Main" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 6.0
+margin_top = 6.0
+margin_right = -6.0
+margin_bottom = -6.0
+theme = ExtResource( 2 )
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBox" type="VBoxContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Menu" type="HBoxContainer" parent="VBox"]
+margin_right = 468.0
+margin_bottom = 22.0
+
+[node name="File" type="MenuButton" parent="VBox/Menu"]
+margin_right = 35.0
+margin_bottom = 22.0
+text = "File"
+items = [ "Log Folder...", null, 0, false, false, 0, 0, null, "", false, "", null, 0, false, true, -1, 0, null, "", true, "Quit", null, 0, false, false, 1, 0, null, "", false ]
+switch_on_hover = true
+
+[node name="View" type="MenuButton" parent="VBox/Menu"]
+margin_left = 39.0
+margin_right = 81.0
+margin_bottom = 22.0
+text = "View"
+items = [ "Refresh Stats", null, 0, false, false, 0, 0, null, "", false, "", null, 0, false, true, -1, 0, null, "", true, "Effective Resists", null, 0, false, false, 1, 0, null, "", false, "Filter Stats...", null, 0, false, false, 2, 0, null, "", false, "Reset View", null, 0, false, false, 3, 0, null, "", false ]
+switch_on_hover = true
+
+[node name="Help" type="MenuButton" parent="VBox/Menu"]
+margin_left = 85.0
+margin_right = 127.0
+margin_bottom = 22.0
+text = "Help"
+items = [ "About...", null, 0, false, false, 0, 0, null, "", false ]
+switch_on_hover = true
+
+[node name="Tabs" type="TabContainer" parent="VBox"]
+margin_top = 26.0
+margin_right = 468.0
+margin_bottom = 628.0
+size_flags_vertical = 3
+tab_align = 0
+
+[node name="Stats" type="VBoxContainer" parent="VBox/Tabs"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 5.0
+margin_top = 29.0
+margin_right = -5.0
+margin_bottom = -5.0
+script = ExtResource( 3 )
+
+[node name="Tools" type="HBoxContainer" parent="VBox/Tabs/Stats"]
+margin_right = 458.0
+margin_bottom = 22.0
+
+[node name="Label" type="Label" parent="VBox/Tabs/Stats/Tools"]
+margin_right = 52.0
+margin_bottom = 22.0
+text = "Avatar:"
+
+[node name="Avatars" type="OptionButton" parent="VBox/Tabs/Stats/Tools"]
+margin_left = 56.0
+margin_right = 228.0
+margin_bottom = 22.0
+size_flags_horizontal = 3
+
+[node name="Dates" type="OptionButton" parent="VBox/Tabs/Stats/Tools"]
+margin_left = 232.0
+margin_right = 404.0
+margin_bottom = 22.0
+size_flags_horizontal = 3
+
+[node name="Notes" type="Button" parent="VBox/Tabs/Stats/Tools"]
+margin_left = 408.0
+margin_right = 458.0
+margin_bottom = 22.0
+disabled = true
+text = "Notes"
+
+[node name="Panel" type="Panel" parent="VBox/Tabs/Stats"]
+margin_top = 26.0
+margin_right = 458.0
+margin_bottom = 542.0
+size_flags_vertical = 3
+
+[node name="Tree" type="Tree" parent="VBox/Tabs/Stats/Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 1.0
+margin_top = 1.0
+margin_right = -1.0
+margin_bottom = -1.0
+size_flags_vertical = 3
+columns = 2
+hide_folding = true
+hide_root = true
+select_mode = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Status" type="Label" parent="VBox/Tabs/Stats"]
+margin_top = 546.0
+margin_right = 458.0
+margin_bottom = 568.0
+size_flags_vertical = 0
+align = 1
+
+[node name="Portals" type="Panel" parent="VBox/Tabs"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 5.0
+margin_top = 29.0
+margin_right = -5.0
+margin_bottom = -5.0
+size_flags_vertical = 3
+script = ExtResource( 5 )
+
+[node name="VBox" type="VBoxContainer" parent="VBox/Tabs/Portals"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = -8.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Grid" type="GridContainer" parent="VBox/Tabs/Portals/VBox"]
+margin_right = 442.0
+margin_bottom = 204.0
+columns = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="BloodRiverName" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_right = 144.0
+margin_bottom = 22.0
+size_flags_horizontal = 3
+custom_colors/font_color = Color( 0.235294, 0.407843, 0.501961, 1 )
+text = "Blood River"
+
+[node name="BloodRiverPhase" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 148.0
+margin_right = 292.0
+margin_bottom = 22.0
+size_flags_horizontal = 3
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "New Moon"
+align = 1
+
+[node name="BloodRiverTime" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 296.0
+margin_right = 440.0
+margin_bottom = 22.0
+size_flags_horizontal = 3
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "opens in 00m 00s"
+align = 2
+
+[node name="SolaceBridgeName" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_top = 26.0
+margin_right = 144.0
+margin_bottom = 48.0
+custom_colors/font_color = Color( 0.235294, 0.407843, 0.501961, 1 )
+text = "Solace Bridge"
+
+[node name="SolaceBridgePhase" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 148.0
+margin_top = 26.0
+margin_right = 292.0
+margin_bottom = 48.0
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "Waxing Crescent"
+align = 1
+
+[node name="SolaceBridgeTime" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 296.0
+margin_top = 26.0
+margin_right = 440.0
+margin_bottom = 48.0
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "opens in 00m 00s"
+align = 2
+
+[node name="HighvaleName" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_top = 52.0
+margin_right = 144.0
+margin_bottom = 74.0
+custom_colors/font_color = Color( 0.235294, 0.407843, 0.501961, 1 )
+text = "Highvale"
+
+[node name="HighvalePhase" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 148.0
+margin_top = 52.0
+margin_right = 292.0
+margin_bottom = 74.0
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "First Quarter"
+align = 1
+
+[node name="HighvaleTime" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 296.0
+margin_top = 52.0
+margin_right = 440.0
+margin_bottom = 74.0
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "opens in 00m 00s"
+align = 2
+
+[node name="BrooksideName" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_top = 78.0
+margin_right = 144.0
+margin_bottom = 100.0
+custom_colors/font_color = Color( 0.235294, 0.407843, 0.501961, 1 )
+text = "Brookside"
+
+[node name="BrooksidePhase" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 148.0
+margin_top = 78.0
+margin_right = 292.0
+margin_bottom = 100.0
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "Waxing Gibbous"
+align = 1
+
+[node name="BrooksideTime" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 296.0
+margin_top = 78.0
+margin_right = 440.0
+margin_bottom = 100.0
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "opens in 00m 00s"
+align = 2
+
+[node name="OwlsHeadName" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_top = 104.0
+margin_right = 144.0
+margin_bottom = 126.0
+custom_colors/font_color = Color( 0.235294, 0.407843, 0.501961, 1 )
+text = "Owl's Head"
+
+[node name="OwlsHeadPhase" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 148.0
+margin_top = 104.0
+margin_right = 292.0
+margin_bottom = 126.0
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "Full Moon"
+align = 1
+
+[node name="OwlsHeadTime" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 296.0
+margin_top = 104.0
+margin_right = 440.0
+margin_bottom = 126.0
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "opens in 00m 00s"
+align = 2
+
+[node name="WestendName" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_top = 130.0
+margin_right = 144.0
+margin_bottom = 152.0
+custom_colors/font_color = Color( 0.235294, 0.407843, 0.501961, 1 )
+text = "Westend"
+
+[node name="WestendPhase" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 148.0
+margin_top = 130.0
+margin_right = 292.0
+margin_bottom = 152.0
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "Waning Gibbous"
+align = 1
+
+[node name="WestendTime" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 296.0
+margin_top = 130.0
+margin_right = 440.0
+margin_bottom = 152.0
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "opens in 00m 00s"
+align = 2
+
+[node name="BrittanyGraveyardName" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_top = 156.0
+margin_right = 144.0
+margin_bottom = 178.0
+custom_colors/font_color = Color( 0.235294, 0.407843, 0.501961, 1 )
+text = "Brittany Graveyard"
+
+[node name="BrittanyGraveyardPhase" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 148.0
+margin_top = 156.0
+margin_right = 292.0
+margin_bottom = 178.0
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "Third Quarter"
+align = 1
+
+[node name="BrittanyGraveyardTime" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 296.0
+margin_top = 156.0
+margin_right = 440.0
+margin_bottom = 178.0
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "opens in 00m 00s"
+align = 2
+
+[node name="EtceterName" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_top = 182.0
+margin_right = 144.0
+margin_bottom = 204.0
+custom_colors/font_color = Color( 0.235294, 0.407843, 0.501961, 1 )
+text = "Etceter"
+
+[node name="EtceterPhase" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 148.0
+margin_top = 182.0
+margin_right = 292.0
+margin_bottom = 204.0
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "Waning Crescent"
+align = 1
+
+[node name="EtceterTime" type="Label" parent="VBox/Tabs/Portals/VBox/Grid"]
+margin_left = 296.0
+margin_top = 182.0
+margin_right = 440.0
+margin_bottom = 204.0
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "opens in 00m 00s"
+align = 2
+
+[node name="Spacer1" type="Container" parent="VBox/Tabs/Portals/VBox"]
+margin_top = 208.0
+margin_right = 442.0
+margin_bottom = 233.0
+rect_min_size = Vector2( 0, 25 )
+
+[node name="HBox" type="HBoxContainer" parent="VBox/Tabs/Portals/VBox"]
+margin_top = 237.0
+margin_right = 442.0
+margin_bottom = 259.0
+alignment = 1
+
+[node name="LostValeName" type="Label" parent="VBox/Tabs/Portals/VBox/HBox"]
+margin_left = 110.0
+margin_right = 176.0
+margin_bottom = 22.0
+custom_colors/font_color = Color( 0.407843, 0.501961, 0.235294, 1 )
+text = "Lost Vale"
+
+[node name="LostValeTime" type="Label" parent="VBox/Tabs/Portals/VBox/HBox"]
+margin_left = 180.0
+margin_right = 331.0
+margin_bottom = 22.0
+custom_colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
+text = "opens in 00h 00m 00s"
+
+[node name="Spacer2" type="Container" parent="VBox/Tabs/Portals/VBox"]
+margin_top = 263.0
+margin_right = 442.0
+margin_bottom = 356.0
+size_flags_vertical = 3
+
+[node name="Notice" type="RichTextLabel" parent="VBox/Tabs/Portals/VBox"]
+margin_top = 360.0
+margin_right = 442.0
+margin_bottom = 453.0
+size_flags_vertical = 3
+bbcode_enabled = true
+bbcode_text = "[center][color=#A08658]The accuracy of this portal chronometer
+depends entirely on your system clock.
+
+For best results, please set your system
+clock to synchronize with Internet time.[/color][/center]
+"
+text = "The accuracy of this portal chronometer
+depends entirely on your system clock.
+
+For best results, please set your system
+clock to synchronize with Internet time.
+"
+scroll_active = false
+
+[node name="Spacer3" type="Container" parent="VBox/Tabs/Portals/VBox"]
+margin_top = 457.0
+margin_right = 442.0
+margin_bottom = 552.0
+size_flags_vertical = 3
+
+[node name="Timer" type="Timer" parent="VBox/Tabs/Portals"]
+
+[node name="Experience" type="VBoxContainer" parent="VBox/Tabs"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 5.0
+margin_top = 29.0
+margin_right = -5.0
+margin_bottom = -5.0
+
+[node name="VBox" type="VBoxContainer" parent="VBox/Tabs/Experience"]
+margin_right = 458.0
+margin_bottom = 568.0
+size_flags_vertical = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="AdvPanel" type="Panel" parent="VBox/Tabs/Experience/VBox"]
+margin_right = 458.0
+margin_bottom = 282.0
+size_flags_vertical = 3
+script = ExtResource( 6 )
+__meta__ = {
+"_editor_description_": "res/adventurer_skills.csv"
+}
+
+[node name="VBox" type="VBoxContainer" parent="VBox/Tabs/Experience/VBox/AdvPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = -8.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Panel" type="Panel" parent="VBox/Tabs/Experience/VBox/AdvPanel/VBox"]
+margin_right = 442.0
+margin_bottom = 206.0
+size_flags_vertical = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Tree" type="Tree" parent="VBox/Tabs/Experience/VBox/AdvPanel/VBox/Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 1.0
+margin_top = 1.0
+margin_right = -1.0
+margin_bottom = -1.0
+size_flags_vertical = 3
+columns = 3
+allow_reselect = true
+hide_folding = true
+hide_root = true
+select_mode = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Spacer" type="Container" parent="VBox/Tabs/Experience/VBox/AdvPanel/VBox"]
+margin_top = 210.0
+margin_right = 442.0
+margin_bottom = 214.0
+rect_min_size = Vector2( 0, 4 )
+
+[node name="LvlHBox" type="HBoxContainer" parent="VBox/Tabs/Experience/VBox/AdvPanel/VBox"]
+margin_top = 218.0
+margin_right = 442.0
+margin_bottom = 240.0
+size_flags_horizontal = 3
+
+[node name="CurrentLabel" type="Label" parent="VBox/Tabs/Experience/VBox/AdvPanel/VBox/LvlHBox"]
+margin_right = 93.0
+margin_bottom = 22.0
+custom_colors/font_color = Color( 0.811765, 0.811765, 0.811765, 1 )
+text = "Current Level"
+
+[node name="CurrentEdit" type="LineEdit" parent="VBox/Tabs/Experience/VBox/AdvPanel/VBox/LvlHBox"]
+margin_left = 97.0
+margin_right = 216.0
+margin_bottom = 22.0
+size_flags_horizontal = 3
+editable = false
+
+[node name="Spacer" type="Container" parent="VBox/Tabs/Experience/VBox/AdvPanel/VBox/LvlHBox"]
+margin_left = 220.0
+margin_right = 230.0
+margin_bottom = 22.0
+rect_min_size = Vector2( 10, 0 )
+
+[node name="TargetLabel" type="Label" parent="VBox/Tabs/Experience/VBox/AdvPanel/VBox/LvlHBox"]
+margin_left = 234.0
+margin_right = 319.0
+margin_bottom = 22.0
+custom_colors/font_color = Color( 0.811765, 0.811765, 0.811765, 1 )
+text = "Target Level"
+
+[node name="TargetEdit" type="LineEdit" parent="VBox/Tabs/Experience/VBox/AdvPanel/VBox/LvlHBox"]
+margin_left = 323.0
+margin_right = 442.0
+margin_bottom = 22.0
+size_flags_horizontal = 3
+editable = false
+
+[node name="ResHBox" type="HBoxContainer" parent="VBox/Tabs/Experience/VBox/AdvPanel/VBox"]
+margin_top = 244.0
+margin_right = 442.0
+margin_bottom = 266.0
+
+[node name="Label" type="Label" parent="VBox/Tabs/Experience/VBox/AdvPanel/VBox/ResHBox"]
+margin_right = 211.0
+margin_bottom = 22.0
+text = "Adventurer Experience Needed:"
+
+[node name="Result" type="Label" parent="VBox/Tabs/Experience/VBox/AdvPanel/VBox/ResHBox"]
+margin_left = 215.0
+margin_right = 442.0
+margin_bottom = 22.0
+size_flags_horizontal = 3
+
+[node name="ProPanel" type="Panel" parent="VBox/Tabs/Experience/VBox"]
+margin_top = 286.0
+margin_right = 458.0
+margin_bottom = 568.0
+size_flags_vertical = 3
+script = ExtResource( 6 )
+__meta__ = {
+"_editor_description_": "res/producer_skills.csv"
+}
+
+[node name="VBox" type="VBoxContainer" parent="VBox/Tabs/Experience/VBox/ProPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = -8.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Panel" type="Panel" parent="VBox/Tabs/Experience/VBox/ProPanel/VBox"]
+margin_right = 442.0
+margin_bottom = 206.0
+size_flags_vertical = 3
+
+[node name="Tree" type="Tree" parent="VBox/Tabs/Experience/VBox/ProPanel/VBox/Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 1.0
+margin_top = 2.0
+margin_right = -1.0
+margin_bottom = -1.0
+size_flags_vertical = 3
+columns = 3
+allow_reselect = true
+hide_folding = true
+hide_root = true
+select_mode = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Spacer" type="Container" parent="VBox/Tabs/Experience/VBox/ProPanel/VBox"]
+margin_top = 210.0
+margin_right = 442.0
+margin_bottom = 214.0
+rect_min_size = Vector2( 0, 4 )
+
+[node name="LvlHBox" type="HBoxContainer" parent="VBox/Tabs/Experience/VBox/ProPanel/VBox"]
+margin_top = 218.0
+margin_right = 442.0
+margin_bottom = 240.0
+
+[node name="CurrentLabel" type="Label" parent="VBox/Tabs/Experience/VBox/ProPanel/VBox/LvlHBox"]
+margin_right = 93.0
+margin_bottom = 22.0
+custom_colors/font_color = Color( 0.811765, 0.811765, 0.811765, 1 )
+text = "Current Level"
+
+[node name="CurrentEdit" type="LineEdit" parent="VBox/Tabs/Experience/VBox/ProPanel/VBox/LvlHBox"]
+margin_left = 97.0
+margin_right = 216.0
+margin_bottom = 22.0
+size_flags_horizontal = 3
+editable = false
+
+[node name="Spacer" type="Container" parent="VBox/Tabs/Experience/VBox/ProPanel/VBox/LvlHBox"]
+margin_left = 220.0
+margin_right = 230.0
+margin_bottom = 22.0
+rect_min_size = Vector2( 10, 0 )
+
+[node name="TargetLabel" type="Label" parent="VBox/Tabs/Experience/VBox/ProPanel/VBox/LvlHBox"]
+margin_left = 234.0
+margin_right = 319.0
+margin_bottom = 22.0
+custom_colors/font_color = Color( 0.811765, 0.811765, 0.811765, 1 )
+text = "Target Level"
+
+[node name="TargetEdit" type="LineEdit" parent="VBox/Tabs/Experience/VBox/ProPanel/VBox/LvlHBox"]
+margin_left = 323.0
+margin_right = 442.0
+margin_bottom = 22.0
+size_flags_horizontal = 3
+editable = false
+
+[node name="ResHBox" type="HBoxContainer" parent="VBox/Tabs/Experience/VBox/ProPanel/VBox"]
+margin_top = 244.0
+margin_right = 442.0
+margin_bottom = 266.0
+
+[node name="Label" type="Label" parent="VBox/Tabs/Experience/VBox/ProPanel/VBox/ResHBox"]
+margin_right = 197.0
+margin_bottom = 22.0
+text = "Producer Experience Needed:"
+
+[node name="Result" type="Label" parent="VBox/Tabs/Experience/VBox/ProPanel/VBox/ResHBox"]
+margin_left = 201.0
+margin_right = 442.0
+margin_bottom = 22.0
+size_flags_horizontal = 3
+
+[node name="FolderDialog" type="FileDialog" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = 125.0
+margin_bottom = -100.0
+window_title = "Open a Directory"
+mode = 2
+access = 2
+current_dir = "/home/barugon/Desktop/Dev/Projects/cota"
+current_path = "/home/barugon/Desktop/Dev/Projects/cota/"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="FilterDialog" type="ConfirmationDialog" parent="."]
+margin_left = 117.0
+margin_top = 274.0
+margin_right = 348.0
+margin_bottom = 344.0
+window_title = "Filter Stats"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBox" type="VBoxContainer" parent="FilterDialog"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = -38.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="FilterEdit" type="LineEdit" parent="FilterDialog/VBox"]
+margin_right = 215.0
+margin_bottom = 22.0
+
+[node name="NotesDialog" type="ConfirmationDialog" parent="."]
+margin_left = 58.0
+margin_top = 161.0
+margin_right = 426.0
+margin_bottom = 536.0
+window_title = "Notes"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBox" type="VBoxContainer" parent="NotesDialog"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = -38.0
+
+[node name="NotesEdit" type="TextEdit" parent="NotesDialog/VBox"]
+margin_right = 352.0
+margin_bottom = 329.0
+size_flags_vertical = 3
+
+[node name="AboutDialog" type="AcceptDialog" parent="."]
+margin_left = 81.0
+margin_top = 183.0
+margin_right = 393.0
+margin_bottom = 441.0
+window_title = "Companion of the Avatar"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBox" type="VBoxContainer" parent="AboutDialog"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = -38.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Icon" type="TextureRect" parent="AboutDialog/VBox"]
+margin_right = 296.0
+margin_bottom = 150.0
+texture = ExtResource( 4 )
+stretch_mode = 4
+
+[node name="Version" type="Label" parent="AboutDialog/VBox"]
+margin_top = 154.0
+margin_right = 296.0
+margin_bottom = 176.0
+align = 1
+
+[node name="Creator" type="Label" parent="AboutDialog/VBox"]
+margin_top = 180.0
+margin_right = 296.0
+margin_bottom = 202.0
+text = "Created by: Barugon"
+align = 1

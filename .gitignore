@@ -1,8 +1,7 @@
-.import
-.vscode
+.vscode/settings.json
 **/*.rs.bk
 Cargo.lock
-json/target
-out
+godot/.import
+godot/out
+osxcross
 target
-thread_pool/target
