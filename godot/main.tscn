@@ -62,6 +62,7 @@ size_flags_vertical = 3
 tab_align = 0
 
 [node name="Stats" type="VBoxContainer" parent="VBox/Tabs"]
+visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 5.0
@@ -418,14 +419,12 @@ size_flags_vertical = 3
 [node name="Timer" type="Timer" parent="VBox/Tabs/Portals"]
 
 [node name="Experience" type="VBoxContainer" parent="VBox/Tabs"]
-visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 5.0
 margin_top = 29.0
 margin_right = -5.0
 margin_bottom = -5.0
-script = ExtResource( 6 )
 
 [node name="VBox" type="VBoxContainer" parent="VBox/Tabs/Experience"]
 margin_right = 458.0
@@ -439,8 +438,12 @@ __meta__ = {
 margin_right = 458.0
 margin_bottom = 282.0
 size_flags_vertical = 3
+script = ExtResource( 6 )
+__meta__ = {
+"_editor_description_": "res/adventurer_skills.csv"
+}
 
-[node name="AdvVBox" type="VBoxContainer" parent="VBox/Tabs/Experience/VBox/AdvPanel"]
+[node name="VBox" type="VBoxContainer" parent="VBox/Tabs/Experience/VBox/AdvPanel"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 8.0
@@ -451,7 +454,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="AdvTreePanel" type="Panel" parent="VBox/Tabs/Experience/VBox/AdvPanel/AdvVBox"]
+[node name="Panel" type="Panel" parent="VBox/Tabs/Experience/VBox/AdvPanel/VBox"]
 margin_right = 442.0
 margin_bottom = 206.0
 size_flags_vertical = 3
@@ -459,7 +462,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="AdvTree" type="Tree" parent="VBox/Tabs/Experience/VBox/AdvPanel/AdvVBox/AdvTreePanel"]
+[node name="Tree" type="Tree" parent="VBox/Tabs/Experience/VBox/AdvPanel/VBox/Panel"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 1.0
@@ -467,66 +470,71 @@ margin_top = 1.0
 margin_right = -1.0
 margin_bottom = -1.0
 size_flags_vertical = 3
+columns = 3
+allow_reselect = true
+hide_folding = true
+hide_root = true
+select_mode = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Spacer1" type="Container" parent="VBox/Tabs/Experience/VBox/AdvPanel/AdvVBox"]
+[node name="Spacer" type="Container" parent="VBox/Tabs/Experience/VBox/AdvPanel/VBox"]
 margin_top = 210.0
 margin_right = 442.0
 margin_bottom = 214.0
 rect_min_size = Vector2( 0, 4 )
 
-[node name="AdvLvlHBox" type="HBoxContainer" parent="VBox/Tabs/Experience/VBox/AdvPanel/AdvVBox"]
+[node name="LvlHBox" type="HBoxContainer" parent="VBox/Tabs/Experience/VBox/AdvPanel/VBox"]
 margin_top = 218.0
 margin_right = 442.0
 margin_bottom = 240.0
 size_flags_horizontal = 3
 
-[node name="CurrentLabel" type="Label" parent="VBox/Tabs/Experience/VBox/AdvPanel/AdvVBox/AdvLvlHBox"]
+[node name="CurrentLabel" type="Label" parent="VBox/Tabs/Experience/VBox/AdvPanel/VBox/LvlHBox"]
 margin_right = 93.0
 margin_bottom = 22.0
 custom_colors/font_color = Color( 0.811765, 0.811765, 0.811765, 1 )
 text = "Current Level"
 
-[node name="CurrentEdit" type="LineEdit" parent="VBox/Tabs/Experience/VBox/AdvPanel/AdvVBox/AdvLvlHBox"]
+[node name="CurrentEdit" type="LineEdit" parent="VBox/Tabs/Experience/VBox/AdvPanel/VBox/LvlHBox"]
 margin_left = 97.0
 margin_right = 216.0
 margin_bottom = 22.0
 size_flags_horizontal = 3
 editable = false
 
-[node name="Spacer" type="Container" parent="VBox/Tabs/Experience/VBox/AdvPanel/AdvVBox/AdvLvlHBox"]
+[node name="Spacer" type="Container" parent="VBox/Tabs/Experience/VBox/AdvPanel/VBox/LvlHBox"]
 margin_left = 220.0
 margin_right = 230.0
 margin_bottom = 22.0
 rect_min_size = Vector2( 10, 0 )
 
-[node name="TargetLabel" type="Label" parent="VBox/Tabs/Experience/VBox/AdvPanel/AdvVBox/AdvLvlHBox"]
+[node name="TargetLabel" type="Label" parent="VBox/Tabs/Experience/VBox/AdvPanel/VBox/LvlHBox"]
 margin_left = 234.0
 margin_right = 319.0
 margin_bottom = 22.0
 custom_colors/font_color = Color( 0.811765, 0.811765, 0.811765, 1 )
 text = "Target Level"
 
-[node name="TargetEdit" type="LineEdit" parent="VBox/Tabs/Experience/VBox/AdvPanel/AdvVBox/AdvLvlHBox"]
+[node name="TargetEdit" type="LineEdit" parent="VBox/Tabs/Experience/VBox/AdvPanel/VBox/LvlHBox"]
 margin_left = 323.0
 margin_right = 442.0
 margin_bottom = 22.0
 size_flags_horizontal = 3
 editable = false
 
-[node name="AdvResHBox" type="HBoxContainer" parent="VBox/Tabs/Experience/VBox/AdvPanel/AdvVBox"]
+[node name="ResHBox" type="HBoxContainer" parent="VBox/Tabs/Experience/VBox/AdvPanel/VBox"]
 margin_top = 244.0
 margin_right = 442.0
 margin_bottom = 266.0
 
-[node name="Label" type="Label" parent="VBox/Tabs/Experience/VBox/AdvPanel/AdvVBox/AdvResHBox"]
+[node name="Label" type="Label" parent="VBox/Tabs/Experience/VBox/AdvPanel/VBox/ResHBox"]
 margin_right = 211.0
 margin_bottom = 22.0
 text = "Adventurer Experience Needed:"
 
-[node name="Result" type="Label" parent="VBox/Tabs/Experience/VBox/AdvPanel/AdvVBox/AdvResHBox"]
+[node name="Result" type="Label" parent="VBox/Tabs/Experience/VBox/AdvPanel/VBox/ResHBox"]
 margin_left = 215.0
 margin_right = 442.0
 margin_bottom = 22.0
@@ -537,8 +545,12 @@ margin_top = 286.0
 margin_right = 458.0
 margin_bottom = 568.0
 size_flags_vertical = 3
+script = ExtResource( 6 )
+__meta__ = {
+"_editor_description_": "res/producer_skills.csv"
+}
 
-[node name="ProVBox" type="VBoxContainer" parent="VBox/Tabs/Experience/VBox/ProPanel"]
+[node name="VBox" type="VBoxContainer" parent="VBox/Tabs/Experience/VBox/ProPanel"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 8.0
@@ -549,78 +561,83 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="ProTreePanel" type="Panel" parent="VBox/Tabs/Experience/VBox/ProPanel/ProVBox"]
+[node name="Panel" type="Panel" parent="VBox/Tabs/Experience/VBox/ProPanel/VBox"]
 margin_right = 442.0
 margin_bottom = 206.0
 size_flags_vertical = 3
 
-[node name="ProTree" type="Tree" parent="VBox/Tabs/Experience/VBox/ProPanel/ProVBox/ProTreePanel"]
+[node name="Tree" type="Tree" parent="VBox/Tabs/Experience/VBox/ProPanel/VBox/Panel"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 1.0
-margin_top = 1.0
+margin_top = 2.0
 margin_right = -1.0
 margin_bottom = -1.0
 size_flags_vertical = 3
+columns = 3
+allow_reselect = true
+hide_folding = true
+hide_root = true
+select_mode = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Spacer4" type="Container" parent="VBox/Tabs/Experience/VBox/ProPanel/ProVBox"]
+[node name="Spacer" type="Container" parent="VBox/Tabs/Experience/VBox/ProPanel/VBox"]
 margin_top = 210.0
 margin_right = 442.0
 margin_bottom = 214.0
 rect_min_size = Vector2( 0, 4 )
 
-[node name="ProLvlHBox" type="HBoxContainer" parent="VBox/Tabs/Experience/VBox/ProPanel/ProVBox"]
+[node name="LvlHBox" type="HBoxContainer" parent="VBox/Tabs/Experience/VBox/ProPanel/VBox"]
 margin_top = 218.0
 margin_right = 442.0
 margin_bottom = 240.0
 
-[node name="CurrentLabel" type="Label" parent="VBox/Tabs/Experience/VBox/ProPanel/ProVBox/ProLvlHBox"]
+[node name="CurrentLabel" type="Label" parent="VBox/Tabs/Experience/VBox/ProPanel/VBox/LvlHBox"]
 margin_right = 93.0
 margin_bottom = 22.0
 custom_colors/font_color = Color( 0.811765, 0.811765, 0.811765, 1 )
 text = "Current Level"
 
-[node name="CurrentEdit" type="LineEdit" parent="VBox/Tabs/Experience/VBox/ProPanel/ProVBox/ProLvlHBox"]
+[node name="CurrentEdit" type="LineEdit" parent="VBox/Tabs/Experience/VBox/ProPanel/VBox/LvlHBox"]
 margin_left = 97.0
 margin_right = 216.0
 margin_bottom = 22.0
 size_flags_horizontal = 3
 editable = false
 
-[node name="Spacer" type="Container" parent="VBox/Tabs/Experience/VBox/ProPanel/ProVBox/ProLvlHBox"]
+[node name="Spacer" type="Container" parent="VBox/Tabs/Experience/VBox/ProPanel/VBox/LvlHBox"]
 margin_left = 220.0
 margin_right = 230.0
 margin_bottom = 22.0
 rect_min_size = Vector2( 10, 0 )
 
-[node name="TargetLabel" type="Label" parent="VBox/Tabs/Experience/VBox/ProPanel/ProVBox/ProLvlHBox"]
+[node name="TargetLabel" type="Label" parent="VBox/Tabs/Experience/VBox/ProPanel/VBox/LvlHBox"]
 margin_left = 234.0
 margin_right = 319.0
 margin_bottom = 22.0
 custom_colors/font_color = Color( 0.811765, 0.811765, 0.811765, 1 )
 text = "Target Level"
 
-[node name="TargetEdit" type="LineEdit" parent="VBox/Tabs/Experience/VBox/ProPanel/ProVBox/ProLvlHBox"]
+[node name="TargetEdit" type="LineEdit" parent="VBox/Tabs/Experience/VBox/ProPanel/VBox/LvlHBox"]
 margin_left = 323.0
 margin_right = 442.0
 margin_bottom = 22.0
 size_flags_horizontal = 3
 editable = false
 
-[node name="ProResHBox" type="HBoxContainer" parent="VBox/Tabs/Experience/VBox/ProPanel/ProVBox"]
+[node name="ResHBox" type="HBoxContainer" parent="VBox/Tabs/Experience/VBox/ProPanel/VBox"]
 margin_top = 244.0
 margin_right = 442.0
 margin_bottom = 266.0
 
-[node name="Label" type="Label" parent="VBox/Tabs/Experience/VBox/ProPanel/ProVBox/ProResHBox"]
+[node name="Label" type="Label" parent="VBox/Tabs/Experience/VBox/ProPanel/VBox/ResHBox"]
 margin_right = 197.0
 margin_bottom = 22.0
 text = "Producer Experience Needed:"
 
-[node name="Result" type="Label" parent="VBox/Tabs/Experience/VBox/ProPanel/ProVBox/ProResHBox"]
+[node name="Result" type="Label" parent="VBox/Tabs/Experience/VBox/ProPanel/VBox/ResHBox"]
 margin_left = 201.0
 margin_right = 442.0
 margin_bottom = 22.0

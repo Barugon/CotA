@@ -87,7 +87,6 @@ impl Portals {
       seconds -= 60;
     }
 
-    // #B8FFE3
     unsafe {
       // The first rift is the active one.
       let mut place_label = some!(owner.get_node_as::<Label>(&self.places[rift]));
