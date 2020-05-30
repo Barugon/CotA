@@ -62,7 +62,6 @@ size_flags_vertical = 3
 tab_align = 0
 
 [node name="Stats" type="VBoxContainer" parent="VBox/Tabs"]
-visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 5.0
@@ -419,6 +418,7 @@ size_flags_vertical = 3
 [node name="Timer" type="Timer" parent="VBox/Tabs/Portals"]
 
 [node name="Experience" type="VBoxContainer" parent="VBox/Tabs"]
+visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 5.0
