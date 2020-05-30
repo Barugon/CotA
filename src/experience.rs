@@ -66,7 +66,6 @@ impl Experience {
 
     unsafe {
       if let Some(item) = tree.get_selected() {
-        godot_print!("Select");
         current.set_editable(true);
         target.set_editable(true);
 
@@ -114,7 +113,6 @@ impl Experience {
           }
         }
       } else {
-        godot_print!("Deselect");
         current.set_editable(false);
         target.set_editable(false);
       }
