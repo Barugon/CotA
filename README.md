@@ -13,7 +13,7 @@ It also has this sweet portal chronometer.
 
 And, this fabulous experience needed calculator!
 
-![screenshot](https://a4.pbase.com/o12/09/605909/1/169657368.rrABdKbT.Screenshotfrom20200529161216.png)
+![screenshot](https://a4.pbase.com/o12/09/605909/1/169657368.SYPxjBDH.Screenshotfrom20200529170856.png)
 
 CotA uses the Godot game engine for it's GUI, so there's nothing extra to install. Just download and go.
 
