@@ -15,7 +15,7 @@ And, this fabulous experience needed calculator!
 
 ![screenshot](https://a4.pbase.com/o12/09/605909/1/169657368.SYPxjBDH.Screenshotfrom20200529170856.png)
 
-CotA uses the Godot game engine for it's GUI, so there's nothing extra to install. Just download and go.
+CotA uses the [Godot game engine](https://godotengine.org) for it's GUI, so there's nothing extra to install. Just download and go.
 
 - Linux: [cota.zip](https://github.com/Barugon/cota_build/raw/master/linux/cota.zip)
 - Windows: [cota.zip](https://github.com/Barugon/cota_build/raw/master/windows/cota.zip)
