@@ -483,6 +483,7 @@ impl Stats {
           }
         }
       }
+
       let text = format!("No stats found for {}", avatar);
       self.set_status_message(owner, Some(&text));
       return;
