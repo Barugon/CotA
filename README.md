@@ -9,11 +9,11 @@ Press Ctrl+R to get a list of effective resists or Ctrl+F to filter the stats.
 
 It also has this sweet portal chronometer.
 
-![screenshot](https://a4.pbase.com/o12/09/605909/1/166622004.1LEEFIaC.Screenshotfrom20200529161225.png)
+![screenshot](https://a4.pbase.com/o12/09/605909/1/166622004.MiH6f64Y.Screenshotfrom20200531024002.png)
 
 And, this fabulous experience needed calculator!
 
-![screenshot](https://a4.pbase.com/o12/09/605909/1/169657368.SYPxjBDH.Screenshotfrom20200529170856.png)
+![screenshot](https://a4.pbase.com/o12/09/605909/1/169657368.KriGFgUz.Screenshotfrom20200531023739.png)
 
 CotA uses the [Godot game engine](https://godotengine.org) for it's GUI, so there's nothing extra to install. Just download and go.
 
