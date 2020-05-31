@@ -62,6 +62,7 @@ size_flags_vertical = 3
 tab_align = 0
 
 [node name="Stats" type="VBoxContainer" parent="VBox/Tabs"]
+visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 5.0
@@ -128,7 +129,6 @@ size_flags_vertical = 0
 align = 1
 
 [node name="Portals" type="Panel" parent="VBox/Tabs"]
-visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 5.0
@@ -389,25 +389,17 @@ margin_right = 442.0
 margin_bottom = 356.0
 size_flags_vertical = 3
 
-[node name="Notice" type="RichTextLabel" parent="VBox/Tabs/Portals/VBox"]
+[node name="Notice" type="Label" parent="VBox/Tabs/Portals/VBox"]
 margin_top = 360.0
 margin_right = 442.0
 margin_bottom = 453.0
 size_flags_vertical = 3
-bbcode_enabled = true
-bbcode_text = "[center][color=#A08658]The accuracy of this portal chronometer
-depends entirely on your system clock.
-
-For best results, please set your system
-clock to synchronize with Internet time.[/color][/center]
-"
 text = "The accuracy of this portal chronometer
 depends entirely on your system clock.
 
 For best results, please set your system
-clock to synchronize with Internet time.
-"
-scroll_active = false
+clock to synchronize with Internet time."
+align = 1
 
 [node name="Spacer3" type="Container" parent="VBox/Tabs/Portals/VBox"]
 margin_top = 457.0
@@ -539,6 +531,7 @@ margin_left = 215.0
 margin_right = 442.0
 margin_bottom = 22.0
 size_flags_horizontal = 3
+custom_colors/font_color = Color( 0.85098, 0.701961, 0.466667, 1 )
 
 [node name="ProPanel" type="Panel" parent="VBox/Tabs/Experience/VBox"]
 margin_top = 286.0
@@ -642,6 +635,7 @@ margin_left = 201.0
 margin_right = 442.0
 margin_bottom = 22.0
 size_flags_horizontal = 3
+custom_colors/font_color = Color( 0.85098, 0.701961, 0.466667, 1 )
 
 [node name="FolderDialog" type="FileDialog" parent="."]
 anchor_right = 1.0
