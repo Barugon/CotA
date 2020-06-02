@@ -27,7 +27,7 @@ impl App {
       view: NodePath::from_str("VBox/Menu/View"),
       help: NodePath::from_str("VBox/Menu/Help"),
       file_dialog: NodePath::from_str("FolderDialog"),
-      file_dialog_title: GodotString::from_str("Select Log Folder"),
+      file_dialog_title: GodotString::from_str("Select Chat Log Folder"),
       about_dialog: NodePath::from_str("AboutDialog"),
       about_version: NodePath::from_str("AboutDialog/VBox/Version"),
       portals_timer: NodePath::from_str("VBox/Tabs/Portals/Timer"),
@@ -115,6 +115,11 @@ impl App {
 
   fn enable_stat_menus(&self, owner: Node, enable: bool) {
     unsafe {
+      if let Some(menu) = owner.get_node_as::<MenuButton>(&self.file) {
+        if let Some(mut popup) = menu.get_popup() {
+          popup.set_item_disabled(popup.get_item_index(LOG_FOLDER_ID), !enable);
+        }
+      }
       if let Some(menu) = owner.get_node_as::<MenuButton>(&self.view) {
         if let Some(mut popup) = menu.get_popup() {
           for id in &[REFRESH_ID, RESISTS_ID, FILTER_ID, RESET_ID] {
