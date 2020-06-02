@@ -358,7 +358,7 @@ pub fn get_locale() -> Locale {
     }
   }
 
-  Locale::en_US_POSIX
+  Locale::en
 }
 
 pub trait ToDisplayString {
