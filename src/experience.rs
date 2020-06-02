@@ -73,7 +73,6 @@ impl Experience {
           .get_text()
           .to_utf8()
           .as_str()
-          .trim_end_matches('x')
           .parse::<usize>()
           .unwrap_or(0);
 
@@ -81,7 +80,6 @@ impl Experience {
           .get_text()
           .to_utf8()
           .as_str()
-          .trim_end_matches('x')
           .parse::<usize>()
           .unwrap_or(0);
 
