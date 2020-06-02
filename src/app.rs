@@ -7,6 +7,7 @@ use gdnative::*;
 pub struct App {
   config: Config,
   file: NodePath,
+  view: NodePath,
   help: NodePath,
   file_dialog: NodePath,
   file_dialog_title: GodotString,
@@ -23,6 +24,7 @@ impl App {
     App {
       config: Config::new(),
       file: NodePath::from_str("VBox/Menu/File"),
+      view: NodePath::from_str("VBox/Menu/View"),
       help: NodePath::from_str("VBox/Menu/Help"),
       file_dialog: NodePath::from_str("FolderDialog"),
       file_dialog_title: GodotString::from_str("Select Log Folder"),
@@ -100,11 +102,24 @@ impl App {
   fn tab_changed(&self, owner: Node, idx: i64) {
     if let Some(mut timer) = owner.get_node_as::<Timer>(&self.portals_timer) {
       unsafe {
+        self.enable_stat_menus(owner, idx == STATS_IDX);
         if idx == PORTALS_IDX {
           timer.start(-1.0);
           timer.emit_signal(self.update_signal.new_ref(), &[]);
         } else {
           timer.stop();
+        }
+      }
+    }
+  }
+
+  fn enable_stat_menus(&self, owner: Node, enable: bool) {
+    unsafe {
+      if let Some(menu) = owner.get_node_as::<MenuButton>(&self.view) {
+        if let Some(mut popup) = menu.get_popup() {
+          for id in &[REFRESH_ID, RESISTS_ID, FILTER_ID, RESET_ID] {
+            popup.set_item_disabled(popup.get_item_index(*id), !enable);
+          }
         }
       }
     }
