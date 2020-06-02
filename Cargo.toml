@@ -1,6 +1,6 @@
 [package]
 name = "cota"
-version = "3.0.0"
+version = "3.0.1"
 authors = ["Barugon"]
 edition = "2018"
 
