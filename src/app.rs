@@ -10,7 +10,6 @@ pub struct App {
   view: NodePath,
   help: NodePath,
   file_dialog: NodePath,
-  file_dialog_title: GodotString,
   about_dialog: NodePath,
   about_version: NodePath,
   portals_timer: NodePath,
@@ -27,7 +26,6 @@ impl App {
       view: NodePath::from_str("VBox/Menu/View"),
       help: NodePath::from_str("VBox/Menu/Help"),
       file_dialog: NodePath::from_str("FolderDialog"),
-      file_dialog_title: GodotString::from_str("Select Chat Log Folder"),
       about_dialog: NodePath::from_str("AboutDialog"),
       about_version: NodePath::from_str("AboutDialog/VBox/Version"),
       portals_timer: NodePath::from_str("VBox/Tabs/Portals/Timer"),
@@ -65,9 +63,6 @@ impl App {
           if let Some(folder) = self.config.get_log_folder() {
             dialog.set_current_path(folder);
           }
-
-          // Setting the title in the editor won't stick, so we have to set it here.
-          dialog.set_title(self.file_dialog_title.new_ref());
           dialog.popup_centered(Vector2::zero());
         }
       },
