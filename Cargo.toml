@@ -1,5 +1,6 @@
 [package]
 name = "cota"
+# Don't forget to set the file version for Windows and Mac in the editor.
 version = "3.0.1"
 authors = ["Barugon"]
 edition = "2018"

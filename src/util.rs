@@ -305,7 +305,6 @@ pub fn ascii_contains_ignore_case(container: &[u8], pattern: &[u8]) -> bool {
       if ascii_starts_with_ignore_case(container, pattern) {
         return true;
       }
-
       container = &container[1..];
     }
   }
@@ -496,7 +495,6 @@ impl<'a> Iterator for StatsIter<'a> {
         if let Some(value) = self.iter.next() {
           return Some((&name[..name.len() - 1], value));
         }
-
         break;
       }
     }
@@ -566,6 +564,7 @@ impl LogData {
       for filename in filenames {
         let path = self.folder.join(filename.as_str());
         if let Some(date) = get_log_file_date(&path) {
+          // Each task will read and scan one log file.
           let task = pool.exec(move |cancel| {
             let mut timestamps = Vec::new();
             if let Ok(text) = fs::read_to_string(&path) {
@@ -588,7 +587,7 @@ impl LogData {
 
     let mut timestamps = Vec::new();
     for mut task in tasks {
-      // Process gtk messages until the task is done.
+      // Yield the current thread until the task is done.
       while task.current() {
         std::thread::yield_now();
       }
@@ -599,6 +598,7 @@ impl LogData {
       }
     }
 
+    // Sort the timestamps so that the most recent is first.
     timestamps.sort_unstable_by(|a, b| b.cmp(a));
     timestamps
   }

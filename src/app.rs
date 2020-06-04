@@ -65,6 +65,8 @@ impl App {
           if let Some(folder) = self.config.get_log_folder() {
             dialog.set_current_path(folder);
           }
+
+          // Setting the title in the editor won't stick, so we have to set it here.
           dialog.set_title(self.file_dialog_title.new_ref());
           dialog.popup_centered(Vector2::zero());
         }
@@ -120,6 +122,7 @@ impl App {
           popup.set_item_disabled(popup.get_item_index(LOG_FOLDER_ID), !enable);
         }
       }
+
       if let Some(menu) = owner.get_node_as::<MenuButton>(&self.view) {
         if let Some(mut popup) = menu.get_popup() {
           for id in &[REFRESH_ID, RESISTS_ID, FILTER_ID, RESET_ID] {

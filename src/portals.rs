@@ -74,20 +74,20 @@ impl Portals {
 
   #[export]
   fn update(&self, owner: Node) {
-    // Get the lunar phase.
-    let phase = get_lunar_phase();
-    let mut rift = phase as usize;
-
-    // Get the time remaining for the active lunar rift.
-    let remain = 8.75 * (1.0 - (phase - rift as f64));
-    let mut minutes = remain as i32;
-    let mut seconds = (60.0 * (remain - minutes as f64) + 0.5) as i32;
-    if seconds > 59 {
-      minutes += 1;
-      seconds -= 60;
-    }
-
     unsafe {
+      // Get the lunar phase.
+      let phase = get_lunar_phase();
+      let mut rift = phase as usize;
+
+      // Get the time remaining for the active lunar rift.
+      let remain = 8.75 * (1.0 - (phase - rift as f64));
+      let mut minutes = remain as i32;
+      let mut seconds = (60.0 * (remain - minutes as f64) + 0.5) as i32;
+      if seconds > 59 {
+        minutes += 1;
+        seconds -= 60;
+      }
+
       // The first rift is the active one.
       let mut place_label = some!(owner.get_node_as::<Label>(&self.places[rift]));
       place_label.set(self.color_name.new_ref(), self.opened_rift_color.clone());
