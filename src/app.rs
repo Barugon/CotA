@@ -10,6 +10,8 @@ pub struct App {
   view: NodePath,
   help: NodePath,
   file_dialog: NodePath,
+  file_dialog_title: GodotString,
+  file_filters: StringArray,
   about_dialog: NodePath,
   about_version: NodePath,
   portals_timer: NodePath,
@@ -20,12 +22,16 @@ pub struct App {
 #[methods]
 impl App {
   fn _init(_owner: Node) -> Self {
+    let mut filters = StringArray::new();
+    filters.push(&GodotString::from_str("*.txt ; Chat Logs"));
     App {
       config: Config::new(),
       file: NodePath::from_str("VBox/Menu/File"),
       view: NodePath::from_str("VBox/Menu/View"),
       help: NodePath::from_str("VBox/Menu/Help"),
-      file_dialog: NodePath::from_str("FolderDialog"),
+      file_dialog: NodePath::from_str("FileDialog"),
+      file_dialog_title: GodotString::from_str("Select Chat Log Folder"),
+      file_filters: filters,
       about_dialog: NodePath::from_str("AboutDialog"),
       about_version: NodePath::from_str("AboutDialog/VBox/Version"),
       portals_timer: NodePath::from_str("VBox/Tabs/Portals/Timer"),
@@ -60,6 +66,9 @@ impl App {
     match id {
       LOG_FOLDER_ID => unsafe {
         if let Some(mut dialog) = owner.get_node_as::<FileDialog>(&self.file_dialog) {
+          dialog.set_title(self.file_dialog_title.new_ref());
+          dialog.set_mode(FileDialog::MODE_OPEN_DIR);
+          dialog.set_filters(self.file_filters.new_ref());
           if let Some(folder) = self.config.get_log_folder() {
             dialog.set_current_path(folder);
           }

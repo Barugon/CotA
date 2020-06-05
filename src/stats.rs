@@ -14,7 +14,7 @@ pub struct Stats {
   notes: NodePath,
   tree: NodePath,
   status: NodePath,
-  folder_dialog: NodePath,
+  file_dialog: NodePath,
   filter_dialog: NodePath,
   filter_edit: NodePath,
   notes_dialog: NodePath,
@@ -45,7 +45,7 @@ impl Stats {
       notes: NodePath::from_str("Tools/Notes"),
       tree: NodePath::from_str("Panel/Tree"),
       status: NodePath::from_str("Status"),
-      folder_dialog: NodePath::from_str("/root/App/FolderDialog"),
+      file_dialog: NodePath::from_str("/root/App/FileDialog"),
       filter_dialog: NodePath::from_str("/root/App/FilterDialog"),
       filter_edit: NodePath::from_str("/root/App/FilterDialog/VBox/FilterEdit"),
       notes_dialog: NodePath::from_str("/root/App/NotesDialog"),
@@ -82,7 +82,7 @@ impl Stats {
       owner.connect_to(&self.notes_dialog, "confirmed", "notes_changed");
 
       // Connect the log folder dialog.
-      owner.connect_to(&self.folder_dialog, "dir_selected", "log_folder_changed");
+      owner.connect_to(&self.file_dialog, "dir_selected", "log_folder_changed");
 
       // Connect the filter dialog.
       owner.connect_to(&self.filter_dialog, "confirmed", "filter_changed");
