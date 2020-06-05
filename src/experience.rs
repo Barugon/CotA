@@ -67,7 +67,9 @@ impl Experience {
     unsafe {
       if let Some(item) = tree.get_selected() {
         current.set_editable(true);
+        current.set_focus_mode(ControlFocusMode::All as i64);
         target.set_editable(true);
+        target.set_focus_mode(ControlFocusMode::All as i64);
 
         let cur = current
           .get_text()
@@ -111,7 +113,9 @@ impl Experience {
           }
         }
       } else {
+        current.set_focus_mode(ControlFocusMode::None as i64);
         current.set_editable(false);
+        target.set_focus_mode(ControlFocusMode::None as i64);
         target.set_editable(false);
       }
 

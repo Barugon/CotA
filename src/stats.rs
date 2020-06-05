@@ -320,6 +320,11 @@ impl Stats {
     if let Some(mut button) = owner.get_node_as::<Button>(&self.notes) {
       unsafe {
         button.set_disabled(!enable);
+        button.set_focus_mode(if enable {
+          ControlFocusMode::All
+        } else {
+          ControlFocusMode::None
+        } as i64);
       }
     }
   }
