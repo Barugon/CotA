@@ -39,17 +39,17 @@ impl Stats {
     Stats {
       config: config,
       data: LogData::new(folder),
-      view: NodePath::from_str("/root/Main/VBox/Menu/View"),
+      view: NodePath::from_str("/root/App/VBox/Menu/View"),
       avatars: NodePath::from_str("Tools/Avatars"),
       dates: NodePath::from_str("Tools/Dates"),
       notes: NodePath::from_str("Tools/Notes"),
       tree: NodePath::from_str("Panel/Tree"),
       status: NodePath::from_str("Status"),
-      folder_dialog: NodePath::from_str("/root/Main/FolderDialog"),
-      filter_dialog: NodePath::from_str("/root/Main/FilterDialog"),
-      filter_edit: NodePath::from_str("/root/Main/FilterDialog/VBox/FilterEdit"),
-      notes_dialog: NodePath::from_str("/root/Main/NotesDialog"),
-      notes_edit: NodePath::from_str("/root/Main/NotesDialog/VBox/NotesEdit"),
+      folder_dialog: NodePath::from_str("/root/App/FolderDialog"),
+      filter_dialog: NodePath::from_str("/root/App/FilterDialog"),
+      filter_edit: NodePath::from_str("/root/App/FilterDialog/VBox/FilterEdit"),
+      notes_dialog: NodePath::from_str("/root/App/NotesDialog"),
+      notes_edit: NodePath::from_str("/root/App/NotesDialog/VBox/NotesEdit"),
     }
   }
 
