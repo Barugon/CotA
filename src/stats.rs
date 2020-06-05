@@ -321,10 +321,10 @@ impl Stats {
       unsafe {
         button.set_disabled(!enable);
         button.set_focus_mode(if enable {
-          ControlFocusMode::All
+          Control::FOCUS_ALL
         } else {
-          ControlFocusMode::None
-        } as i64);
+          Control::FOCUS_NONE
+        });
       }
     }
   }
@@ -334,7 +334,7 @@ impl Stats {
     unsafe {
       let mut tree = some!(owner.get_node_as::<Tree>(&self.tree));
       tree.clear();
-      tree.set_focus_mode(ControlFocusMode::None as i64);
+      tree.set_focus_mode(Control::FOCUS_NONE as i64);
 
       let avatar = some!(avatar);
       if let Some(ts) = ts {
@@ -438,7 +438,6 @@ impl Stats {
                       item.set_custom_color(0, Color::rgb(0.7, 0.6, 0.4));
                       item.set_text(0, GodotString::from_str(name));
                       item.set_text(1, GodotString::from_str(&value));
-                      item.set_text_align(1, TreeItem::ALIGN_CENTER);
                     }
                   }
                 }
@@ -448,7 +447,7 @@ impl Stats {
                   timestamp_to_view_date(ts)
                 );
                 self.set_status_message(owner, Some(&text));
-                tree.set_focus_mode(ControlFocusMode::All as i64);
+                tree.set_focus_mode(Control::FOCUS_ALL as i64);
                 return;
               }
               _ => {
@@ -473,7 +472,6 @@ impl Stats {
                       item.set_custom_color(0, Color::rgb(0.4, 0.6, 0.7));
                       item.set_text(0, GodotString::from_str(name));
                       item.set_text(1, GodotString::from_str(&value));
-                      item.set_text_align(1, TreeItem::ALIGN_CENTER);
                     }
                   }
                 }
@@ -484,7 +482,7 @@ impl Stats {
                   _ => format!("Showing stats from {}", date),
                 };
                 self.set_status_message(owner, Some(&text));
-                tree.set_focus_mode(ControlFocusMode::All as i64);
+                tree.set_focus_mode(Control::FOCUS_ALL as i64);
                 return;
               }
             }

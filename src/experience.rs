@@ -67,9 +67,9 @@ impl Experience {
     unsafe {
       if let Some(item) = tree.get_selected() {
         current.set_editable(true);
-        current.set_focus_mode(ControlFocusMode::All as i64);
+        current.set_focus_mode(Control::FOCUS_ALL);
         target.set_editable(true);
-        target.set_focus_mode(ControlFocusMode::All as i64);
+        target.set_focus_mode(Control::FOCUS_ALL);
 
         let cur = current
           .get_text()
@@ -113,9 +113,9 @@ impl Experience {
           }
         }
       } else {
-        current.set_focus_mode(ControlFocusMode::None as i64);
+        current.set_focus_mode(Control::FOCUS_NONE);
         current.set_editable(false);
-        target.set_focus_mode(ControlFocusMode::None as i64);
+        target.set_focus_mode(Control::FOCUS_NONE);
         target.set_editable(false);
       }
 
@@ -147,14 +147,12 @@ impl Experience {
             if let Some(text) = iter.next() {
               item.set_custom_color(1, info_color);
               item.set_text(1, GodotString::from_str(&format!("{}x", text)));
-              item.set_text_align(1, TreeItem::ALIGN_CENTER);
             }
 
             // Skill ID.
             if let Some(text) = iter.next() {
               item.set_custom_color(2, info_color);
               item.set_text(2, GodotString::from_str(text));
-              item.set_text_align(2, TreeItem::ALIGN_CENTER);
             }
           }
         }
