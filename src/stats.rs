@@ -334,6 +334,7 @@ impl Stats {
     unsafe {
       let mut tree = some!(owner.get_node_as::<Tree>(&self.tree));
       tree.clear();
+      tree.set_focus_mode(ControlFocusMode::None as i64);
 
       let avatar = some!(avatar);
       if let Some(ts) = ts {
@@ -447,6 +448,7 @@ impl Stats {
                   timestamp_to_view_date(ts)
                 );
                 self.set_status_message(owner, Some(&text));
+                tree.set_focus_mode(ControlFocusMode::All as i64);
                 return;
               }
               _ => {
@@ -482,6 +484,7 @@ impl Stats {
                   _ => format!("Showing stats from {}", date),
                 };
                 self.set_status_message(owner, Some(&text));
+                tree.set_focus_mode(ControlFocusMode::All as i64);
                 return;
               }
             }
