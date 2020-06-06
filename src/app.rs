@@ -1,4 +1,4 @@
-use crate::menu::*;
+use crate::constants::*;
 use crate::util::*;
 use gdnative::*;
 
@@ -23,7 +23,7 @@ pub struct App {
 impl App {
   fn _init(_owner: Node) -> Self {
     let mut filters = StringArray::new();
-    filters.push(&GodotString::from_str("*.txt ; Chat Logs"));
+    filters.push(&GodotString::from_str("SotAChatLog_*.txt; Chat Logs"));
     App {
       config: Config::new(),
       file: NodePath::from_str("VBox/Menu/File"),

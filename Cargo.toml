@@ -9,10 +9,12 @@ edition = "2018"
 chrono = "*"
 dirs = "*"
 gdnative = "*"
+json = "*"
 num_cpus = "*"
 num-format = "*"
 regex = "*"
 thread-pool = { path = "../thread-pool" }
+xml_dom = "*"
 
 [lib]
 crate-type = ["cdylib"]

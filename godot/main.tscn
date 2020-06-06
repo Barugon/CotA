@@ -63,7 +63,6 @@ size_flags_vertical = 3
 tab_align = 0
 
 [node name="Stats" type="VBoxContainer" parent="VBox/Tabs"]
-visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 5.0
@@ -638,6 +637,7 @@ size_flags_horizontal = 3
 custom_colors/font_color = Color( 0.85098, 0.701961, 0.466667, 1 )
 
 [node name="Offline" type="VBoxContainer" parent="VBox/Tabs"]
+visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 5.0

@@ -1,3 +1,7 @@
+pub const ADVENTURER_SKILLS: &str = include_str!("res/adventurer_skills.csv");
+pub const PRODUCER_SKILLS: &str = include_str!("res/producer_skills.csv");
+pub const EXP_VALUES: [i64; 200] = include!("res/exp_values");
+
 // File menu.
 pub const LOG_FOLDER_ID: i64 = 0;
 pub const QUIT_ID: i64 = 1;

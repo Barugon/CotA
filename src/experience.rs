@@ -1,3 +1,4 @@
+use crate::constants::*;
 use crate::util::*;
 use gdnative::*;
 use num_format::{Locale, ToFormattedString};
@@ -35,9 +36,9 @@ impl Experience {
     unsafe {
       let path = owner.get_path().to_string();
       if path.ends_with("/AdvPanel") {
-        self.populate_tree(owner, include_str!("res/adventurer_skills.csv"))
+        self.populate_tree(owner, ADVENTURER_SKILLS)
       } else if path.ends_with("/ProPanel") {
-        self.populate_tree(owner, include_str!("res/producer_skills.csv"))
+        self.populate_tree(owner, PRODUCER_SKILLS)
       }
 
       // Connect tree item_selected.
@@ -107,7 +108,6 @@ impl Experience {
           .parse::<f64>()
         {
           if cur_valid && tgt_valid {
-            const EXP_VALUES: [i64; 200] = include!("res/exp_values");
             let val = (mul * (EXP_VALUES[tgt - 1] - EXP_VALUES[cur - 1]) as f64).round() as i64;
             text = GodotString::from_str(&val.to_formatted_string(&self.locale));
           }

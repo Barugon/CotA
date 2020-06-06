@@ -3,7 +3,7 @@ mod util;
 
 mod app;
 mod experience;
-mod menu;
+mod constants;
 mod offline;
 mod portals;
 mod stats;
