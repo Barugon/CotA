@@ -736,6 +736,7 @@ __meta__ = {
 margin_top = 546.0
 margin_right = 458.0
 margin_bottom = 568.0
+align = 1
 
 [node name="FileDialog" type="FileDialog" parent="."]
 anchor_right = 1.0
