@@ -80,14 +80,14 @@ impl GameInfo {
   }
 }
 
-struct CharacterInfo {
+struct CharInfo {
   char_json: json::JsonValue,
   gold_json: json::JsonValue,
   date: String,
 }
 
-impl CharacterInfo {
-  fn new(info: &Option<GameInfo>) -> Option<Self> {
+impl CharInfo {
+  fn new(info: Option<&GameInfo>) -> Option<Self> {
     if let Some(info) = info {
       // Get the 'CharacterSheet' json.
       if let Some(text) = info.get_node_json("CharacterSheet") {
@@ -98,7 +98,7 @@ impl CharacterInfo {
             if let Some(text) = info.get_node_json("UserGold") {
               if let Ok(gold_json) = json::parse(&text) {
                 let date = String::from(date);
-                return Some(Self {
+                return Some(CharInfo {
                   char_json,
                   gold_json,
                   date,
@@ -116,7 +116,7 @@ impl CharacterInfo {
 #[derive(NativeClass)]
 #[inherit(Node)]
 pub struct Offline {
-  info: Option<GameInfo>,
+  info: RefCell<Option<GameInfo>>,
   load: NodePath,
   save: NodePath,
   gold: NodePath,
@@ -128,7 +128,6 @@ pub struct Offline {
   status: NodePath,
   confirm: NodePath,
   popup_centered: GodotString,
-  current_gold: RefCell<u64>,
 }
 
 #[methods]
@@ -137,7 +136,7 @@ impl Offline {
     let mut filters = StringArray::new();
     filters.push(&GodotString::from_str("*.sota; Saved Games"));
     Offline {
-      info: None,
+      info: RefCell::new(None),
       load: NodePath::from_str("HBox/LoadButton"),
       save: NodePath::from_str("HBox/SaveButton"),
       gold: NodePath::from_str("HBox/SpinBox"),
@@ -149,7 +148,6 @@ impl Offline {
       status: NodePath::from_str("Label"),
       confirm: NodePath::from_str("/root/App/ConfirmationDialog"),
       popup_centered: GodotString::from_str("popup_centered"),
-      current_gold: RefCell::new(0),
     }
   }
 
@@ -207,25 +205,23 @@ impl Offline {
 
   #[export]
   fn skill_changed(&self, owner: Node) {
-    if self.info.is_some() {
+    if self.info.borrow().is_some() {
       // A skill has changed, enable the save button.
       self.enable_save(owner, true);
     }
   }
 
   #[export]
-  fn gold_value_changed(&self, owner: Node, val: f64) {
-    if self.info.is_some() {
-      if val != self.get_current_gold() as f64 {
-        // Gold has changed, enable the save button.
-        self.enable_save(owner, true);
-      }
+  fn gold_value_changed(&self, owner: Node, _val: f64) {
+    if self.info.borrow().is_some() {
+      // Gold has changed, enable the save button.
+      self.enable_save(owner, true);
     }
   }
 
   #[export]
   fn gold_text_changed(&self, owner: Node, _text: GodotString) {
-    if self.info.is_some() {
+    if self.info.borrow().is_some() {
       // Gold has changed, enable the save button.
       self.enable_save(owner, true);
     }
@@ -250,14 +246,14 @@ impl Offline {
   }
 
   #[export]
-  fn file_selected(&mut self, owner: Node, path: GodotString) {
+  fn file_selected(&self, owner: Node, path: GodotString) {
     // Disable the save button.
     self.enable_save(owner, false);
 
     let utf8 = path.to_utf8();
     let path_str = utf8.as_str();
     let game_info = GameInfo::new(path_str);
-    if let Some(char_info) = CharacterInfo::new(&game_info) {
+    if let Some(char_info) = CharInfo::new(game_info.as_ref()) {
       let json = &char_info.char_json["sk2"];
       if json.is_object() {
         if self.populate_tree(owner, &self.adventurer, json)
@@ -273,7 +269,7 @@ impl Offline {
             }
           }
 
-          self.info = game_info;
+          *self.info.borrow_mut() = game_info;
           return;
         }
       }
@@ -294,8 +290,8 @@ impl Offline {
   }
 
   #[export]
-  fn save_clicked(&mut self, owner: Node) {
-    if let Some(mut char_info) = CharacterInfo::new(&self.info) {
+  fn save_clicked(&self, owner: Node) {
+    if let Some(mut char_info) = self.create_char_info() {
       let sk2 = &mut char_info.char_json["sk2"];
       if sk2.is_object() {
         if self.collect_skills(owner, &self.adventurer, sk2, &char_info.date)
@@ -306,7 +302,7 @@ impl Offline {
             char_info.gold_json["g"] = json::JsonValue::from(gold);
           }
 
-          if let Some(info) = &mut self.info {
+          if let Some(info) = self.info.borrow_mut().as_mut() {
             if info.set_node_json("UserGold", &char_info.gold_json.to_string()) {
               if info.set_node_json("CharacterSheet", &char_info.char_json.to_string()) {
                 if let Ok(mut file) = File::create(&info.path) {
@@ -323,13 +319,17 @@ impl Offline {
       }
     }
 
-    if let Some(info) = &self.info {
+    if let Some(info) = self.info.borrow().as_ref() {
       if let Some(path) = Path::new(&info.path).file_name() {
         if let Some(path) = path.to_str() {
           self.set_status_message(owner, &format!("Unable to save '{}'", path));
         }
       }
     }
+  }
+
+  fn create_char_info(&self) -> Option<CharInfo> {
+    CharInfo::new(self.info.borrow().as_ref())
   }
 
   fn connect_skill_changed(&self, owner: Node, tree: &SkillTree) {
@@ -384,26 +384,17 @@ impl Offline {
     }
   }
 
-  fn set_current_gold(&self, gold: u64) {
-    *self.current_gold.borrow_mut() = gold;
-  }
-
-  fn get_current_gold(&self) -> u64 {
-    *self.current_gold.borrow()
-  }
-
   fn enable_gold(&self, owner: Node, gold: Option<u64>) {
     if let Some(mut spin_box) = owner.get_node_as::<SpinBox>(&self.gold) {
       unsafe {
         match gold {
           Some(gold) => {
-            self.set_current_gold(gold);
             // Calling set_value directly on SpinBox causes an internal godot error.
-            spin_box.call_deferred(
-              GodotString::from_str("set_value"),
-              &[Variant::from_f64(gold as f64)],
-            );
-            // spin_box.to_range().set_value(gold as f64);
+            // spin_box.call_deferred(
+            //   GodotString::from_str("set_value"),
+            //   &[Variant::from_f64(gold as f64)],
+            // );
+            spin_box.to_range().set_value(gold as f64);
             spin_box.set_editable(true);
             spin_box.set_focus_mode(Control::FOCUS_ALL);
             if let Some(mut edit) = spin_box.get_line_edit() {
@@ -411,13 +402,12 @@ impl Offline {
             }
           }
           None => {
-            self.set_current_gold(0);
             // Calling set_value directly on SpinBox causes an internal godot error.
-            spin_box.call_deferred(
-              GodotString::from_str("set_value"),
-              &[Variant::from_f64(0.0)],
-            );
-            // spin_box.to_range().set_value(0.0);
+            // spin_box.call_deferred(
+            //   GodotString::from_str("set_value"),
+            //   &[Variant::from_f64(0.0)],
+            // );
+            spin_box.to_range().set_value(0.0);
             spin_box.set_editable(false);
             spin_box.set_focus_mode(Control::FOCUS_NONE);
             if let Some(mut edit) = spin_box.get_line_edit() {
