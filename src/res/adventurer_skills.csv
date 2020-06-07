@@ -3,6 +3,7 @@ Acrobatics,1,99
 Aetheric Feedback,1,1360
 Aimed Shot,1,121
 Air Magic Specialization,20,2501
+Air Warding,20,3756
 Air's Embrace,1,5
 Ammo Scavenger,4,129
 Angles,4,137
@@ -61,6 +62,7 @@ Death Mastery,4,48
 Death Ray,2,42
 Death Shield,2,44
 Death Touch,1,43
+Death Warding,20,3754
 Defensive Positions,4,120
 Defensive Stance,1,71
 Deflect,1,131
@@ -75,6 +77,7 @@ Douse,1,162
 Draw Strength,4,130
 Eagle Eye,4,127
 Earth Magic Specialization,20,2506
+Earth Warding,20,3758
 Earth's Embrace,2,58
 Earthquake,3,55
 Elysian Illumination,1,1352
@@ -87,6 +90,7 @@ Fire Arrow,2,63
 Fire Magic Specialization,20,2507
 Fire Proof,4,70
 Fire Reach,4,69
+Fire Warding,20,3750
 Fireball,3,61
 Fireflies,1,2811
 Flame Fist,1,62
@@ -125,16 +129,19 @@ Leg Sweep,1,117
 Life Magic Specialization,20,2509
 Life Power,4,89
 Life Reach,4,90
-Light,1,142
+Life Warding,20,3757
 Light Armor Specialization,20,2510
+Light,1,142
 Lightning,1,2
 Lunar Magic Specialization,20,2511
+Magic Warding,20,3751
 Melody of Mending,1,?
 Meteor Shower,1,2812
 Mind Lock,1,177
 Mind Wipe,1,172
 Moon Beams,1,312
 Moon Eater,4,110
+Moon Warding,20,3752
 Moon Worship,4,109
 Multi Shot,1,125
 Mummified Undead,4,50
@@ -159,16 +166,16 @@ Psalm of Stagnation,1,?
 Pugilism,1,3231
 Pull,1,115
 Puncture,1,113
-Purify,1,83
 Purify Burst,3,85
+Purify,1,83
 Push,1,111
 Quick Swapping,4,180
-Range,4,114
+Range,4,128
 Ranged Combat,1,473
 Ranged Specialization,20,2513
 Rapid Discharge,2,8
 Rapid Fire,1,126
-Reach,4,128
+Reach,4,114
 Reckless Stance,1,305
 Redirection,4,138
 Refresh,1,436
@@ -195,7 +202,7 @@ Shield Specialization,20,2514
 Silent Movement,2,98
 Skewer,1,118
 Sneak Attack,2,100
-Solar Flare,1,?
+Solar Flare,1,3783
 Soothing Rain,1,163
 Spellbinder Stance,1,1357
 Spinning Attack,1,116
@@ -218,6 +225,7 @@ Summon Wisp,1,108
 Summoning,1,437
 Sun Eater,4,150
 Sun Magic Specialization,20,2516
+Sun Warding,20,3753
 Sun Worship,4,149
 Swiftness,4,95
 Sympathy of Stone,4,60
@@ -241,6 +249,7 @@ Valiant Warden,3,2541
 Vanish,1,101
 Vital Points,1,13
 Water Specialization,20,2518
+Water Warding,20,3755
 Weapon Preservation,4,159
 Well Grounded,2,9
 Whirlwind Blades,2,18
