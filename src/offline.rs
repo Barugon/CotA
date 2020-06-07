@@ -1,116 +1,11 @@
 use crate::constants::*;
 use crate::util::*;
 use gdnative::*;
-use std::{cell::RefCell, fs::File, io::prelude::*, path::Path};
-use xml_dom::*;
+use std::{cell::RefCell, path::Path};
 
 enum SkillTree {
   Adventurer(NodePath),
   Producer(NodePath),
-}
-
-struct GameInfo {
-  node: level2::RefNode,
-  path: String,
-}
-
-impl GameInfo {
-  fn new(path: &str) -> Option<Self> {
-    if let Ok(text) = std::fs::read_to_string(path) {
-      if let Ok(node) = parser::read_xml(&text) {
-        return Some(GameInfo {
-          node,
-          path: String::from(path),
-        });
-      }
-    }
-    None
-  }
-
-  fn get_node_json(&self, name: &str) -> Option<String> {
-    if let Ok(document) = level2::convert::as_document(&self.node) {
-      let collections = document.get_elements_by_tag_name("collection");
-      for collection in collections {
-        if let Ok(element) = level2::convert::as_element(&collection) {
-          if let Some(attribute) = element.get_attribute("name") {
-            if attribute == name {
-              let records = element.get_elements_by_tag_name("record");
-              for record in records {
-                if let Ok(element) = level2::convert::as_element(&record) {
-                  let nodes = element.child_nodes();
-                  for node in nodes {
-                    if let Ok(text) = level2::convert::as_text(&node) {
-                      return text.node_value();
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    None
-  }
-
-  fn set_node_json(&mut self, name: &str, json: &str) -> bool {
-    if let Ok(document) = level2::convert::as_document_mut(&mut self.node) {
-      let mut collections = document.get_elements_by_tag_name("collection");
-      for collection in &mut collections {
-        if let Ok(element) = level2::convert::as_element_mut(collection) {
-          if let Some(attribute) = element.get_attribute("name") {
-            if attribute == name {
-              let mut records = element.get_elements_by_tag_name("record");
-              for record in &mut records {
-                if let Ok(element) = level2::convert::as_element_mut(record) {
-                  let mut nodes = element.child_nodes();
-                  for node in &mut nodes {
-                    if let Ok(text) = level2::convert::as_text_mut(node) {
-                      return text.set_node_value(json).is_ok();
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    false
-  }
-}
-
-struct CharInfo {
-  char_json: json::JsonValue,
-  gold_json: json::JsonValue,
-  date: String,
-}
-
-impl CharInfo {
-  fn new(info: Option<&GameInfo>) -> Option<Self> {
-    if let Some(info) = info {
-      // Get the 'CharacterSheet' json.
-      if let Some(text) = info.get_node_json("CharacterSheet") {
-        if let Ok(char_json) = json::parse(&text) {
-          // Get the date.
-          if let Some(date) = char_json["rd"]["c"].as_str() {
-            // Get the 'UserGold' json.
-            if let Some(text) = info.get_node_json("UserGold") {
-              if let Ok(gold_json) = json::parse(&text) {
-                let date = String::from(date);
-                return Some(CharInfo {
-                  char_json,
-                  gold_json,
-                  date,
-                });
-              }
-            }
-          }
-        }
-      }
-    }
-    None
-  }
 }
 
 #[derive(NativeClass)]
@@ -171,6 +66,9 @@ impl Offline {
 
     // Connect confirmation dialog.
     owner.connect_to(&self.confirm, "confirmed", "quit");
+
+    self.initialize_tree(owner, &self.adventurer);
+    self.initialize_tree(owner, &self.producer);
   }
 
   #[export]
@@ -252,26 +150,23 @@ impl Offline {
 
     let utf8 = path.to_utf8();
     let path_str = utf8.as_str();
-    let game_info = GameInfo::new(path_str);
+    let game_info = GameInfo::read(path_str);
     if let Some(char_info) = CharInfo::new(game_info.as_ref()) {
-      let json = &char_info.char_json["sk2"];
-      if json.is_object() {
-        if self.populate_tree(owner, &self.adventurer, json)
-          && self.populate_tree(owner, &self.producer, json)
-        {
-          if let Some(gold) = &char_info.gold_json["g"].as_u64() {
-            self.enable_gold(owner, Some(*gold));
-          }
-
-          if let Some(path) = Path::new(path_str).file_name() {
-            if let Some(path) = path.to_str() {
-              self.set_status_message(owner, &format!("Editing '{}'", path));
-            }
-          }
-
-          *self.info.borrow_mut() = game_info;
-          return;
+      if self.populate_tree(owner, &self.adventurer, &char_info)
+        && self.populate_tree(owner, &self.producer, &char_info)
+      {
+        if let Some(gold) = char_info.get_gold() {
+          self.enable_gold(owner, Some(gold));
         }
+
+        if let Some(path) = Path::new(path_str).file_name() {
+          if let Some(path) = path.to_str() {
+            self.set_status_message(owner, &format!("Editing '{}'", path));
+          }
+        }
+
+        *self.info.borrow_mut() = game_info;
+        return;
       }
     }
 
@@ -292,26 +187,21 @@ impl Offline {
   #[export]
   fn save_clicked(&self, owner: Node) {
     if let Some(mut char_info) = self.create_char_info() {
-      let sk2 = &mut char_info.char_json["sk2"];
-      if sk2.is_object() {
-        if self.collect_skills(owner, &self.adventurer, sk2, &char_info.date)
-          && self.collect_skills(owner, &self.producer, sk2, &char_info.date)
-        {
-          if let Some(spin_box) = owner.get_node_as::<SpinBox>(&self.gold) {
-            let gold = unsafe { spin_box.get_value() } as u64;
-            char_info.gold_json["g"] = json::JsonValue::from(gold);
-          }
+      if self.collect_skills(owner, &self.adventurer, &mut char_info)
+        && self.collect_skills(owner, &self.producer, &mut char_info)
+      {
+        if let Some(spin_box) = owner.get_node_as::<SpinBox>(&self.gold) {
+          let gold = unsafe { spin_box.get_value() } as u64;
+          char_info.set_gold(gold);
+        }
 
-          if let Some(info) = self.info.borrow_mut().as_mut() {
-            if info.set_node_json("UserGold", &char_info.gold_json.to_string()) {
-              if info.set_node_json("CharacterSheet", &char_info.char_json.to_string()) {
-                if let Ok(mut file) = File::create(&info.path) {
-                  if file.write_all(info.node.to_string().as_bytes()).is_ok() {
-                    // Saving was good, now disable the save button.
-                    self.enable_save(owner, false);
-                    return;
-                  }
-                }
+        if let Some(info) = self.info.borrow_mut().as_mut() {
+          if info.set_node_json("UserGold", &char_info.get_gold_json()) {
+            if info.set_node_json("CharacterSheet", &char_info.get_char_json()) {
+              if info.write().is_ok() {
+                // Saving was good, now disable the save button.
+                self.enable_save(owner, false);
+                return;
               }
             }
           }
@@ -320,7 +210,7 @@ impl Offline {
     }
 
     if let Some(info) = self.info.borrow().as_ref() {
-      if let Some(path) = Path::new(&info.path).file_name() {
+      if let Some(path) = Path::new(info.path()).file_name() {
         if let Some(path) = path.to_str() {
           self.set_status_message(owner, &format!("Unable to save '{}'", path));
         }
@@ -409,6 +299,22 @@ impl Offline {
     }
   }
 
+  fn initialize_tree(&self, owner: Node, tree: &SkillTree) {
+    let mut tree = match tree {
+      SkillTree::Adventurer(path) => some!(owner.get_node_as::<Tree>(path)),
+      SkillTree::Producer(path) => some!(owner.get_node_as::<Tree>(path)),
+    };
+    unsafe {
+      tree.set_column_expand(0, true);
+      tree.set_column_min_width(0, 3);
+      tree.set_column_title(0, GodotString::from_str("Skill"));
+      tree.set_column_title(1, GodotString::from_str("Mul"));
+      tree.set_column_title(2, GodotString::from_str("ID"));
+      tree.set_column_title(3, GodotString::from_str("Level"));
+      // tree.set_column_titles_visible(true);
+    }
+  }
+
   fn disable_tree(&self, owner: Node, tree: &SkillTree) {
     let mut tree = match tree {
       SkillTree::Adventurer(path) => some!(owner.get_node_as::<Tree>(path)),
@@ -420,7 +326,7 @@ impl Offline {
     }
   }
 
-  fn populate_tree(&self, owner: Node, tree: &SkillTree, json: &json::JsonValue) -> bool {
+  fn populate_tree(&self, owner: Node, tree: &SkillTree, info: &CharInfo) -> bool {
     let (mut tree, csv) = match tree {
       SkillTree::Adventurer(path) => (
         some!(owner.get_node_as::<Tree>(path), false),
@@ -437,8 +343,6 @@ impl Offline {
     unsafe {
       tree.clear();
       tree.set_focus_mode(Control::FOCUS_NONE);
-      tree.set_column_expand(0, true);
-      tree.set_column_min_width(0, 3);
 
       if let Some(parent) = tree.create_item(None, -1) {
         tree.set_focus_mode(Control::FOCUS_ALL);
@@ -484,7 +388,8 @@ impl Offline {
             item.set_custom_color(2, info_color);
             item.set_text(2, GodotString::from_str(id));
 
-            let level = if let Some(val) = json[id]["x"].as_f64() {
+            let level = if let Some(val) = info.get_skill_exp(id) {
+              let val = val as f64;
               let mut level = 0;
               for (lvl, exp) in EXP_VALUES.iter().enumerate().rev() {
                 if val >= *exp as f64 * mul_val {
@@ -510,13 +415,7 @@ impl Offline {
     false
   }
 
-  fn collect_skills(
-    &self,
-    owner: Node,
-    tree: &SkillTree,
-    json: &mut json::JsonValue,
-    date: &str,
-  ) -> bool {
+  fn collect_skills(&self, owner: Node, tree: &SkillTree, info: &mut CharInfo) -> bool {
     let mut tree = match tree {
       SkillTree::Adventurer(path) => some!(owner.get_node_as::<Tree>(path), false),
       SkillTree::Producer(path) => some!(owner.get_node_as::<Tree>(path), false),
@@ -537,23 +436,11 @@ impl Offline {
             let key = utf8.as_str();
             let lvl = item.get_range(3) as usize;
             if lvl > 0 {
-              let exp = (EXP_VALUES[lvl - 1] as f64 * mul).ceil() as i64;
-              if let Some(cur) = json[key]["x"].as_i64() {
-                // Change it only if it's different.
-                if exp != cur {
-                  json[key]["x"] = json::JsonValue::from(exp);
-                }
-              } else {
-                // Add a new object for the skill ID.
-                json[key] = json::object! {
-                  "x": exp,
-                  "t": date,
-                  "m": 0
-                };
-              }
+              let exp = (EXP_VALUES[lvl - 1] as f64 * mul).ceil() as u64;
+              info.set_skill_exp(key, exp);
             } else {
               // Remove the skill if it exists.
-              json.remove(key);
+              info.remove_skill(key);
             }
           }
           node = item.get_next();

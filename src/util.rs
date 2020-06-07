@@ -8,10 +8,13 @@ use std::{
   cmp::Ordering,
   collections::HashSet,
   fs,
+  fs::File,
+  io::prelude::*,
   path::{Path, PathBuf},
   str::SplitWhitespace,
 };
 use thread_pool::*;
+use xml_dom::*;
 
 #[macro_export]
 macro_rules! some {
@@ -706,5 +709,181 @@ pub fn get_lost_vale_countdown() -> f64 {
   } else {
     // Last 6 hour segment.
     (6 * HSECS - seg) as f64 / 60.0
+  }
+}
+
+// Structure to hold SotA save-game XML.
+pub struct GameInfo {
+  node: level2::RefNode,
+  path: String,
+}
+
+impl GameInfo {
+  // Read the XML from a file and create a new GameInfo from it.
+  pub fn read(path: &str) -> Option<Self> {
+    if let Ok(xml) = std::fs::read_to_string(path) {
+      if let Ok(node) = parser::read_xml(&xml) {
+        return Some(GameInfo {
+          node,
+          path: String::from(path),
+        });
+      }
+    }
+    None
+  }
+
+  pub fn write(&self) -> std::io::Result<()> {
+    match File::create(self.path()) {
+      Ok(mut file) => match file.write_all(self.xml().as_bytes()) {
+        Ok(()) => Ok(()),
+        Err(err) => Err(err),
+      },
+      Err(err) => Err(err),
+    }
+  }
+
+  // Get the inner JSON text from a 'collection'.
+  pub fn get_node_json(&self, name: &str) -> Option<String> {
+    if let Ok(document) = level2::convert::as_document(&self.node) {
+      let collections = document.get_elements_by_tag_name("collection");
+      for collection in collections {
+        if let Ok(element) = level2::convert::as_element(&collection) {
+          if let Some(attribute) = element.get_attribute("name") {
+            if attribute == name {
+              let records = element.get_elements_by_tag_name("record");
+              for record in records {
+                if let Ok(element) = level2::convert::as_element(&record) {
+                  let nodes = element.child_nodes();
+                  for node in nodes {
+                    if let Ok(text) = level2::convert::as_text(&node) {
+                      return text.node_value();
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    None
+  }
+
+  // Replace the inner JSON text in a 'collection'.
+  pub fn set_node_json(&mut self, name: &str, json: &str) -> bool {
+    if let Ok(document) = level2::convert::as_document_mut(&mut self.node) {
+      let mut collections = document.get_elements_by_tag_name("collection");
+      for collection in &mut collections {
+        if let Ok(element) = level2::convert::as_element_mut(collection) {
+          if let Some(attribute) = element.get_attribute("name") {
+            if attribute == name {
+              let mut records = element.get_elements_by_tag_name("record");
+              for record in &mut records {
+                if let Ok(element) = level2::convert::as_element_mut(record) {
+                  let mut nodes = element.child_nodes();
+                  for node in &mut nodes {
+                    if let Ok(text) = level2::convert::as_text_mut(node) {
+                      return text.set_node_value(json).is_ok();
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    false
+  }
+
+  pub fn path(&self) -> &str {
+    &self.path
+  }
+
+  pub fn xml(&self) -> String {
+    self.node.to_string()
+  }
+}
+
+// Structure to manipulate the character information from a save-game file.
+pub struct CharInfo {
+  char_json: json::JsonValue,
+  gold_json: json::JsonValue,
+  date: String,
+}
+
+impl CharInfo {
+  pub fn new(info: Option<&GameInfo>) -> Option<Self> {
+    if let Some(info) = info {
+      // Get the 'CharacterSheet' json.
+      if let Some(text) = info.get_node_json("CharacterSheet") {
+        if let Ok(char_json) = json::parse(&text) {
+          // Get the date.
+          if let Some(date) = char_json["rd"]["c"].as_str() {
+            // Make sure 'sk2' exists.
+            if char_json["sk2"].is_object() {
+              // Get the 'UserGold' json.
+              if let Some(text) = info.get_node_json("UserGold") {
+                if let Ok(gold_json) = json::parse(&text) {
+                  let date = String::from(date);
+                  return Some(CharInfo {
+                    char_json,
+                    gold_json,
+                    date,
+                  });
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    None
+  }
+
+  pub fn get_gold(&self) -> Option<u64> {
+    if let Some(gold) = self.gold_json["g"].as_u64() {
+      return Some(gold);
+    }
+    None
+  }
+
+  pub fn set_gold(&mut self, gold: u64) {
+    self.gold_json["g"] = json::JsonValue::from(gold);
+  }
+
+  pub fn get_skill_exp(&self, key: &str) -> Option<u64> {
+    if let Some(exp) = self.char_json["sk2"][key]["x"].as_u64() {
+      return Some(exp);
+    }
+    None
+  }
+
+  pub fn set_skill_exp(&mut self, key: &str, exp: u64) {
+    if let Some(cur) = self.char_json["sk2"][key]["x"].as_u64() {
+      // Change it only if it's different.
+      if exp != cur {
+        self.char_json["sk2"][key]["x"] = json::JsonValue::from(exp);
+      }
+    } else {
+      // Add a new object for the skill ID.
+      self.char_json["sk2"][key] = json::object! {
+        "x": exp,
+        "t": self.date.as_str(),
+        "m": 0
+      };
+    }
+  }
+
+  pub fn remove_skill(&mut self, key: &str) {
+    self.char_json["sk2"].remove(key);
+  }
+
+  pub fn get_gold_json(&self) -> String {
+    self.gold_json.to_string()
+  }
+
+  pub fn get_char_json(&self) -> String {
+    self.char_json.to_string()
   }
 }
