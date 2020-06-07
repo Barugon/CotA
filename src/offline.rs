@@ -389,11 +389,6 @@ impl Offline {
       unsafe {
         match gold {
           Some(gold) => {
-            // Calling set_value directly on SpinBox causes an internal godot error.
-            // spin_box.call_deferred(
-            //   GodotString::from_str("set_value"),
-            //   &[Variant::from_f64(gold as f64)],
-            // );
             spin_box.to_range().set_value(gold as f64);
             spin_box.set_editable(true);
             spin_box.set_focus_mode(Control::FOCUS_ALL);
@@ -402,11 +397,6 @@ impl Offline {
             }
           }
           None => {
-            // Calling set_value directly on SpinBox causes an internal godot error.
-            // spin_box.call_deferred(
-            //   GodotString::from_str("set_value"),
-            //   &[Variant::from_f64(0.0)],
-            // );
             spin_box.to_range().set_value(0.0);
             spin_box.set_editable(false);
             spin_box.set_focus_mode(Control::FOCUS_NONE);
@@ -442,7 +432,7 @@ impl Offline {
       ),
     };
     let skill_color = Color::rgb(0.4, 0.6, 0.7);
-    let info_color = Color::rgb(0.5, 0.5, 0.5);
+    let info_color = Color::rgb(0.4, 0.4, 0.4);
 
     unsafe {
       tree.clear();
