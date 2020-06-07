@@ -840,3 +840,9 @@ margin_right = 296.0
 margin_bottom = 202.0
 text = "Created by: Barugon"
 align = 1
+
+[node name="ConfirmationDialog" type="ConfirmationDialog" parent="."]
+margin_right = 200.0
+margin_bottom = 70.0
+dialog_text = "A game file was modified!
+Are you sure you want to quit? "

@@ -43,6 +43,10 @@ impl App {
   #[export]
   fn _ready(&self, owner: Node) {
     unsafe {
+      if let Some(mut scene) = owner.get_tree() {
+        scene.set_auto_accept_quit(false);
+      }
+
       // Connect the file menu and set shortcuts.
       owner.connect_to(&self.file, "id_pressed", "file_menu_select");
       if let Some(button) = owner.get_node_as::<MenuButton>(&self.file) {
@@ -62,7 +66,7 @@ impl App {
   }
 
   #[export]
-  fn file_menu_select(&self, owner: Node, id: i64) {
+  fn file_menu_select(&self, mut owner: Node, id: i64) {
     match id {
       LOG_FOLDER_ID => unsafe {
         if let Some(mut dialog) = owner.get_node_as::<FileDialog>(&self.file_dialog) {
@@ -76,9 +80,7 @@ impl App {
         }
       },
       QUIT_ID => unsafe {
-        if let Some(mut scene) = owner.get_tree() {
-          scene.quit(0);
-        }
+        owner.propagate_notification(MainLoop::NOTIFICATION_WM_QUIT_REQUEST);
       },
       _ => {}
     }

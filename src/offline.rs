@@ -1,7 +1,7 @@
 use crate::constants::*;
 use crate::util::*;
 use gdnative::*;
-use std::{fs::File, io::prelude::*, path::Path};
+use std::{cell::RefCell, fs::File, io::prelude::*, path::Path};
 use xml_dom::*;
 
 enum SkillTree {
@@ -11,10 +11,22 @@ enum SkillTree {
 
 struct GameInfo {
   node: level2::RefNode,
-  path: GodotString,
+  path: String,
 }
 
 impl GameInfo {
+  fn new(path: &str) -> Option<Self> {
+    if let Ok(text) = std::fs::read_to_string(path) {
+      if let Ok(node) = parser::read_xml(&text) {
+        return Some(GameInfo {
+          node,
+          path: String::from(path),
+        });
+      }
+    }
+    None
+  }
+
   fn get_node_json(&self, name: &str) -> Option<String> {
     if let Ok(document) = level2::convert::as_document(&self.node) {
       let collections = document.get_elements_by_tag_name("collection");
@@ -82,7 +94,7 @@ impl CharacterInfo {
         if let Ok(char_json) = json::parse(&text) {
           // Get the date.
           if let Some(date) = char_json["rd"]["c"].as_str() {
-            // Ge the 'UserGold' json.
+            // Get the 'UserGold' json.
             if let Some(text) = info.get_node_json("UserGold") {
               if let Ok(gold_json) = json::parse(&text) {
                 let date = String::from(date);
@@ -114,6 +126,9 @@ pub struct Offline {
   file_dialog_title: GodotString,
   file_filters: StringArray,
   status: NodePath,
+  confirm: NodePath,
+  popup_centered: GodotString,
+  current_gold: RefCell<u64>,
 }
 
 #[methods]
@@ -132,13 +147,20 @@ impl Offline {
       file_dialog_title: GodotString::from_str("Select Saved Game"),
       file_filters: filters,
       status: NodePath::from_str("Label"),
+      confirm: NodePath::from_str("/root/App/ConfirmationDialog"),
+      popup_centered: GodotString::from_str("popup_centered"),
+      current_gold: RefCell::new(0),
     }
   }
 
   #[export]
   fn _ready(&self, owner: Node) {
-    self.connect_item_changed(owner, &self.adventurer);
-    self.connect_item_changed(owner, &self.producer);
+    self.connect_skill_changed(owner, &self.adventurer);
+    self.connect_skill_changed(owner, &self.producer);
+    self.connect_gold_changed(owner);
+
+    // Make the edit portion of the gold entry unfocusable.
+    self.enable_gold(owner, None);
 
     // Connect load button.
     owner.connect_to(&self.load, "pressed", "load_clicked");
@@ -148,17 +170,64 @@ impl Offline {
 
     // Connect save_clicked.
     owner.connect_to(&self.save, "pressed", "save_clicked");
+
+    // Connect confirmation dialog.
+    owner.connect_to(&self.confirm, "confirmed", "quit");
   }
 
   #[export]
-  fn item_changed(&self, owner: Node) {
-    if self.info.is_some() {
-      if let Some(mut button) = owner.get_node_as::<Button>(&self.save) {
+  fn _notification(&self, owner: Node, what: i64) {
+    if what == MainLoop::NOTIFICATION_WM_QUIT_REQUEST {
+      if let Some(button) = owner.get_node_as::<Button>(&self.save) {
         unsafe {
-          button.set_disabled(false);
-          button.set_focus_mode(Control::FOCUS_ALL);
+          if !button.is_disabled() {
+            if let Some(mut dialog) = owner.get_node_as::<ConfirmationDialog>(&self.confirm) {
+              // Calling popup_centered directly on ConfirmationDialog causes an internal godot error.
+              dialog.call_deferred(
+                self.popup_centered.new_ref(),
+                &[Variant::from_vector2(&Vector2::zero())],
+              );
+              return;
+            }
+          }
         }
       }
+      self.quit(owner);
+    }
+  }
+
+  #[export]
+  fn quit(&self, owner: Node) {
+    unsafe {
+      if let Some(mut scene) = owner.get_tree() {
+        scene.quit(0);
+      }
+    }
+  }
+
+  #[export]
+  fn skill_changed(&self, owner: Node) {
+    if self.info.is_some() {
+      // A skill has changed, enable the save button.
+      self.enable_save(owner, true);
+    }
+  }
+
+  #[export]
+  fn gold_value_changed(&self, owner: Node, val: f64) {
+    if self.info.is_some() {
+      if val != self.get_current_gold() as f64 {
+        // Gold has changed, enable the save button.
+        self.enable_save(owner, true);
+      }
+    }
+  }
+
+  #[export]
+  fn gold_text_changed(&self, owner: Node, _text: GodotString) {
+    if self.info.is_some() {
+      // Gold has changed, enable the save button.
+      self.enable_save(owner, true);
     }
   }
 
@@ -182,50 +251,40 @@ impl Offline {
 
   #[export]
   fn file_selected(&mut self, owner: Node, path: GodotString) {
+    // Disable the save button.
+    self.enable_save(owner, false);
+
     let utf8 = path.to_utf8();
     let path_str = utf8.as_str();
-    if let Ok(text) = std::fs::read_to_string(path_str) {
-      if let Ok(node) = parser::read_xml(&text) {
-        let game_info = Some(GameInfo {
-          node,
-          path: path.new_ref(),
-        });
-        if let Some(char_info) = CharacterInfo::new(&game_info) {
-          let json = &char_info.char_json["sk2"];
-          if json.is_object() {
-            if self.populate_tree(owner, &self.adventurer, json)
-              && self.populate_tree(owner, &self.producer, json)
-            {
-              if let Some(path) = Path::new(path_str).file_name() {
-                if let Some(path) = path.to_str() {
-                  self.set_status_message(owner, &format!("Editing '{}'", path));
-                }
-              }
-              self.info = game_info;
-              return;
+    let game_info = GameInfo::new(path_str);
+    if let Some(char_info) = CharacterInfo::new(&game_info) {
+      let json = &char_info.char_json["sk2"];
+      if json.is_object() {
+        if self.populate_tree(owner, &self.adventurer, json)
+          && self.populate_tree(owner, &self.producer, json)
+        {
+          if let Some(gold) = &char_info.gold_json["g"].as_u64() {
+            self.enable_gold(owner, Some(*gold));
+          }
+
+          if let Some(path) = Path::new(path_str).file_name() {
+            if let Some(path) = path.to_str() {
+              self.set_status_message(owner, &format!("Editing '{}'", path));
             }
           }
+
+          self.info = game_info;
+          return;
         }
       }
     }
-    // Failure to edit. Cleanup
+
+    // Failure to edit. Clear and disable the trees.
     self.disable_tree(owner, &self.adventurer);
     self.disable_tree(owner, &self.producer);
 
-    if let Some(mut button) = owner.get_node_as::<Button>(&self.save) {
-      unsafe {
-        button.set_disabled(true);
-        button.set_focus_mode(Control::FOCUS_NONE);
-      }
-    }
-
-    if let Some(mut gold) = owner.get_node_as::<SpinBox>(&self.gold) {
-      unsafe {
-        gold.set_value(0.0);
-        gold.set_editable(false);
-        gold.set_focus_mode(Control::FOCUS_NONE);
-      }
-    }
+    // Disable the gold input.
+    self.enable_gold(owner, None);
 
     if let Some(path) = Path::new(path_str).file_name() {
       if let Some(path) = path.to_str() {
@@ -242,17 +301,20 @@ impl Offline {
         if self.collect_skills(owner, &self.adventurer, sk2, &char_info.date)
           && self.collect_skills(owner, &self.producer, sk2, &char_info.date)
         {
+          if let Some(spin_box) = owner.get_node_as::<SpinBox>(&self.gold) {
+            let gold = unsafe { spin_box.get_value() } as u64;
+            char_info.gold_json["g"] = json::JsonValue::from(gold);
+          }
+
           if let Some(info) = &mut self.info {
-            if info.set_node_json("CharacterSheet", &char_info.char_json.to_string()) {
-              if let Ok(mut file) = File::create(info.path.to_utf8().as_str()) {
-                if file.write_all(info.node.to_string().as_bytes()).is_ok() {
-                  if let Some(mut button) = owner.get_node_as::<Button>(&self.save) {
-                    unsafe {
-                      button.set_disabled(true);
-                      button.set_focus_mode(Control::FOCUS_NONE);
-                    }
+            if info.set_node_json("UserGold", &char_info.gold_json.to_string()) {
+              if info.set_node_json("CharacterSheet", &char_info.char_json.to_string()) {
+                if let Ok(mut file) = File::create(&info.path) {
+                  if file.write_all(info.node.to_string().as_bytes()).is_ok() {
+                    // Saving was good, now disable the save button.
+                    self.enable_save(owner, false);
+                    return;
                   }
-                  return;
                 }
               }
             }
@@ -262,7 +324,7 @@ impl Offline {
     }
 
     if let Some(info) = &self.info {
-      if let Some(path) = Path::new(info.path.to_utf8().as_str()).file_name() {
+      if let Some(path) = Path::new(&info.path).file_name() {
         if let Some(path) = path.to_str() {
           self.set_status_message(owner, &format!("Unable to save '{}'", path));
         }
@@ -270,15 +332,101 @@ impl Offline {
     }
   }
 
-  fn connect_item_changed(&self, owner: Node, tree: &SkillTree) {
+  fn connect_skill_changed(&self, owner: Node, tree: &SkillTree) {
     owner.connect_to(
       match tree {
         SkillTree::Adventurer(path) => (path),
         SkillTree::Producer(path) => (path),
       },
       "item_edited",
-      "item_changed",
+      "skill_changed",
     );
+  }
+
+  fn connect_gold_changed(&self, owner: Node) {
+    if let Some(mut spin_box) = owner.get_node_as::<SpinBox>(&self.gold) {
+      unsafe {
+        if spin_box
+          .connect(
+            GodotString::from_str("value_changed"),
+            Some(owner.to_object()),
+            GodotString::from_str("gold_value_changed"),
+            VariantArray::new(),
+            0,
+          )
+          .is_ok()
+        {
+          if let Some(mut edit) = spin_box.get_line_edit() {
+            let _ = edit.connect(
+              GodotString::from_str("text_changed"),
+              Some(owner.to_object()),
+              GodotString::from_str("gold_text_changed"),
+              VariantArray::new(),
+              0,
+            );
+          }
+        }
+      }
+    }
+  }
+
+  fn enable_save(&self, owner: Node, enable: bool) {
+    if let Some(mut button) = owner.get_node_as::<Button>(&self.save) {
+      unsafe {
+        if enable {
+          button.set_disabled(false);
+          button.set_focus_mode(Control::FOCUS_ALL);
+        } else {
+          button.set_disabled(true);
+          button.set_focus_mode(Control::FOCUS_NONE);
+        }
+      }
+    }
+  }
+
+  fn set_current_gold(&self, gold: u64) {
+    *self.current_gold.borrow_mut() = gold;
+  }
+
+  fn get_current_gold(&self) -> u64 {
+    *self.current_gold.borrow()
+  }
+
+  fn enable_gold(&self, owner: Node, gold: Option<u64>) {
+    if let Some(mut spin_box) = owner.get_node_as::<SpinBox>(&self.gold) {
+      unsafe {
+        match gold {
+          Some(gold) => {
+            self.set_current_gold(gold);
+            // Calling set_value directly on SpinBox causes an internal godot error.
+            spin_box.call_deferred(
+              GodotString::from_str("set_value"),
+              &[Variant::from_f64(gold as f64)],
+            );
+            // spin_box.to_range().set_value(gold as f64);
+            spin_box.set_editable(true);
+            spin_box.set_focus_mode(Control::FOCUS_ALL);
+            if let Some(mut edit) = spin_box.get_line_edit() {
+              edit.set_focus_mode(Control::FOCUS_ALL);
+            }
+          }
+          None => {
+            self.set_current_gold(0);
+            // Calling set_value directly on SpinBox causes an internal godot error.
+            spin_box.call_deferred(
+              GodotString::from_str("set_value"),
+              &[Variant::from_f64(0.0)],
+            );
+            // spin_box.to_range().set_value(0.0);
+            spin_box.set_editable(false);
+            spin_box.set_focus_mode(Control::FOCUS_NONE);
+            if let Some(mut edit) = spin_box.get_line_edit() {
+              edit.set_focus_mode(Control::FOCUS_NONE);
+            }
+          }
+        }
+      }
+    }
   }
 
   fn disable_tree(&self, owner: Node, tree: &SkillTree) {
