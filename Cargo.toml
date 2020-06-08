@@ -9,10 +9,10 @@ edition = "2018"
 chrono = "*"
 dirs = "*"
 gdnative = "*"
-json = "*"
 num_cpus = "*"
 num-format = "*"
 regex = "*"
+serde_json = "*"
 thread-pool = { path = "../thread-pool" }
 xml_dom = "*"
 

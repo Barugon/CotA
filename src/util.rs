@@ -3,6 +3,7 @@ use gdnative::*;
 use num_cpus;
 use num_format::Locale;
 use regex::Regex;
+use serde_json::Value;
 use std::{
   cell::RefCell,
   cmp::Ordering,
@@ -807,8 +808,8 @@ impl GameInfo {
 
 // Structure to manipulate the character information from a save-game file.
 pub struct CharInfo {
-  char_json: json::JsonValue,
-  gold_json: json::JsonValue,
+  char_json: Value,
+  gold_json: Value,
   date: String,
 }
 
@@ -817,14 +818,14 @@ impl CharInfo {
     if let Some(info) = info {
       // Get the 'CharacterSheet' json.
       if let Some(text) = info.get_node_json("CharacterSheet") {
-        if let Ok(char_json) = json::parse(&text) {
+        if let Ok(char_json) = serde_json::from_str::<Value>(&text) {
           // Get the date.
           if let Some(date) = char_json["rd"]["c"].as_str() {
             // Make sure 'sk2' exists.
             if char_json["sk2"].is_object() {
               // Get the 'UserGold' json.
               if let Some(text) = info.get_node_json("UserGold") {
-                if let Ok(gold_json) = json::parse(&text) {
+                if let Ok(gold_json) = serde_json::from_str::<Value>(&text) {
                   let date = String::from(date);
                   return Some(CharInfo {
                     char_json,
@@ -849,7 +850,7 @@ impl CharInfo {
   }
 
   pub fn set_gold(&mut self, gold: u64) {
-    self.gold_json["g"] = json::JsonValue::from(gold);
+    self.gold_json["g"] = Value::from(gold);
   }
 
   pub fn get_skill_exp(&self, key: &str) -> Option<u64> {
@@ -863,20 +864,22 @@ impl CharInfo {
     if let Some(cur) = self.char_json["sk2"][key]["x"].as_u64() {
       // Change it only if it's different.
       if exp != cur {
-        self.char_json["sk2"][key]["x"] = json::JsonValue::from(exp);
+        self.char_json["sk2"][key]["x"] = Value::from(exp);
       }
     } else {
       // Add a new object for the skill ID.
-      self.char_json["sk2"][key] = json::object! {
+      self.char_json["sk2"][key] = serde_json::json!({
         "x": exp,
         "t": self.date.as_str(),
         "m": 0
-      };
+      });
     }
   }
 
   pub fn remove_skill(&mut self, key: &str) {
-    self.char_json["sk2"].remove(key);
+    if let Some(obj) = self.char_json["sk2"].as_object_mut() {
+      obj.remove(key);
+    }
   }
 
   pub fn get_gold_json(&self) -> String {
