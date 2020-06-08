@@ -8,12 +8,13 @@ Air's Embrace,1,5
 Ammo Scavenger,4,129
 Angles,4,137
 Animal Charm,1,358
-Anthem of Alacrity,1,?
+Anthem of Alacrity,1,4305
 Armor Preservation,4,155
 Armor Weak Points,4,119
-Atonal Aria,1,?
+Atonal Aria,1,4303
 Backstab,4,2557
 Banish Undead,2,87
+Bard Specialization,20,4301
 Bec de Faucon,4,3323
 Beneficent Blessing,4,777
 Berserk,1,28
@@ -48,7 +49,7 @@ Cocoon of Night,1,1351
 Collar Recovery,1,476
 Combat Training,1,433
 Concentration,1,435
-Concussive Canticle,1,?
+Concussive Canticle,1,4306
 Confusion,2,34
 Corpse Explosion,1,41
 Coup de Grace,2,19
@@ -135,7 +136,8 @@ Light,1,142
 Lightning,1,2
 Lunar Magic Specialization,20,2511
 Magic Warding,20,3751
-Melody of Mending,1,?
+Melody of Mending,1,4302
+Mesmerizing Melody,1,4304
 Meteor Shower,1,2812
 Mind Lock,1,177
 Mind Wipe,1,172
@@ -145,7 +147,7 @@ Moon Warding,20,3752
 Moon Worship,4,109
 Multi Shot,1,125
 Mummified Undead,4,50
-Musical Fortitude,5,?
+Musical Fortitude,5,4311
 Night Step,1,359
 Night Vision,1,102
 Obedience,1,432
@@ -162,7 +164,7 @@ Piercing Shot,1,123
 Poison Weapon,2,517
 Polearm Combat,1,472
 Polearm Specialization,20,2512
-Psalm of Stagnation,1,?
+Psalm of Stagnation,1,4307
 Pugilism,1,3231
 Pull,1,115
 Puncture,1,113
@@ -178,19 +180,21 @@ Rapid Fire,1,126
 Reach,4,114
 Reckless Stance,1,305
 Redirection,4,138
+Refrain of Resistance,1,4326
 Refresh,1,436
 Rend,1,15
-Resounding Reach,5,?
+Resounding Reach,5,4314
 Resurrect Creature,1,530
 Resurrection,4,88
 Reveal Hidden,1,146
-Rhythmic Readiness,5,?
+Rhapsody of Recovery,1,4325
+Rhythmic Readiness,5,4312
 Ring of Fire,2,66
 Riposte,1,14
 Root,2,51
 Safe Fall,5,934
 Sap,2,516
-Savage Sonata,1,?
+Savage Sonata,1,4309
 Searing Ray,1,141
 Shadow Form,1,104
 Shield Bash,1,132
