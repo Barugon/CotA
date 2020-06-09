@@ -205,6 +205,14 @@ impl Config {
     if let Some(dir) = dirs::config_dir() {
       let path = dir.join("Portalarium/Shroud of the Avatar/ChatLogs");
       if let Some(path) = path.to_str() {
+        let path = if cfg!(target_os = "windows") {
+          // Change any backslashes to forward slashes.
+          path.replace('\\', "/")
+        } else {
+          String::from(path)
+        };
+
+        godot_print!("SotA path: {}", path);
         log_path = Some(GodotString::from_str(path));
       }
     }
