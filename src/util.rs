@@ -211,8 +211,6 @@ impl Config {
         } else {
           String::from(path)
         };
-
-        godot_print!("SotA path: {}", path);
         log_path = Some(GodotString::from_str(path));
       }
     }
