@@ -827,7 +827,7 @@ impl CharInfo {
         if let Ok(char_json) = serde_json::from_str::<Value>(&text) {
           // Get the date.
           if let Some(date) = char_json["rd"]["c"].as_str() {
-            // Make sure 'sk2' exists.
+            // Make sure 'sk2' (skills object) exists.
             if char_json["sk2"].is_object() {
               // Get the 'UserGold' json.
               if let Some(text) = info.get_node_json("UserGold") {
