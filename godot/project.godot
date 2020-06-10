@@ -35,4 +35,5 @@ window/dpi/allow_hidpi=true
 
 [rendering]
 
+quality/driver/driver_name="GLES2"
 environment/default_clear_color=Color( 0.176471, 0.176471, 0.176471, 1 )
