@@ -246,6 +246,9 @@ Torpor,2,1353
 Train Dexterity,10,153
 Train Intelligence,10,173
 Train Strength,10,154
+Train Summoned Pet Damage,4,3552
+Train Summoned Pet Health,4,3550
+Train Summoned Pet Resistance,4,3551
 Tranquility,4,175
 Trip,1,158
 Undead Mastery,4,49
