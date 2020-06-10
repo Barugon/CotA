@@ -135,6 +135,12 @@ impl Offline {
         if let Some(dir) = dirs::config_dir() {
           let path = dir.join("Portalarium/Shroud of the Avatar/SavedGames");
           if let Some(path) = path.to_str() {
+            let path = if cfg!(target_os = "windows") {
+              // Change any backslashes to forward slashes.
+              path.replace('\\', "/")
+            } else {
+              String::from(path)
+            };
             dialog.set_current_dir(GodotString::from_str(path));
           }
         }
@@ -148,34 +154,34 @@ impl Offline {
     // Disable the save button.
     self.enable_save(owner, false);
 
-    let utf8 = path.to_utf8();
-    let path_str = utf8.as_str();
-    let game_info = GameInfo::read(path_str);
-    if let Some(char_info) = CharInfo::new(game_info.as_ref()) {
-      if self.populate_tree(owner, &self.adventurer, &char_info)
-        && self.populate_tree(owner, &self.producer, &char_info)
-      {
-        if let Some(gold) = char_info.get_gold() {
-          self.enable_gold(owner, Some(gold));
-        }
-
-        if let Some(path) = Path::new(path_str).file_name() {
-          if let Some(path) = path.to_str() {
-            self.set_status_message(owner, &format!("Editing '{}'", path));
-          }
-        }
-
-        *self.info.borrow_mut() = game_info;
-        return;
-      }
-    }
-
-    // Failure to edit. Clear and disable the trees.
+    // Clear and disable the trees.
     self.disable_tree(owner, &self.adventurer);
     self.disable_tree(owner, &self.producer);
 
     // Disable the gold input.
     self.enable_gold(owner, None);
+
+    let utf8 = path.to_utf8();
+    let path_str = utf8.as_str();
+    let game_info = GameInfo::read(path_str);
+    if let Some(char_info) = CharInfo::new(game_info.as_ref()) {
+      if self.populate_tree(owner, &self.adventurer, &char_info) {
+        if self.populate_tree(owner, &self.producer, &char_info) {
+          if let Some(gold) = char_info.get_gold() {
+            self.enable_gold(owner, Some(gold));
+            if let Some(path) = Path::new(path_str).file_name() {
+              if let Some(path) = path.to_str() {
+                self.set_status_message(owner, &format!("Editing '{}'", path));
+              }
+            }
+            *self.info.borrow_mut() = game_info;
+            return;
+          }
+        }
+        self.disable_tree(owner, &self.producer);
+      }
+      self.disable_tree(owner, &self.adventurer);
+    }
 
     if let Some(path) = Path::new(path_str).file_name() {
       if let Some(path) = path.to_str() {
@@ -341,11 +347,9 @@ impl Offline {
     let info_color = Color::rgb(0.4, 0.4, 0.4);
 
     unsafe {
-      tree.clear();
-      tree.set_focus_mode(Control::FOCUS_NONE);
-
       if let Some(parent) = tree.create_item(None, -1) {
         tree.set_focus_mode(Control::FOCUS_ALL);
+
         for line in csv.lines() {
           let mut iter = line.split(',');
           let skill = if let Some(text) = iter.next() {
@@ -375,6 +379,20 @@ impl Offline {
             continue;
           };
 
+          let level = if let Some(val) = info.get_skill_exp(id) {
+            let val = val as f64;
+            let mut level = 0;
+            for (lvl, exp) in EXP_VALUES.iter().enumerate().rev() {
+              if val >= *exp as f64 * mul_val {
+                level = lvl + 1;
+                break;
+              }
+            }
+            level
+          } else {
+            0
+          };
+
           if let Some(mut item) = tree.create_item(parent.cast::<Object>(), -1) {
             // Skill name.
             item.set_custom_color(0, skill_color);
@@ -387,20 +405,6 @@ impl Offline {
             // Skill ID.
             item.set_custom_color(2, info_color);
             item.set_text(2, GodotString::from_str(id));
-
-            let level = if let Some(val) = info.get_skill_exp(id) {
-              let val = val as f64;
-              let mut level = 0;
-              for (lvl, exp) in EXP_VALUES.iter().enumerate().rev() {
-                if val >= *exp as f64 * mul_val {
-                  level = lvl + 1;
-                  break;
-                }
-              }
-              level
-            } else {
-              0
-            };
 
             // Skill level.
             item.set_cell_mode(3, TreeItem::CELL_MODE_RANGE);
@@ -425,6 +429,7 @@ impl Offline {
       let mut node = root.get_children();
       loop {
         if let Some(mut item) = node {
+          // Get the skill multiplier.
           if let Ok(mul) = item
             .get_text(1)
             .to_utf8()
@@ -432,14 +437,17 @@ impl Offline {
             .trim_end_matches('x')
             .parse::<f64>()
           {
+            // Get the skill ID.
             let utf8 = item.get_text(2).to_utf8();
             let key = utf8.as_str();
+
+            // Get the skill level.
             let lvl = item.get_range(3) as usize;
             if lvl > 0 {
               let exp = (EXP_VALUES[lvl - 1] as f64 * mul).ceil() as u64;
               info.set_skill_exp(key, exp);
             } else {
-              // Remove the skill if it exists.
+              // The level is zero, remove the skill if it exists.
               info.remove_skill(key);
             }
           }
