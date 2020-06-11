@@ -34,14 +34,14 @@ impl Offline {
       info: RefCell::new(None),
       load: NodePath::from_str("HBox/LoadButton"),
       save: NodePath::from_str("HBox/SaveButton"),
-      gold: NodePath::from_str("HBox/SpinBox"),
+      gold: NodePath::from_str("HBox/GoldSpinBox"),
       adventurer: SkillTree::Adventurer(NodePath::from_str("AdvPanel/Tree")),
       producer: SkillTree::Producer(NodePath::from_str("ProPanel/Tree")),
       file_dialog: NodePath::from_str("/root/App/FileDialog"),
       file_dialog_title: GodotString::from_str("Select Saved Game"),
       file_filters: filters,
       status: NodePath::from_str("Label"),
-      confirm: NodePath::from_str("/root/App/ConfirmationDialog"),
+      confirm: NodePath::from_str("/root/App/QuitDialog"),
       popup_centered: GodotString::from_str("popup_centered"),
     }
   }
@@ -64,7 +64,7 @@ impl Offline {
     // Connect save_clicked.
     owner.connect_to(&self.save, "pressed", "save_clicked");
 
-    // Connect confirmation dialog.
+    // Connect the quit dialog.
     owner.connect_to(&self.confirm, "confirmed", "quit");
 
     self.initialize_tree(owner, &self.adventurer);
@@ -382,7 +382,7 @@ impl Offline {
           let level = if let Some(val) = info.get_skill_exp(id) {
             let val = val as f64;
             let mut level = 0;
-            for (lvl, exp) in EXP_VALUES.iter().enumerate().rev() {
+            for (lvl, exp) in SKILL_EXP_VALUES.iter().enumerate().rev() {
               if val >= *exp as f64 * mul_val {
                 level = lvl + 1;
                 break;
@@ -444,7 +444,7 @@ impl Offline {
             // Get the skill level.
             let lvl = item.get_range(3) as usize;
             if lvl > 0 {
-              let exp = (EXP_VALUES[lvl - 1] as f64 * mul).ceil() as u64;
+              let exp = (SKILL_EXP_VALUES[lvl - 1] as f64 * mul).ceil() as u64;
               info.set_skill_exp(key, exp);
             } else {
               // The level is zero, remove the skill if it exists.

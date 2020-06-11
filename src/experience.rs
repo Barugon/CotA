@@ -108,7 +108,8 @@ impl Experience {
           .parse::<f64>()
         {
           if cur_valid && tgt_valid {
-            let val = (mul * (EXP_VALUES[tgt - 1] - EXP_VALUES[cur - 1]) as f64).round() as i64;
+            let val = SKILL_EXP_VALUES[tgt - 1] - SKILL_EXP_VALUES[cur - 1];
+            let val = (val as f64 * mul).round() as u64;
             text = GodotString::from_str(&val.to_formatted_string(&self.locale));
           }
         }
