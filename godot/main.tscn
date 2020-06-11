@@ -63,6 +63,7 @@ size_flags_vertical = 3
 tab_align = 0
 
 [node name="Stats" type="VBoxContainer" parent="VBox/Tabs"]
+visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 5.0
@@ -637,7 +638,6 @@ size_flags_horizontal = 3
 custom_colors/font_color = Color( 0.85098, 0.701961, 0.466667, 1 )
 
 [node name="Offline" type="VBoxContainer" parent="VBox/Tabs"]
-visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 5.0
@@ -666,20 +666,40 @@ focus_mode = 0
 disabled = true
 text = "Save"
 
-[node name="Spacer" type="Container" parent="VBox/Tabs/Offline/HBox"]
+[node name="Spacer1" type="Container" parent="VBox/Tabs/Offline/HBox"]
 margin_left = 91.0
 margin_right = 95.0
 margin_bottom = 22.0
 rect_min_size = Vector2( 4, 0 )
 
-[node name="Label" type="Label" parent="VBox/Tabs/Offline/HBox"]
+[node name="AdvLvlLabel" type="Label" parent="VBox/Tabs/Offline/HBox"]
 margin_left = 99.0
-margin_right = 141.0
+margin_right = 157.0
+margin_bottom = 22.0
+text = "Adv Lvl:"
+
+[node name="AdvLvlSpinBox" type="SpinBox" parent="VBox/Tabs/Offline/HBox"]
+margin_left = 161.0
+margin_right = 280.0
+margin_bottom = 22.0
+size_flags_horizontal = 3
+max_value = 200.0
+editable = false
+
+[node name="Spacer2" type="Container" parent="VBox/Tabs/Offline/HBox"]
+margin_left = 284.0
+margin_right = 288.0
+margin_bottom = 22.0
+rect_min_size = Vector2( 4, 0 )
+
+[node name="GoldLabel" type="Label" parent="VBox/Tabs/Offline/HBox"]
+margin_left = 292.0
+margin_right = 334.0
 margin_bottom = 22.0
 text = "Gold:"
 
-[node name="SpinBox" type="SpinBox" parent="VBox/Tabs/Offline/HBox"]
-margin_left = 145.0
+[node name="GoldSpinBox" type="SpinBox" parent="VBox/Tabs/Offline/HBox"]
+margin_left = 338.0
 margin_right = 458.0
 margin_bottom = 22.0
 size_flags_horizontal = 3
@@ -841,7 +861,7 @@ margin_bottom = 202.0
 text = "Created by: Barugon"
 align = 1
 
-[node name="ConfirmationDialog" type="ConfirmationDialog" parent="."]
+[node name="QuitDialog" type="ConfirmationDialog" parent="."]
 margin_left = 129.0
 margin_top = 285.0
 margin_right = 351.0
