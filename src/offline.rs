@@ -15,6 +15,7 @@ pub struct Offline {
   load: NodePath,
   save: NodePath,
   gold: NodePath,
+  adv_lvl: NodePath,
   adventurer: SkillTree,
   producer: SkillTree,
   file_dialog: NodePath,
@@ -35,6 +36,7 @@ impl Offline {
       load: NodePath::from_str("HBox/LoadButton"),
       save: NodePath::from_str("HBox/SaveButton"),
       gold: NodePath::from_str("HBox/GoldSpinBox"),
+      adv_lvl: NodePath::from_str("HBox/AdvLvlSpinBox"),
       adventurer: SkillTree::Adventurer(NodePath::from_str("AdvPanel/Tree")),
       producer: SkillTree::Producer(NodePath::from_str("ProPanel/Tree")),
       file_dialog: NodePath::from_str("/root/App/FileDialog"),
@@ -50,10 +52,14 @@ impl Offline {
   fn _ready(&self, owner: Node) {
     self.connect_skill_changed(owner, &self.adventurer);
     self.connect_skill_changed(owner, &self.producer);
-    self.connect_gold_changed(owner);
+    self.connect_spin_changed(owner, &self.gold);
+    self.connect_spin_changed(owner, &self.adv_lvl);
 
     // Make the edit portion of the gold entry unfocusable.
     self.enable_gold(owner, None);
+
+    // Make the edit portion of the adv lvl entry unfocusable.
+    self.enable_adv_lvl(owner, None);
 
     // Connect load button.
     owner.connect_to(&self.load, "pressed", "load_clicked");
@@ -78,7 +84,7 @@ impl Offline {
         unsafe {
           if !button.is_disabled() {
             if let Some(mut dialog) = owner.get_node_as::<ConfirmationDialog>(&self.confirm) {
-              // Calling popup_centered directly on ConfirmationDialog causes an internal godot error.
+              // Calling popup_centered on ConfirmationDialog directly from here causes an internal godot error.
               dialog.call_deferred(
                 self.popup_centered.new_ref(),
                 &[Variant::from_vector2(&Vector2::zero())],
@@ -110,17 +116,17 @@ impl Offline {
   }
 
   #[export]
-  fn gold_value_changed(&self, owner: Node, _val: f64) {
+  fn spin_value_changed(&self, owner: Node, _val: f64) {
     if self.info.borrow().is_some() {
-      // Gold has changed, enable the save button.
+      // Gold or adv lvl has changed, enable the save button.
       self.enable_save(owner, true);
     }
   }
 
   #[export]
-  fn gold_text_changed(&self, owner: Node, _text: GodotString) {
+  fn spin_text_changed(&self, owner: Node, _text: GodotString) {
     if self.info.borrow().is_some() {
-      // Gold has changed, enable the save button.
+      // Gold or adv lvl has changed, enable the save button.
       self.enable_save(owner, true);
     }
   }
@@ -161,6 +167,9 @@ impl Offline {
     // Disable the gold input.
     self.enable_gold(owner, None);
 
+    // Disable the adv lvl input.
+    self.enable_adv_lvl(owner, None);
+
     let utf8 = path.to_utf8();
     let path_str = utf8.as_str();
     let game_info = GameInfo::read(path_str);
@@ -169,13 +178,17 @@ impl Offline {
         if self.populate_tree(owner, &self.producer, &char_info) {
           if let Some(gold) = char_info.get_gold() {
             self.enable_gold(owner, Some(gold));
-            if let Some(path) = Path::new(path_str).file_name() {
-              if let Some(path) = path.to_str() {
-                self.set_status_message(owner, &format!("Editing '{}'", path));
+            if let Some(lvl) = char_info.get_adv_lvl() {
+              self.enable_adv_lvl(owner, Some(lvl));
+              if let Some(path) = Path::new(path_str).file_name() {
+                if let Some(path) = path.to_str() {
+                  self.set_status_message(owner, &format!("Editing '{}'", path));
+                }
               }
+              *self.info.borrow_mut() = game_info;
+              return;
             }
-            *self.info.borrow_mut() = game_info;
-            return;
+            self.enable_gold(owner, None);
           }
         }
         self.disable_tree(owner, &self.producer);
@@ -199,6 +212,11 @@ impl Offline {
         if let Some(spin_box) = owner.get_node_as::<SpinBox>(&self.gold) {
           let gold = unsafe { spin_box.get_value() } as u64;
           char_info.set_gold(gold);
+        }
+
+        if let Some(spin_box) = owner.get_node_as::<SpinBox>(&self.adv_lvl) {
+          let lvl = unsafe { spin_box.get_value() } as u32;
+          char_info.set_adv_lvl(lvl);
         }
 
         if let Some(info) = self.info.borrow_mut().as_mut() {
@@ -239,14 +257,14 @@ impl Offline {
     );
   }
 
-  fn connect_gold_changed(&self, owner: Node) {
-    if let Some(mut spin_box) = owner.get_node_as::<SpinBox>(&self.gold) {
+  fn connect_spin_changed(&self, owner: Node, path: &NodePath) {
+    if let Some(mut spin_box) = owner.get_node_as::<SpinBox>(path) {
       unsafe {
         if spin_box
           .connect(
             GodotString::from_str("value_changed"),
             Some(owner.to_object()),
-            GodotString::from_str("gold_value_changed"),
+            GodotString::from_str("spin_value_changed"),
             VariantArray::new(),
             0,
           )
@@ -256,7 +274,7 @@ impl Offline {
             let _ = edit.connect(
               GodotString::from_str("text_changed"),
               Some(owner.to_object()),
-              GodotString::from_str("gold_text_changed"),
+              GodotString::from_str("spin_text_changed"),
               VariantArray::new(),
               0,
             );
@@ -286,6 +304,31 @@ impl Offline {
         match gold {
           Some(gold) => {
             spin_box.to_range().set_value(gold as f64);
+            spin_box.set_editable(true);
+            spin_box.set_focus_mode(Control::FOCUS_ALL);
+            if let Some(mut edit) = spin_box.get_line_edit() {
+              edit.set_focus_mode(Control::FOCUS_ALL);
+            }
+          }
+          None => {
+            spin_box.to_range().set_value(0.0);
+            spin_box.set_editable(false);
+            spin_box.set_focus_mode(Control::FOCUS_NONE);
+            if let Some(mut edit) = spin_box.get_line_edit() {
+              edit.set_focus_mode(Control::FOCUS_NONE);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  fn enable_adv_lvl(&self, owner: Node, lvl: Option<u32>) {
+    if let Some(mut spin_box) = owner.get_node_as::<SpinBox>(&self.adv_lvl) {
+      unsafe {
+        match lvl {
+          Some(lvl) => {
+            spin_box.to_range().set_value(lvl as f64);
             spin_box.set_editable(true);
             spin_box.set_focus_mode(Control::FOCUS_ALL);
             if let Some(mut edit) = spin_box.get_line_edit() {

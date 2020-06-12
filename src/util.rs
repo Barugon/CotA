@@ -1,3 +1,4 @@
+use crate::constants::*;
 use chrono::{NaiveDate, NaiveDateTime, NaiveTime, TimeZone, Utc};
 use gdnative::*;
 use num_cpus;
@@ -849,21 +850,30 @@ impl CharInfo {
   }
 
   pub fn get_gold(&self) -> Option<u64> {
-    if let Some(gold) = self.gold_json["g"].as_u64() {
-      return Some(gold);
-    }
-    None
+    to_u64(&self.gold_json["g"])
   }
 
   pub fn set_gold(&mut self, gold: u64) {
     self.gold_json["g"] = Value::from(gold);
   }
 
-  pub fn get_skill_exp(&self, key: &str) -> Option<u64> {
-    if let Some(exp) = self.char_json["sk2"][key]["x"].as_u64() {
-      return Some(exp);
+  pub fn get_adv_lvl(&self) -> Option<u32> {
+    if let Some(val) = to_u64(&self.char_json["ae"]) {
+      for (lvl, exp) in LEVEL_EXP_VALUES.iter().enumerate().rev() {
+        if val >= *exp {
+          return Some(lvl as u32 + 1);
+        }
+      }
     }
     None
+  }
+
+  pub fn set_adv_lvl(&mut self, lvl: u32) {
+    self.char_json["ae"] = Value::from(LEVEL_EXP_VALUES[lvl as usize - 1]);
+  }
+
+  pub fn get_skill_exp(&self, key: &str) -> Option<u64> {
+    to_u64(&self.char_json["sk2"][key]["x"])
   }
 
   pub fn set_skill_exp(&mut self, key: &str, exp: u64) {
@@ -894,5 +904,19 @@ impl CharInfo {
 
   pub fn get_char_json(&self) -> String {
     self.char_json.to_string()
+  }
+}
+
+fn to_u64(val: &Value) -> Option<u64> {
+  match val {
+    Value::Number(num) => num.as_u64(),
+    Value::String(text) => {
+      if let Ok(val) = text.parse::<u64>() {
+        Some(val)
+      } else {
+        None
+      }
+    }
+    _ => None,
   }
 }
