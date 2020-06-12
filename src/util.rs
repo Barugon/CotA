@@ -729,25 +729,44 @@ pub struct GameInfo {
 impl GameInfo {
   // Read the XML from a file and create a new GameInfo from it.
   pub fn read(path: &str) -> Option<Self> {
-    if let Ok(xml) = std::fs::read_to_string(path) {
-      if let Ok(node) = parser::read_xml(&xml) {
-        return Some(GameInfo {
-          node,
-          path: String::from(path),
-        });
+    match std::fs::read_to_string(path) {
+      Ok(xml) => match parser::read_xml(&xml) {
+        Ok(node) => {
+          return Some(GameInfo {
+            node,
+            path: String::from(path),
+          })
+        }
+        Err(err) => {
+          godot_print!("Unable to load: {:?}", err);
+        }
+      },
+      Err(err) => {
+        if let Some(err) = err.get_ref() {
+          godot_print!("Unable to load: {:?}", err);
+        }
       }
     }
     None
   }
 
-  pub fn write(&self) -> std::io::Result<()> {
+  pub fn write(&self) -> bool {
     match File::create(self.path()) {
       Ok(mut file) => match file.write_all(self.xml().as_bytes()) {
-        Ok(()) => Ok(()),
-        Err(err) => Err(err),
+        Ok(()) => return true,
+        Err(err) => {
+          if let Some(err) = err.get_ref() {
+            godot_print!("Unable to save: {:?}", err);
+          }
+        }
       },
-      Err(err) => Err(err),
+      Err(err) => {
+        if let Some(err) = err.get_ref() {
+          godot_print!("Unable to save: {:?}", err);
+        }
+      }
     }
+    false
   }
 
   // Get the inner JSON text from a 'collection'.
@@ -877,7 +896,7 @@ impl CharInfo {
   }
 
   pub fn set_skill_exp(&mut self, key: &str, exp: u64) {
-    if let Some(cur) = self.char_json["sk2"][key]["x"].as_u64() {
+    if let Some(cur) = self.get_skill_exp(key) {
       // Change it only if it's different.
       if exp != cur {
         self.char_json["sk2"][key]["x"] = Value::from(exp);
@@ -911,6 +930,7 @@ fn to_u64(val: &Value) -> Option<u64> {
   match val {
     Value::Number(num) => num.as_u64(),
     Value::String(text) => {
+      // Attempt to convert to u64.
       if let Ok(val) = text.parse::<u64>() {
         Some(val)
       } else {

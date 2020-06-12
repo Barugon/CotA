@@ -222,7 +222,7 @@ impl Offline {
         if let Some(info) = self.info.borrow_mut().as_mut() {
           if info.set_node_json("UserGold", &char_info.get_gold_json()) {
             if info.set_node_json("CharacterSheet", &char_info.get_char_json()) {
-              if info.write().is_ok() {
+              if info.write() {
                 // Saving was good, now disable the save button.
                 self.enable_save(owner, false);
                 return;
@@ -425,6 +425,7 @@ impl Offline {
           let level = if let Some(val) = info.get_skill_exp(id) {
             let val = val as f64;
             let mut level = 0;
+            // Find the level for the given experience.
             for (lvl, exp) in SKILL_EXP_VALUES.iter().enumerate().rev() {
               if val >= *exp as f64 * mul_val {
                 level = lvl + 1;
