@@ -210,7 +210,7 @@ impl Offline {
         && self.collect_skills(owner, &self.producer, &mut char_info)
       {
         if let Some(spin_box) = owner.get_node_as::<SpinBox>(&self.gold) {
-          let gold = unsafe { spin_box.get_value() } as u64;
+          let gold = unsafe { spin_box.get_value() } as i64;
           char_info.set_gold(gold);
         }
 
@@ -220,12 +220,16 @@ impl Offline {
         }
 
         if let Some(info) = self.info.borrow_mut().as_mut() {
-          if info.set_node_json("UserGold", &char_info.get_gold_json()) {
-            if info.set_node_json("CharacterSheet", &char_info.get_char_json()) {
-              if info.write() {
-                // Saving was good, now disable the save button.
-                self.enable_save(owner, false);
-                return;
+          if let Some(json) = char_info.get_gold_json() {
+            if info.set_node_json("UserGold", &json.to_utf8().as_str()) {
+              if let Some(json) = char_info.get_char_json() {
+                if info.set_node_json("CharacterSheet", &json.to_utf8().as_str()) {
+                  if info.write() {
+                    // Saving was good, now disable the save button.
+                    self.enable_save(owner, false);
+                    return;
+                  }
+                }
               }
             }
           }
@@ -298,7 +302,7 @@ impl Offline {
     }
   }
 
-  fn enable_gold(&self, owner: Node, gold: Option<u64>) {
+  fn enable_gold(&self, owner: Node, gold: Option<i64>) {
     if let Some(mut spin_box) = owner.get_node_as::<SpinBox>(&self.gold) {
       unsafe {
         match gold {
@@ -417,12 +421,12 @@ impl Offline {
             if text.parse::<u32>().is_err() {
               continue;
             }
-            text
+            GodotString::from(text)
           } else {
             continue;
           };
 
-          let level = if let Some(val) = info.get_skill_exp(id) {
+          let level = if let Some(val) = info.get_skill_exp(&id) {
             let val = val as f64;
             let mut level = 0;
             // Find the level for the given experience.
@@ -448,7 +452,7 @@ impl Offline {
 
             // Skill ID.
             item.set_custom_color(2, info_color);
-            item.set_text(2, GodotString::from_str(id));
+            item.set_text(2, id);
 
             // Skill level.
             item.set_cell_mode(3, TreeItem::CELL_MODE_RANGE);
@@ -482,17 +486,16 @@ impl Offline {
             .parse::<f64>()
           {
             // Get the skill ID.
-            let utf8 = item.get_text(2).to_utf8();
-            let key = utf8.as_str();
+            let key = item.get_text(2);
 
             // Get the skill level.
             let lvl = item.get_range(3) as usize;
             if lvl > 0 {
-              let exp = (SKILL_EXP_VALUES[lvl - 1] as f64 * mul).ceil() as u64;
-              info.set_skill_exp(key, exp);
+              let exp = (SKILL_EXP_VALUES[lvl - 1] as f64 * mul).ceil() as i64;
+              info.set_skill_exp(&key, exp);
             } else {
               // The level is zero, remove the skill if it exists.
-              info.remove_skill(key);
+              info.remove_skill(&key);
             }
           }
           node = item.get_next();

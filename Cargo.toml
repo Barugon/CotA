@@ -12,7 +12,6 @@ gdnative = "*"
 num_cpus = "*"
 num-format = "*"
 regex = "*"
-serde_json = "*"
 thread-pool = { path = "../thread-pool" }
 xml_dom = "*"
 

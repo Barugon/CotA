@@ -4,7 +4,6 @@ use gdnative::*;
 use num_cpus;
 use num_format::Locale;
 use regex::Regex;
-use serde_json::Value;
 use std::{
   cell::RefCell,
   cmp::Ordering,
@@ -128,14 +127,14 @@ impl GetNodeAs for Node {
           let name = path.to_godot_string();
           godot_print!(
             "Unable to cast node {} as {:?}",
-            name.to_utf8().as_str(),
+            name,
             std::any::type_name::<T>()
           );
         }
         return node;
       } else {
         let name = path.to_godot_string();
-        godot_print!("Unable to get node {}", name.to_utf8().as_str());
+        godot_print!("Unable to get node {}", name);
       }
     }
     None
@@ -170,7 +169,7 @@ impl ConnectTo for Node {
         }
       } else {
         let name = path.to_godot_string();
-        godot_print!("Unable to get node {}", name.to_utf8().as_str());
+        godot_print!("Unable to get node {}", name);
       }
     }
     false
@@ -834,9 +833,15 @@ impl GameInfo {
 
 // Structure to manipulate the character information from a save-game file.
 pub struct CharInfo {
-  char_json: Value,
-  gold_json: Value,
-  date: String,
+  character: Variant,
+  skills: Variant,
+  gold: Variant,
+  date: GodotString,
+  ae: Variant,
+  g: Variant,
+  m: Variant,
+  t: Variant,
+  x: Variant,
 }
 
 impl CharInfo {
@@ -844,19 +849,41 @@ impl CharInfo {
     if let Some(info) = info {
       // Get the 'CharacterSheet' json.
       if let Some(text) = info.get_node_json("CharacterSheet") {
-        if let Ok(char_json) = serde_json::from_str::<Value>(&text) {
+        let mut parser = JSON::godot_singleton();
+        if let Some(result) = parser.parse(GodotString::from(text)) {
+          let character = result.get_result();
+          if character.try_to_dictionary().is_none() {
+            return None;
+          }
+
           // Get the date.
-          if let Some(date) = char_json["rd"]["c"].as_str() {
-            // Make sure 'sk2' (skills object) exists.
-            if char_json["sk2"].is_object() {
+          if let Some(date) = character
+            .get(&Variant::from("rd"))
+            .get(&Variant::from("c"))
+            .to_text()
+          {
+            if let Some(skills) = character.get(&Variant::from("sk2")) {
+              if skills.try_to_dictionary().is_none() {
+                return None;
+              }
+
               // Get the 'UserGold' json.
               if let Some(text) = info.get_node_json("UserGold") {
-                if let Ok(gold_json) = serde_json::from_str::<Value>(&text) {
-                  let date = String::from(date);
+                if let Some(result) = parser.parse(GodotString::from(text)) {
+                  let gold = result.get_result();
+                  if gold.try_to_dictionary().is_none() {
+                    return None;
+                  }
                   return Some(CharInfo {
-                    char_json,
-                    gold_json,
+                    character,
+                    skills,
+                    gold,
                     date,
+                    ae: Variant::from("ae"),
+                    g: Variant::from("g"),
+                    m: Variant::from("m"),
+                    t: Variant::from("t"),
+                    x: Variant::from("x"),
                   });
                 }
               }
@@ -868,16 +895,16 @@ impl CharInfo {
     None
   }
 
-  pub fn get_gold(&self) -> Option<u64> {
-    to_u64(&self.gold_json["g"])
+  pub fn get_gold(&self) -> Option<i64> {
+    self.gold.get(&self.g).to_int()
   }
 
-  pub fn set_gold(&mut self, gold: u64) {
-    self.gold_json["g"] = Value::from(gold);
+  pub fn set_gold(&mut self, gold: i64) {
+    self.gold.set(&self.g, &Variant::from(gold));
   }
 
   pub fn get_adv_lvl(&self) -> Option<u32> {
-    if let Some(val) = to_u64(&self.char_json["ae"]) {
+    if let Some(val) = self.character.get(&self.ae).to_int() {
       for (lvl, exp) in LEVEL_EXP_VALUES.iter().enumerate().rev() {
         if val >= *exp {
           return Some(lvl as u32 + 1);
@@ -888,55 +915,140 @@ impl CharInfo {
   }
 
   pub fn set_adv_lvl(&mut self, lvl: u32) {
-    self.char_json["ae"] = Value::from(LEVEL_EXP_VALUES[lvl as usize - 1]);
+    self
+      .character
+      .set(&self.ae, &Variant::from(LEVEL_EXP_VALUES[lvl as usize - 1]));
   }
 
-  pub fn get_skill_exp(&self, key: &str) -> Option<u64> {
-    to_u64(&self.char_json["sk2"][key]["x"])
+  pub fn get_skill_exp(&self, key: &GodotString) -> Option<i64> {
+    self.skills.get(&Variant::from(key)).get(&self.x).to_int()
   }
 
-  pub fn set_skill_exp(&mut self, key: &str, exp: u64) {
-    if let Some(cur) = self.get_skill_exp(key) {
-      // Change it only if it's different.
-      if exp != cur {
-        self.char_json["sk2"][key]["x"] = Value::from(exp);
+  pub fn set_skill_exp(&mut self, key: &GodotString, exp: i64) {
+    let key = Variant::from(key);
+    if let Some(mut skill) = self.skills.get(&key) {
+      if let Some(cur) = skill.get(&self.x).to_int() {
+        // Change it only if it's different.
+        if exp != cur {
+          skill.set(&self.x, &Variant::from(exp));
+        }
+        return;
       }
-    } else {
-      // Add a new object for the skill ID.
-      self.char_json["sk2"][key] = serde_json::json!({
-        "x": exp,
-        "t": self.date.as_str(),
-        "m": 0
-      });
     }
+    // Add a new dictionary for the skill ID.
+    let mut skill = Dictionary::new();
+    skill.set(&self.x, &Variant::from(exp));
+    skill.set(&self.t, &Variant::from(&self.date));
+    skill.set(&self.m, &Variant::from(0i64));
+    self.skills.set(&key, &Variant::from(&skill));
   }
 
-  pub fn remove_skill(&mut self, key: &str) {
-    if let Some(obj) = self.char_json["sk2"].as_object_mut() {
-      obj.remove(key);
+  pub fn remove_skill(&mut self, key: &GodotString) {
+    self.skills.erase(&Variant::from(key));
+  }
+
+  pub fn get_gold_json(&self) -> Option<GodotString> {
+    if let Some(gold) = self.gold.try_to_dictionary() {
+      return Some(gold.to_json());
     }
+    None
   }
 
-  pub fn get_gold_json(&self) -> String {
-    self.gold_json.to_string()
-  }
-
-  pub fn get_char_json(&self) -> String {
-    self.char_json.to_string()
+  pub fn get_char_json(&self) -> Option<GodotString> {
+    if let Some(character) = self.character.try_to_dictionary() {
+      return Some(character.to_json());
+    }
+    None
   }
 }
 
-fn to_u64(val: &Value) -> Option<u64> {
-  match val {
-    Value::Number(num) => num.as_u64(),
-    Value::String(text) => {
-      // Attempt to convert to u64.
-      if let Ok(val) = text.parse::<u64>() {
-        Some(val)
-      } else {
-        None
-      }
+pub trait Get {
+  fn get(&self, key: &Variant) -> Option<Variant>;
+}
+
+impl Get for Variant {
+  fn get(&self, key: &Variant) -> Option<Variant> {
+    if let Some(dictionary) = self.try_to_dictionary() {
+      return Some(dictionary.get(key));
     }
-    _ => None,
+    None
+  }
+}
+
+impl Get for Option<Variant> {
+  fn get(&self, key: &Variant) -> Option<Variant> {
+    if let Some(variant) = self {
+      return variant.get(key);
+    }
+    None
+  }
+}
+
+pub trait Set {
+  fn set(&mut self, key: &Variant, value: &Variant) -> bool;
+}
+
+impl Set for Variant {
+  fn set(&mut self, key: &Variant, value: &Variant) -> bool {
+    if let Some(mut dictionary) = self.try_to_dictionary() {
+      dictionary.set(key, value);
+      return true;
+    }
+    false
+  }
+}
+
+impl Set for Option<Variant> {
+  fn set(&mut self, key: &Variant, value: &Variant) -> bool {
+    if let Some(variant) = self {
+      return variant.set(key, value);
+    }
+    false
+  }
+}
+
+pub trait Erase {
+  fn erase(&mut self, key: &Variant);
+}
+
+impl Erase for Variant {
+  fn erase(&mut self, key: &Variant) {
+    if let Some(mut dictionary) = self.try_to_dictionary() {
+      dictionary.erase(key);
+    }
+  }
+}
+
+impl Erase for Option<Variant> {
+  fn erase(&mut self, key: &Variant) {
+    if let Some(variant) = self {
+      return variant.erase(key);
+    }
+  }
+}
+
+pub trait ToText {
+  fn to_text(&self) -> Option<GodotString>;
+}
+
+impl ToText for Option<Variant> {
+  fn to_text(&self) -> Option<GodotString> {
+    if let Some(variant) = self {
+      return Some(variant.to_godot_string());
+    }
+    None
+  }
+}
+
+pub trait ToInt {
+  fn to_int(&self) -> Option<i64>;
+}
+
+impl ToInt for Option<Variant> {
+  fn to_int(&self) -> Option<i64> {
+    if let Some(variant) = self {
+      return Some(variant.to_i64());
+    }
+    None
   }
 }
