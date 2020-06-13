@@ -768,26 +768,20 @@ impl GameInfo {
     false
   }
 
-  // Get the inner JSON text from a 'collection'.
-  pub fn get_node_json(&self, name: &str) -> Option<String> {
-    if let Ok(document) = level2::convert::as_document(&self.node) {
-      let collections = document.get_elements_by_tag_name("collection");
-      for collection in collections {
-        if let Ok(element) = level2::convert::as_element(&collection) {
-          if let Some(attribute) = element.get_attribute("name") {
-            if attribute == name {
-              let records = element.get_elements_by_tag_name("record");
-              for record in records {
-                if let Ok(element) = level2::convert::as_element(&record) {
-                  let nodes = element.child_nodes();
-                  for node in nodes {
-                    if let Ok(text) = level2::convert::as_text(&node) {
-                      return text.node_value();
-                    }
-                  }
-                }
-              }
-            }
+  fn get_inner_text(collection: &level2::RefNode, name: &str) -> Option<String> {
+    let element = ok!(level2::convert::as_element(collection), None);
+    let attribute = some!(element.get_attribute("name"), None);
+    if attribute != name {
+      return None;
+    }
+
+    let records = element.get_elements_by_tag_name("record");
+    for record in records {
+      if let Ok(element) = level2::convert::as_element(&record) {
+        let nodes = element.child_nodes();
+        for node in nodes {
+          if let Ok(text) = level2::convert::as_text(&node) {
+            return text.node_value();
           }
         }
       }
@@ -795,28 +789,46 @@ impl GameInfo {
     None
   }
 
-  // Replace the inner JSON text in a 'collection'.
-  pub fn set_node_json(&mut self, name: &str, json: &str) -> bool {
-    if let Ok(document) = level2::convert::as_document_mut(&mut self.node) {
-      let mut collections = document.get_elements_by_tag_name("collection");
-      for collection in &mut collections {
-        if let Ok(element) = level2::convert::as_element_mut(collection) {
-          if let Some(attribute) = element.get_attribute("name") {
-            if attribute == name {
-              let mut records = element.get_elements_by_tag_name("record");
-              for record in &mut records {
-                if let Ok(element) = level2::convert::as_element_mut(record) {
-                  let mut nodes = element.child_nodes();
-                  for node in &mut nodes {
-                    if let Ok(text) = level2::convert::as_text_mut(node) {
-                      return text.set_node_value(json).is_ok();
-                    }
-                  }
-                }
-              }
-            }
+  // Get the inner JSON text from a 'collection'.
+  pub fn get_node_json(&self, name: &str) -> Option<String> {
+    let document = ok!(level2::convert::as_document(&self.node), None);
+    let collections = document.get_elements_by_tag_name("collection");
+    for collection in collections {
+      if let Some(text) = GameInfo::get_inner_text(&collection, name) {
+        return Some(text);
+      }
+    }
+    None
+  }
+
+  fn set_inner_text(collection: &mut level2::RefNode, name: &str, json: &str) -> bool {
+    let element = ok!(level2::convert::as_element_mut(collection), false);
+    let attribute = some!(element.get_attribute("name"), false);
+    if attribute != name {
+      return false;
+    }
+
+    let mut records = element.get_elements_by_tag_name("record");
+    for record in &mut records {
+      if let Ok(element) = level2::convert::as_element_mut(record) {
+        let mut nodes = element.child_nodes();
+        for node in &mut nodes {
+          if let Ok(text) = level2::convert::as_text_mut(node) {
+            return text.set_node_value(json).is_ok();
           }
         }
+      }
+    }
+    false
+  }
+
+  // Replace the inner JSON text in a 'collection'.
+  pub fn set_node_json(&mut self, name: &str, json: &str) -> bool {
+    let document = ok!(level2::convert::as_document(&self.node), false);
+    let mut collections = document.get_elements_by_tag_name("collection");
+    for collection in &mut collections {
+      if GameInfo::set_inner_text(collection, name, json) {
+        return true;
       }
     }
     false
@@ -846,53 +858,51 @@ pub struct CharInfo {
 
 impl CharInfo {
   pub fn new(info: Option<&GameInfo>) -> Option<Self> {
-    if let Some(info) = info {
-      // Get the 'CharacterSheet' json.
-      if let Some(text) = info.get_node_json("CharacterSheet") {
-        let mut parser = JSON::godot_singleton();
-        if let Some(result) = parser.parse(GodotString::from(text)) {
-          let character = result.get_result();
-          if character.try_to_dictionary().is_none() {
-            return None;
-          }
+    let info = some!(info, None);
 
-          // Get the date.
-          if let Some(date) = character
-            .get(&Variant::from("rd"))
-            .get(&Variant::from("c"))
-            .to_text()
-          {
-            if let Some(skills) = character.get(&Variant::from("sk2")) {
-              if skills.try_to_dictionary().is_none() {
-                return None;
-              }
-
-              // Get the 'UserGold' json.
-              if let Some(text) = info.get_node_json("UserGold") {
-                if let Some(result) = parser.parse(GodotString::from(text)) {
-                  let gold = result.get_result();
-                  if gold.try_to_dictionary().is_none() {
-                    return None;
-                  }
-                  return Some(CharInfo {
-                    character,
-                    skills,
-                    gold,
-                    date,
-                    ae: Variant::from("ae"),
-                    g: Variant::from("g"),
-                    m: Variant::from("m"),
-                    t: Variant::from("t"),
-                    x: Variant::from("x"),
-                  });
-                }
-              }
-            }
-          }
-        }
-      }
+    // Parse the 'CharacterSheet' json.
+    let text = some!(info.get_node_json("CharacterSheet"), None);
+    let mut parser = JSON::godot_singleton();
+    let result = some!(parser.parse(GodotString::from(text)), None);
+    let character = result.get_result();
+    if character.try_to_dictionary().is_none() {
+      return None;
     }
-    None
+
+    // Get the date.
+    let date = some!(
+      character
+        .get(&Variant::from("rd"))
+        .get(&Variant::from("c"))
+        .to_text(),
+      None
+    );
+
+    // Get the skills dictionary.
+    let skills = some!(character.get(&Variant::from("sk2")), None);
+    if skills.try_to_dictionary().is_none() {
+      return None;
+    }
+
+    // Parse the 'UserGold' json.
+    let text = some!(info.get_node_json("UserGold"), None);
+    let result = some!(parser.parse(GodotString::from(text)), None);
+    let gold = result.get_result();
+    if gold.try_to_dictionary().is_none() {
+      return None;
+    }
+
+    Some(CharInfo {
+      character,
+      skills,
+      gold,
+      date,
+      ae: Variant::from("ae"),
+      g: Variant::from("g"),
+      m: Variant::from("m"),
+      t: Variant::from("t"),
+      x: Variant::from("x"),
+    })
   }
 
   pub fn get_gold(&self) -> Option<i64> {

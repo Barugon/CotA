@@ -49,6 +49,11 @@ impl Experience {
 
       // Connect target text_changed.
       owner.connect_to(&self.target, "text_changed", "text_changed");
+
+      if let Some(mut tree) = owner.get_node_as::<Tree>(&self.tree) {
+        tree.set_column_expand(0, true);
+        tree.set_column_min_width(0, 3);
+      }
     }
   }
 
@@ -109,7 +114,7 @@ impl Experience {
         {
           if cur_valid && tgt_valid {
             let val = SKILL_EXP_VALUES[tgt - 1] - SKILL_EXP_VALUES[cur - 1];
-            let val = (val as f64 * mul).round() as u64;
+            let val = (val as f64 * mul).round() as i64;
             text = GodotString::from_str(&val.to_formatted_string(&self.locale));
           }
         }
@@ -130,31 +135,28 @@ impl Experience {
     let info_color = Color::rgb(0.5, 0.5, 0.5);
 
     unsafe {
-      tree.set_column_expand(0, true);
-      tree.set_column_min_width(0, 3);
+      let parent = some!(tree.create_item(None, -1));
 
-      if let Some(parent) = tree.create_item(None, -1) {
-        for line in csv.lines() {
-          if let Some(mut item) = tree.create_item(parent.cast::<Object>(), -1) {
-            let mut iter = line.split(',');
+      for line in csv.lines() {
+        if let Some(mut item) = tree.create_item(parent.cast::<Object>(), -1) {
+          let mut iter = line.split(',');
 
-            // Skill name.
-            if let Some(text) = iter.next() {
-              item.set_custom_color(0, skill_color);
-              item.set_text(0, GodotString::from_str(text));
-            }
+          // Skill name.
+          if let Some(text) = iter.next() {
+            item.set_custom_color(0, skill_color);
+            item.set_text(0, GodotString::from_str(text));
+          }
 
-            // Experience multiplier.
-            if let Some(text) = iter.next() {
-              item.set_custom_color(1, info_color);
-              item.set_text(1, GodotString::from_str(&format!("{}x", text)));
-            }
+          // Experience multiplier.
+          if let Some(text) = iter.next() {
+            item.set_custom_color(1, info_color);
+            item.set_text(1, GodotString::from_str(&format!("{}x", text)));
+          }
 
-            // Skill ID.
-            if let Some(text) = iter.next() {
-              item.set_custom_color(2, info_color);
-              item.set_text(2, GodotString::from_str(text));
-            }
+          // Skill ID.
+          if let Some(text) = iter.next() {
+            item.set_custom_color(2, info_color);
+            item.set_text(2, GodotString::from_str(text));
           }
         }
       }
