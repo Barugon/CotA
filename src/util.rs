@@ -845,10 +845,13 @@ impl GameInfo {
 
 // Structure to manipulate the character information from a save-game file.
 pub struct CharInfo {
+  // Dictionaries.
   character: Variant,
   skills: Variant,
   gold: Variant,
+  // Save date.
   date: GodotString,
+  // Keys.
   ae: Variant,
   g: Variant,
   m: Variant,
@@ -925,9 +928,8 @@ impl CharInfo {
   }
 
   pub fn set_adv_lvl(&mut self, lvl: u32) {
-    self
-      .character
-      .set(&self.ae, &Variant::from(LEVEL_EXP_VALUES[lvl as usize - 1]));
+    let exp = LEVEL_EXP_VALUES[lvl as usize - 1];
+    self.character.set(&self.ae, &Variant::from(exp));
   }
 
   pub fn get_skill_exp(&self, key: &GodotString) -> Option<i64> {
