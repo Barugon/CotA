@@ -1,7 +1,7 @@
 use crate::constants::*;
 use crate::util::*;
 use gdnative::*;
-use std::{borrow::Cow, cell::RefCell, path::Path};
+use std::{cell::RefCell, path::Path};
 
 enum SkillTree {
   Adventurer(NodePath),
@@ -266,11 +266,11 @@ impl Offline {
         if let Some(path) = path.to_str() {
           let path = if cfg!(target_os = "windows") {
             // Change any backslashes to forward slashes.
-            Cow::Owned(path.replace('\\', "/"))
+            GodotString::from(path.replace('\\', "/"))
           } else {
-            Cow::Borrowed(path)
+            GodotString::from(path)
           };
-          dialog.set_current_dir(GodotString::from(path));
+          dialog.set_current_dir(path);
         }
       }
       dialog.popup_centered(Vector2::zero());

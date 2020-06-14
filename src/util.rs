@@ -5,7 +5,6 @@ use num_cpus;
 use num_format::Locale;
 use regex::Regex;
 use std::{
-  borrow::Cow,
   cell::RefCell,
   cmp::Ordering,
   collections::HashSet,
@@ -208,11 +207,11 @@ impl Config {
       if let Some(path) = path.to_str() {
         let path = if cfg!(target_os = "windows") {
           // Change any backslashes to forward slashes.
-          Cow::Owned(path.replace('\\', "/"))
+          GodotString::from(path.replace('\\', "/"))
         } else {
-          Cow::Borrowed(path)
+          GodotString::from(path)
         };
-        log_path = Some(GodotString::from(path));
+        log_path = Some(path);
       }
     }
 
