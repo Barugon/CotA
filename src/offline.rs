@@ -95,7 +95,7 @@ impl Offline {
         if !button.is_disabled() {
           if let Some(mut dialog) = owner.get_node_as::<ConfirmationDialog>(&self.confirm) {
             *self.confirmation.borrow_mut() = Confirmation::Quit;
-            // Calling popup_centered on ConfirmationDialog from here causes an internal godot error.
+            // Calling popup_centered on ConfirmationDialog directly from here causes an internal godot error.
             dialog.call_deferred(
               self.popup_centered.new_ref(),
               &[Variant::from_vector2(&Vector2::zero())],

@@ -94,6 +94,9 @@ impl Stats {
       if let Some(mut tree) = owner.get_node_as::<Tree>(&self.tree) {
         tree.set_column_expand(0, true);
         tree.set_column_min_width(0, 3);
+        // tree.set_column_title(0, GodotString::from("Name"));
+        // tree.set_column_title(1, GodotString::from("Value"));
+        // tree.set_column_titles_visible(true);
       }
     }
     self.populate_avatars(owner);
