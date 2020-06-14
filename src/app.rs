@@ -23,20 +23,20 @@ pub struct App {
 impl App {
   fn _init(_owner: Node) -> Self {
     let mut filters = StringArray::new();
-    filters.push(&GodotString::from_str("SotAChatLog_*.txt; Chat Logs"));
+    filters.push(&GodotString::from("SotAChatLog_*.txt; Chat Logs"));
     App {
       config: Config::new(),
-      file: NodePath::from_str("VBox/Menu/File"),
-      view: NodePath::from_str("VBox/Menu/View"),
-      help: NodePath::from_str("VBox/Menu/Help"),
-      file_dialog: NodePath::from_str("FileDialog"),
-      file_dialog_title: GodotString::from_str("Select Chat Log Folder"),
+      file: NodePath::from("VBox/Menu/File"),
+      view: NodePath::from("VBox/Menu/View"),
+      help: NodePath::from("VBox/Menu/Help"),
+      file_dialog: NodePath::from("FileDialog"),
+      file_dialog_title: GodotString::from("Select Chat Log Folder"),
       file_filters: filters,
-      about_dialog: NodePath::from_str("AboutDialog"),
-      about_version: NodePath::from_str("AboutDialog/VBox/Version"),
-      portals_timer: NodePath::from_str("VBox/Tabs/Portals/Timer"),
-      tabs: NodePath::from_str("VBox/Tabs"),
-      update_signal: GodotString::from_str("timeout"),
+      about_dialog: NodePath::from("AboutDialog"),
+      about_version: NodePath::from("AboutDialog/VBox/Version"),
+      portals_timer: NodePath::from("VBox/Tabs/Portals/Timer"),
+      tabs: NodePath::from("VBox/Tabs"),
+      update_signal: GodotString::from("timeout"),
     }
   }
 
@@ -93,10 +93,7 @@ impl App {
         if let Some(mut dialog) = owner.get_node_as::<AcceptDialog>(&self.about_dialog) {
           unsafe {
             if let Some(mut label) = owner.get_node_as::<Label>(&self.about_version) {
-              label.set_text(GodotString::from_str(&format!(
-                "v{}",
-                env!("CARGO_PKG_VERSION")
-              )));
+              label.set_text(GodotString::from(format!("v{}", env!("CARGO_PKG_VERSION"))));
             }
             dialog.popup_centered(Vector2::zero());
           }

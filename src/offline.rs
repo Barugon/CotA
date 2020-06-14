@@ -1,7 +1,7 @@
 use crate::constants::*;
 use crate::util::*;
 use gdnative::*;
-use std::{cell::RefCell, path::Path};
+use std::{borrow::Cow, cell::RefCell, path::Path};
 
 enum SkillTree {
   Adventurer(NodePath),
@@ -36,22 +36,22 @@ pub struct Offline {
 impl Offline {
   fn _init(_owner: Node) -> Self {
     let mut filters = StringArray::new();
-    filters.push(&GodotString::from_str("*.sota; Saved Games"));
+    filters.push(&GodotString::from("*.sota; Saved Games"));
     Offline {
       info: RefCell::new(None),
       confirmation: RefCell::new(Confirmation::Load),
-      load: NodePath::from_str("HBox/LoadButton"),
-      save: NodePath::from_str("HBox/SaveButton"),
-      gold: NodePath::from_str("HBox/GoldSpinBox"),
-      adv_lvl: NodePath::from_str("HBox/AdvLvlSpinBox"),
-      adventurer: SkillTree::Adventurer(NodePath::from_str("AdvPanel/Tree")),
-      producer: SkillTree::Producer(NodePath::from_str("ProPanel/Tree")),
-      file_dialog: NodePath::from_str("/root/App/FileDialog"),
-      file_dialog_title: GodotString::from_str("Select Saved Game"),
+      load: NodePath::from("HBox/LoadButton"),
+      save: NodePath::from("HBox/SaveButton"),
+      gold: NodePath::from("HBox/GoldSpinBox"),
+      adv_lvl: NodePath::from("HBox/AdvLvlSpinBox"),
+      adventurer: SkillTree::Adventurer(NodePath::from("AdvPanel/Tree")),
+      producer: SkillTree::Producer(NodePath::from("ProPanel/Tree")),
+      file_dialog: NodePath::from("/root/App/FileDialog"),
+      file_dialog_title: GodotString::from("Select Saved Game"),
       file_filters: filters,
-      status: NodePath::from_str("Label"),
-      confirm: NodePath::from_str("/root/App/ConfirmationDialog"),
-      popup_centered: GodotString::from_str("popup_centered"),
+      status: NodePath::from("Label"),
+      confirm: NodePath::from("/root/App/ConfirmationDialog"),
+      popup_centered: GodotString::from("popup_centered"),
     }
   }
 
@@ -266,11 +266,11 @@ impl Offline {
         if let Some(path) = path.to_str() {
           let path = if cfg!(target_os = "windows") {
             // Change any backslashes to forward slashes.
-            path.replace('\\', "/")
+            Cow::Owned(path.replace('\\', "/"))
           } else {
-            String::from(path)
+            Cow::Borrowed(path)
           };
-          dialog.set_current_dir(GodotString::from_str(path));
+          dialog.set_current_dir(GodotString::from(path));
         }
       }
       dialog.popup_centered(Vector2::zero());
@@ -305,9 +305,9 @@ impl Offline {
     unsafe {
       if spin_box
         .connect(
-          GodotString::from_str("value_changed"),
+          GodotString::from("value_changed"),
           Some(owner.to_object()),
-          GodotString::from_str("spin_value_changed"),
+          GodotString::from("spin_value_changed"),
           VariantArray::new(),
           0,
         )
@@ -315,9 +315,9 @@ impl Offline {
       {
         if let Some(mut edit) = spin_box.get_line_edit() {
           let _ = edit.connect(
-            GodotString::from_str("text_changed"),
+            GodotString::from("text_changed"),
             Some(owner.to_object()),
-            GodotString::from_str("spin_text_changed"),
+            GodotString::from("spin_text_changed"),
             VariantArray::new(),
             0,
           );
@@ -395,10 +395,10 @@ impl Offline {
     unsafe {
       tree.set_column_expand(0, true);
       tree.set_column_min_width(0, 3);
-      // tree.set_column_title(0, GodotString::from_str("Skill"));
-      // tree.set_column_title(1, GodotString::from_str("Mul"));
-      // tree.set_column_title(2, GodotString::from_str("ID"));
-      // tree.set_column_title(3, GodotString::from_str("Level"));
+      // tree.set_column_title(0, GodotString::from("Skill"));
+      // tree.set_column_title(1, GodotString::from("Mul"));
+      // tree.set_column_title(2, GodotString::from("ID"));
+      // tree.set_column_title(3, GodotString::from("Level"));
       // tree.set_column_titles_visible(true);
     }
   }
@@ -479,11 +479,11 @@ impl Offline {
         if let Some(mut item) = tree.create_item(parent.cast::<Object>(), -1) {
           // Skill name.
           item.set_custom_color(0, skill_color);
-          item.set_text(0, GodotString::from_str(skill));
+          item.set_text(0, GodotString::from(skill));
 
           // Experience multiplier.
           item.set_custom_color(1, info_color);
-          item.set_text(1, GodotString::from_str(&format!("{}x", mul)));
+          item.set_text(1, GodotString::from(format!("{}x", mul)));
 
           // Skill ID.
           item.set_custom_color(2, info_color);
@@ -542,7 +542,7 @@ impl Offline {
   fn set_status_message(&self, owner: Node, text: &str) {
     if let Some(mut label) = owner.get_node_as::<Label>(&self.status) {
       unsafe {
-        label.set_text(GodotString::from_str(text));
+        label.set_text(GodotString::from(text));
       }
     }
   }

@@ -24,45 +24,45 @@ impl Portals {
   fn _init(_owner: Node) -> Self {
     Portals {
       places: [
-        NodePath::from_str("VBox/Grid/BloodRiverName"),
-        NodePath::from_str("VBox/Grid/SolaceBridgeName"),
-        NodePath::from_str("VBox/Grid/HighvaleName"),
-        NodePath::from_str("VBox/Grid/BrooksideName"),
-        NodePath::from_str("VBox/Grid/OwlsHeadName"),
-        NodePath::from_str("VBox/Grid/WestendName"),
-        NodePath::from_str("VBox/Grid/BrittanyGraveyardName"),
-        NodePath::from_str("VBox/Grid/EtceterName"),
+        NodePath::from("VBox/Grid/BloodRiverName"),
+        NodePath::from("VBox/Grid/SolaceBridgeName"),
+        NodePath::from("VBox/Grid/HighvaleName"),
+        NodePath::from("VBox/Grid/BrooksideName"),
+        NodePath::from("VBox/Grid/OwlsHeadName"),
+        NodePath::from("VBox/Grid/WestendName"),
+        NodePath::from("VBox/Grid/BrittanyGraveyardName"),
+        NodePath::from("VBox/Grid/EtceterName"),
       ],
       phases: [
-        NodePath::from_str("VBox/Grid/BloodRiverPhase"),
-        NodePath::from_str("VBox/Grid/SolaceBridgePhase"),
-        NodePath::from_str("VBox/Grid/HighvalePhase"),
-        NodePath::from_str("VBox/Grid/BrooksidePhase"),
-        NodePath::from_str("VBox/Grid/OwlsHeadPhase"),
-        NodePath::from_str("VBox/Grid/WestendPhase"),
-        NodePath::from_str("VBox/Grid/BrittanyGraveyardPhase"),
-        NodePath::from_str("VBox/Grid/EtceterPhase"),
+        NodePath::from("VBox/Grid/BloodRiverPhase"),
+        NodePath::from("VBox/Grid/SolaceBridgePhase"),
+        NodePath::from("VBox/Grid/HighvalePhase"),
+        NodePath::from("VBox/Grid/BrooksidePhase"),
+        NodePath::from("VBox/Grid/OwlsHeadPhase"),
+        NodePath::from("VBox/Grid/WestendPhase"),
+        NodePath::from("VBox/Grid/BrittanyGraveyardPhase"),
+        NodePath::from("VBox/Grid/EtceterPhase"),
       ],
       times: [
-        NodePath::from_str("VBox/Grid/BloodRiverTime"),
-        NodePath::from_str("VBox/Grid/SolaceBridgeTime"),
-        NodePath::from_str("VBox/Grid/HighvaleTime"),
-        NodePath::from_str("VBox/Grid/BrooksideTime"),
-        NodePath::from_str("VBox/Grid/OwlsHeadTime"),
-        NodePath::from_str("VBox/Grid/WestendTime"),
-        NodePath::from_str("VBox/Grid/BrittanyGraveyardTime"),
-        NodePath::from_str("VBox/Grid/EtceterTime"),
+        NodePath::from("VBox/Grid/BloodRiverTime"),
+        NodePath::from("VBox/Grid/SolaceBridgeTime"),
+        NodePath::from("VBox/Grid/HighvaleTime"),
+        NodePath::from("VBox/Grid/BrooksideTime"),
+        NodePath::from("VBox/Grid/OwlsHeadTime"),
+        NodePath::from("VBox/Grid/WestendTime"),
+        NodePath::from("VBox/Grid/BrittanyGraveyardTime"),
+        NodePath::from("VBox/Grid/EtceterTime"),
       ],
-      lost_vale_name: NodePath::from_str("VBox/HBox/LostValeName"),
-      lost_vale_time: NodePath::from_str("VBox/HBox/LostValeTime"),
-      color_name: GodotString::from_str("custom_colors/font_color"),
+      lost_vale_name: NodePath::from("VBox/HBox/LostValeName"),
+      lost_vale_time: NodePath::from("VBox/HBox/LostValeTime"),
+      color_name: GodotString::from("custom_colors/font_color"),
       opened_color: Variant::from_color(&Color::rgb(1.0, 1.0, 1.0)),
       closed_color: Variant::from_color(&Color::rgb(0.5, 0.5, 0.5)),
       opened_rift_color: Variant::from_color(&Color::rgb(0.7, 0.9, 1.0)),
       closed_rift_color: Variant::from_color(&Color::rgb(0.4, 0.6, 0.7)),
       opened_vale_color: Variant::from_color(&Color::rgb(0.9, 1.0, 0.7)),
       closed_vale_color: Variant::from_color(&Color::rgb(0.6, 0.7, 0.4)),
-      timer: NodePath::from_str("Timer"),
+      timer: NodePath::from("Timer"),
     }
   }
 
@@ -97,7 +97,7 @@ impl Portals {
 
       let mut time_label = some!(owner.get_node_as::<Label>(&self.times[rift]));
       time_label.set(self.color_name.new_ref(), self.opened_color.clone());
-      time_label.set_text(GodotString::from_str(&format!(
+      time_label.set_text(GodotString::from(format!(
         "closes in {:02}m {:02}s",
         minutes, seconds
       )));
@@ -117,7 +117,7 @@ impl Portals {
 
         let mut time_label = some!(owner.get_node_as::<Label>(&self.times[rift]));
         time_label.set(self.color_name.new_ref(), self.closed_color.clone());
-        time_label.set_text(GodotString::from_str(&format!(
+        time_label.set_text(GodotString::from(format!(
           "opens in {:02}m {:02}s",
           minutes, seconds
         )));
@@ -143,7 +143,7 @@ impl Portals {
         // The Lost Vale is currently open.
         lost_vale_name.set(self.color_name.new_ref(), self.opened_vale_color.clone());
         lost_vale_time.set(self.color_name.new_ref(), self.opened_color.clone());
-        lost_vale_time.set_text(GodotString::from_str(&format!(
+        lost_vale_time.set_text(GodotString::from(format!(
           "closes in {:02}m {:02}s",
           minutes, seconds
         )));
@@ -154,7 +154,7 @@ impl Portals {
         // The Lost Vale is currently closed.
         lost_vale_name.set(self.color_name.new_ref(), self.closed_vale_color.clone());
         lost_vale_time.set(self.color_name.new_ref(), self.closed_color.clone());
-        lost_vale_time.set_text(GodotString::from_str(&format!(
+        lost_vale_time.set_text(GodotString::from(format!(
           "opens in {:02}h {:02}m {:02}s",
           minutes / 60,
           minutes % 60,

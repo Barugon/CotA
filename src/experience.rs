@@ -20,11 +20,11 @@ pub struct Experience {
 impl Experience {
   fn _init(_owner: Node) -> Self {
     Experience {
-      tree: NodePath::from_str("VBox/Panel/Tree"),
-      current: NodePath::from_str("VBox/LvlHBox/CurrentEdit"),
-      target: NodePath::from_str("VBox/LvlHBox/TargetEdit"),
-      result: NodePath::from_str("VBox/ResHBox/Result"),
-      color_name: GodotString::from_str("custom_colors/font_color"),
+      tree: NodePath::from("VBox/Panel/Tree"),
+      current: NodePath::from("VBox/LvlHBox/CurrentEdit"),
+      target: NodePath::from("VBox/LvlHBox/TargetEdit"),
+      result: NodePath::from("VBox/ResHBox/Result"),
+      color_name: GodotString::from("custom_colors/font_color"),
       good_color: Variant::from_color(&Color::rgb(0.81, 0.81, 0.81)),
       bad_color: Variant::from_color(&Color::rgb(1.0, 0.0, 0.0)),
       locale: get_locale(),
@@ -115,7 +115,7 @@ impl Experience {
           if cur_valid && tgt_valid {
             let val = SKILL_EXP_VALUES[tgt - 1] - SKILL_EXP_VALUES[cur - 1];
             let val = (val as f64 * mul).round() as i64;
-            text = GodotString::from_str(&val.to_formatted_string(&self.locale));
+            text = GodotString::from(val.to_formatted_string(&self.locale));
           }
         }
       } else {
@@ -144,19 +144,19 @@ impl Experience {
           // Skill name.
           if let Some(text) = iter.next() {
             item.set_custom_color(0, skill_color);
-            item.set_text(0, GodotString::from_str(text));
+            item.set_text(0, GodotString::from(text));
           }
 
           // Experience multiplier.
           if let Some(text) = iter.next() {
             item.set_custom_color(1, info_color);
-            item.set_text(1, GodotString::from_str(&format!("{}x", text)));
+            item.set_text(1, GodotString::from(format!("{}x", text)));
           }
 
           // Skill ID.
           if let Some(text) = iter.next() {
             item.set_custom_color(2, info_color);
-            item.set_text(2, GodotString::from_str(text));
+            item.set_text(2, GodotString::from(text));
           }
         }
       }

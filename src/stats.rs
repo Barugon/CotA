@@ -39,17 +39,17 @@ impl Stats {
     Stats {
       config: config,
       data: LogData::new(folder),
-      view: NodePath::from_str("/root/App/VBox/Menu/View"),
-      avatars: NodePath::from_str("Tools/Avatars"),
-      dates: NodePath::from_str("Tools/Dates"),
-      notes: NodePath::from_str("Tools/Notes"),
-      tree: NodePath::from_str("Panel/Tree"),
-      status: NodePath::from_str("Status"),
-      file_dialog: NodePath::from_str("/root/App/FileDialog"),
-      filter_dialog: NodePath::from_str("/root/App/FilterDialog"),
-      filter_edit: NodePath::from_str("/root/App/FilterDialog/VBox/FilterEdit"),
-      notes_dialog: NodePath::from_str("/root/App/NotesDialog"),
-      notes_edit: NodePath::from_str("/root/App/NotesDialog/VBox/NotesEdit"),
+      view: NodePath::from("/root/App/VBox/Menu/View"),
+      avatars: NodePath::from("Tools/Avatars"),
+      dates: NodePath::from("Tools/Dates"),
+      notes: NodePath::from("Tools/Notes"),
+      tree: NodePath::from("Panel/Tree"),
+      status: NodePath::from("Status"),
+      file_dialog: NodePath::from("/root/App/FileDialog"),
+      filter_dialog: NodePath::from("/root/App/FilterDialog"),
+      filter_edit: NodePath::from("/root/App/FilterDialog/VBox/FilterEdit"),
+      notes_dialog: NodePath::from("/root/App/NotesDialog"),
+      notes_edit: NodePath::from("/root/App/NotesDialog/VBox/NotesEdit"),
     }
   }
 
@@ -211,7 +211,7 @@ impl Stats {
       if let Some(mut edit) = owner.get_node_as::<TextEdit>(&self.notes_edit) {
         if let Some(avatar) = self.get_current_avatar(owner) {
           unsafe {
-            let title = GodotString::from_str(&format!("Notes for {}", avatar.to_utf8().as_str()));
+            let title = GodotString::from(format!("Notes for {}", avatar.to_utf8().as_str()));
             let text = if let Some(text) = self.config.get_notes(avatar) {
               text
             } else {
@@ -245,7 +245,7 @@ impl Stats {
 
         let names = self.data.get_avatars();
         for (idx, name) in names.iter().enumerate() {
-          button.add_item(GodotString::from_str(&name), idx as i64 + 1);
+          button.add_item(GodotString::from(name), idx as i64 + 1);
         }
 
         if button.get_item_count() > 0 {
@@ -289,7 +289,7 @@ impl Stats {
           if !timestamps.is_empty() {
             for ts in timestamps {
               let date = timestamp_to_view_date(ts);
-              button.add_item(GodotString::from_str(&date), ts);
+              button.add_item(GodotString::from(date), ts);
             }
 
             let ts = button.get_item_id(0);
@@ -436,8 +436,8 @@ impl Stats {
                       item.set_custom_bg_color(0, bg, false);
                       item.set_custom_bg_color(1, bg, false);
                       item.set_custom_color(0, Color::rgb(0.7, 0.6, 0.4));
-                      item.set_text(0, GodotString::from_str(name));
-                      item.set_text(1, GodotString::from_str(&value));
+                      item.set_text(0, GodotString::from(name));
+                      item.set_text(1, GodotString::from(value));
                     }
                   }
                 }
@@ -470,8 +470,8 @@ impl Stats {
                       item.set_custom_bg_color(0, bg, false);
                       item.set_custom_bg_color(1, bg, false);
                       item.set_custom_color(0, Color::rgb(0.4, 0.6, 0.7));
-                      item.set_text(0, GodotString::from_str(name));
-                      item.set_text(1, GodotString::from_str(&value));
+                      item.set_text(0, GodotString::from(name));
+                      item.set_text(1, GodotString::from(value));
                     }
                   }
                 }
@@ -500,7 +500,7 @@ impl Stats {
     if let Some(mut label) = owner.get_node_as::<Label>(&self.status) {
       unsafe {
         match text {
-          Some(text) => label.set_text(GodotString::from_str(text)),
+          Some(text) => label.set_text(GodotString::from(text)),
           None => label.set_text(GodotString::new()),
         }
       }

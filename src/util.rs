@@ -5,6 +5,7 @@ use num_cpus;
 use num_format::Locale;
 use regex::Regex;
 use std::{
+  borrow::Cow,
   cell::RefCell,
   cmp::Ordering,
   collections::HashSet,
@@ -157,9 +158,9 @@ impl ConnectTo for Node {
         }
 
         if let Err(err) = node.connect(
-          GodotString::from_str(signal),
+          GodotString::from(signal),
           Some(self.to_object()),
-          GodotString::from_str(slot),
+          GodotString::from(slot),
           VariantArray::new(),
           0,
         ) {
@@ -207,25 +208,25 @@ impl Config {
       if let Some(path) = path.to_str() {
         let path = if cfg!(target_os = "windows") {
           // Change any backslashes to forward slashes.
-          path.replace('\\', "/")
+          Cow::Owned(path.replace('\\', "/"))
         } else {
-          String::from(path)
+          Cow::Borrowed(path)
         };
-        log_path = Some(GodotString::from_str(path));
+        log_path = Some(GodotString::from(path));
       }
     }
 
     Config {
       log_path: log_path,
-      cfg_path: GodotString::from_str("user://settings.cfg"),
-      section: GodotString::from_str("main"),
-      folder_key: GodotString::from_str("log_folder"),
-      avatar_key: GodotString::from_str("avatar"),
+      cfg_path: GodotString::from("user://settings.cfg"),
+      section: GodotString::from("main"),
+      folder_key: GodotString::from("log_folder"),
+      avatar_key: GodotString::from("avatar"),
     }
   }
 
   fn notes_key(avatar: GodotString) -> GodotString {
-    GodotString::from_str(&format!(
+    GodotString::from(format!(
       "{}_notes",
       avatar.to_utf8().as_str().replace(' ', "_")
     ))
