@@ -86,24 +86,26 @@ impl Offline {
 
   #[export]
   fn _notification(&self, owner: Node, what: i64) {
-    if what == MainLoop::NOTIFICATION_WM_QUIT_REQUEST {
-      if let Some(button) = owner.get_node_as::<Button>(&self.save) {
-        unsafe {
-          if !button.is_disabled() {
-            if let Some(mut dialog) = owner.get_node_as::<ConfirmationDialog>(&self.confirm) {
-              // Calling popup_centered directly on ConfirmationDialog causes an internal godot error.
-              *self.confirmation.borrow_mut() = Confirmation::Quit;
-              dialog.call_deferred(
-                self.popup_centered.new_ref(),
-                &[Variant::from_vector2(&Vector2::zero())],
-              );
-              return;
-            }
+    if what != MainLoop::NOTIFICATION_WM_QUIT_REQUEST {
+      return;
+    }
+
+    if let Some(button) = owner.get_node_as::<Button>(&self.save) {
+      unsafe {
+        if !button.is_disabled() {
+          if let Some(mut dialog) = owner.get_node_as::<ConfirmationDialog>(&self.confirm) {
+            *self.confirmation.borrow_mut() = Confirmation::Quit;
+            // Calling popup_centered on ConfirmationDialog from here causes an internal godot error.
+            dialog.call_deferred(
+              self.popup_centered.new_ref(),
+              &[Variant::from_vector2(&Vector2::zero())],
+            );
+            return;
           }
         }
       }
-      self.quit(owner);
     }
+    self.quit(owner);
   }
 
   #[export]
@@ -145,11 +147,7 @@ impl Offline {
         if !button.is_disabled() {
           if let Some(mut dialog) = owner.get_node_as::<ConfirmationDialog>(&self.confirm) {
             *self.confirmation.borrow_mut() = Confirmation::Load;
-            // Calling popup_centered directly on ConfirmationDialog causes an internal godot error.
-            dialog.call_deferred(
-              self.popup_centered.new_ref(),
-              &[Variant::from_vector2(&Vector2::zero())],
-            );
+            dialog.popup_centered(Vector2::zero());
             return;
           }
         }
