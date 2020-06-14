@@ -535,7 +535,7 @@ pub struct LogData {
 
 impl LogData {
   pub fn new(folder: GodotString) -> LogData {
-    let cpus = num_cpus::get();
+    let cpus = std::cmp::max(num_cpus::get(), 2);
     LogData {
       folder: PathBuf::from(folder.to_utf8().as_str()),
       pool: RefCell::new(ThreadPool::new(cpus)),
