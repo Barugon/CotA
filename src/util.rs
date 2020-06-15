@@ -43,7 +43,7 @@ macro_rules! ok {
       val
     } else {
       if let Err(err) = val {
-        println!("{:?}", err);
+        godot_print!("{:?}", err);
       }
       return;
     }
@@ -54,7 +54,7 @@ macro_rules! ok {
       val
     } else {
       if let Err(err) = val {
-        println!("{:?}", err);
+        godot_print!("{:?}", err);
       }
       return $ret;
     }
