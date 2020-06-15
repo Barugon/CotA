@@ -135,14 +135,6 @@ impl Offline {
   }
 
   #[export]
-  fn spin_text_changed(&self, owner: Node, _text: GodotString) {
-    if self.char_info.borrow().is_some() {
-      // Gold or adv lvl has changed, enable the save button.
-      self.enable_save(owner, true);
-    }
-  }
-
-  #[export]
   fn load_clicked(&self, owner: Node) {
     if let Some(button) = owner.get_node_as::<Button>(&self.save) {
       unsafe {
@@ -225,6 +217,7 @@ impl Offline {
       };
       let tree = some!(owner.get_node_as::<Tree>(tree));
       unsafe {
+        // Make sure the value actually changed.
         let item = some!(tree.get_edited());
         if let Ok(mul) = item
           .get_text(1)
