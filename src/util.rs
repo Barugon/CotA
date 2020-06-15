@@ -890,10 +890,10 @@ impl ToInt for Option<Variant> {
   }
 }
 
-// Structure to manipulate a SotA save-game file.
+// Structure to load and modify a SotA save-game file.
 pub struct GameInfo {
   // Save file path.
-  path: String,
+  path: GodotString,
   // XML.
   node: level2::RefNode,
   // Dictionaries.
@@ -911,8 +911,8 @@ pub struct GameInfo {
 }
 
 impl GameInfo {
-  pub fn load(path: &str) -> Option<Self> {
-    let node = match std::fs::read_to_string(path) {
+  pub fn load(path: &GodotString) -> Option<Self> {
+    let node = match std::fs::read_to_string(path.to_utf8().as_str()) {
       Ok(xml) => match parser::read_xml(&xml) {
         Ok(node) => node,
         Err(err) => {
@@ -946,7 +946,7 @@ impl GameInfo {
     let gold = some!(node.get_node_json("UserGold"), None);
 
     Some(GameInfo {
-      path: String::from(path),
+      path: path.new_ref(),
       node,
       character,
       skills,
@@ -969,7 +969,7 @@ impl GameInfo {
       return false;
     }
 
-    match File::create(&self.path) {
+    match File::create(self.path.to_utf8().as_str()) {
       Ok(mut file) => match file.write_all(self.node.to_string().as_bytes()) {
         Ok(()) => return true,
         Err(err) => {
@@ -1038,7 +1038,7 @@ impl GameInfo {
     self.skills.erase(&Variant::from(key));
   }
 
-  pub fn path(&self) -> &str {
+  pub fn path(&self) -> &GodotString {
     &self.path
   }
 }

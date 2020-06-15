@@ -162,16 +162,15 @@ impl Offline {
     // Disable the adv lvl input.
     self.enable_adv_lvl(owner, None);
 
-    let utf8 = path.to_utf8();
-    let path_str = utf8.as_str();
-    if let Some(game_info) = GameInfo::load(path_str) {
+    if let Some(game_info) = GameInfo::load(&path) {
       if self.populate_tree(owner, SkillTree::Adventurer, &game_info) {
         if self.populate_tree(owner, SkillTree::Producer, &game_info) {
           if let Some(gold) = game_info.get_gold() {
             self.enable_gold(owner, Some(gold));
             if let Some(lvl) = game_info.get_adv_lvl() {
               self.enable_adv_lvl(owner, Some(lvl));
-              if let Some(path) = Path::new(path_str).file_name() {
+              let path = path.to_utf8();
+              if let Some(path) = Path::new(path.as_str()).file_name() {
                 if let Some(path) = path.to_str() {
                   self.set_status_message(owner, &format!("Editing '{}'", path));
                 }
@@ -189,7 +188,8 @@ impl Offline {
     }
 
     self.enable_save(owner, false);
-    if let Some(path) = Path::new(path_str).file_name() {
+    let path = path.to_utf8();
+    if let Some(path) = Path::new(path.as_str()).file_name() {
       if let Some(path) = path.to_str() {
         self.set_status_message(owner, &format!("Unable to edit '{}'", path));
       }
@@ -204,7 +204,8 @@ impl Offline {
 
     let game_info = self.game_info.borrow();
     let game_info = some!(game_info.as_ref());
-    let path = some!(Path::new(game_info.path()).file_name());
+    let path = game_info.path().to_utf8();
+    let path = some!(Path::new(path.as_str()).file_name());
     let path = some!(path.to_str());
     self.set_status_message(owner, &format!("Unable to save '{}'", path));
   }
