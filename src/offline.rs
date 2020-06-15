@@ -58,7 +58,7 @@ impl Offline {
   #[export]
   fn _ready(&self, owner: Node) {
     owner.connect_to(&self.adventurer, "item_edited", "adv_skill_changed");
-    owner.connect_to(&self.producer, "item_edited", "adv_skill_changed");
+    owner.connect_to(&self.producer, "item_edited", "pro_skill_changed");
     owner.connect_to(&self.adv_lvl, "value_changed", "spin_value_changed");
     owner.connect_to(&self.gold, "value_changed", "spin_value_changed");
 
