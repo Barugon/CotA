@@ -16,7 +16,7 @@ enum Confirmation {
 #[derive(NativeClass)]
 #[inherit(Node)]
 pub struct Offline {
-  char_info: RefCell<Option<CharInfo>>,
+  game_info: RefCell<Option<GameInfo>>,
   confirmation: RefCell<Confirmation>,
   load: NodePath,
   save: NodePath,
@@ -38,7 +38,7 @@ impl Offline {
     let mut filters = StringArray::new();
     filters.push(&GodotString::from("*.sota; Saved Games"));
     Offline {
-      char_info: RefCell::new(None),
+      game_info: RefCell::new(None),
       confirmation: RefCell::new(Confirmation::Load),
       load: NodePath::from("HBox/LoadButton"),
       save: NodePath::from("HBox/SaveButton"),
@@ -128,7 +128,7 @@ impl Offline {
 
   #[export]
   fn spin_value_changed(&self, owner: Node, _val: f64) {
-    if self.char_info.borrow().is_some() {
+    if self.game_info.borrow().is_some() {
       // Gold or adv lvl has changed, enable the save button.
       self.enable_save(owner, true);
     }
@@ -164,19 +164,19 @@ impl Offline {
 
     let utf8 = path.to_utf8();
     let path_str = utf8.as_str();
-    if let Some(char_info) = CharInfo::new(GameInfo::read(path_str)) {
-      if self.populate_tree(owner, SkillTree::Adventurer, &char_info) {
-        if self.populate_tree(owner, SkillTree::Producer, &char_info) {
-          if let Some(gold) = char_info.get_gold() {
+    if let Some(game_info) = GameInfo::load(path_str) {
+      if self.populate_tree(owner, SkillTree::Adventurer, &game_info) {
+        if self.populate_tree(owner, SkillTree::Producer, &game_info) {
+          if let Some(gold) = game_info.get_gold() {
             self.enable_gold(owner, Some(gold));
-            if let Some(lvl) = char_info.get_adv_lvl() {
+            if let Some(lvl) = game_info.get_adv_lvl() {
               self.enable_adv_lvl(owner, Some(lvl));
               if let Some(path) = Path::new(path_str).file_name() {
                 if let Some(path) = path.to_str() {
                   self.set_status_message(owner, &format!("Editing '{}'", path));
                 }
               }
-              *self.char_info.borrow_mut() = Some(char_info);
+              *self.game_info.borrow_mut() = Some(game_info);
               self.enable_save(owner, false);
               return;
             }
@@ -202,15 +202,15 @@ impl Offline {
       return;
     }
 
-    let char_info = self.char_info.borrow();
-    let char_info = some!(char_info.as_ref());
-    let path = some!(Path::new(char_info.game_info().path()).file_name());
+    let game_info = self.game_info.borrow();
+    let game_info = some!(game_info.as_ref());
+    let path = some!(Path::new(game_info.path()).file_name());
     let path = some!(path.to_str());
     self.set_status_message(owner, &format!("Unable to save '{}'", path));
   }
 
   fn skill_changed(&self, owner: Node, tree: SkillTree) {
-    if let Some(info) = self.char_info.borrow().as_ref() {
+    if let Some(info) = self.game_info.borrow().as_ref() {
       let tree = match tree {
         SkillTree::Adventurer => &self.adventurer,
         SkillTree::Producer => &self.producer,
@@ -243,25 +243,25 @@ impl Offline {
   }
 
   fn save(&self, owner: Node) -> bool {
-    let mut char_info = self.char_info.borrow_mut();
-    let char_info = some!(char_info.as_mut(), false);
-    if !self.collect_skills(owner, SkillTree::Adventurer, char_info)
-      || !self.collect_skills(owner, SkillTree::Producer, char_info)
+    let mut game_info = self.game_info.borrow_mut();
+    let game_info = some!(game_info.as_mut(), false);
+    if !self.collect_skills(owner, SkillTree::Adventurer, game_info)
+      || !self.collect_skills(owner, SkillTree::Producer, game_info)
     {
       return false;
     }
 
     if let Some(spin_box) = owner.get_node_as::<SpinBox>(&self.gold) {
       let gold = unsafe { spin_box.get_value() } as i64;
-      char_info.set_gold(gold);
+      game_info.set_gold(gold);
     }
 
     if let Some(spin_box) = owner.get_node_as::<SpinBox>(&self.adv_lvl) {
       let lvl = unsafe { spin_box.get_value() } as u32;
-      char_info.set_adv_lvl(lvl);
+      game_info.set_adv_lvl(lvl);
     }
 
-    if !char_info.save() {
+    if !game_info.save() {
       return false;
     }
 
@@ -388,7 +388,7 @@ impl Offline {
     }
   }
 
-  fn populate_tree(&self, owner: Node, tree: SkillTree, info: &CharInfo) -> bool {
+  fn populate_tree(&self, owner: Node, tree: SkillTree, game_info: &GameInfo) -> bool {
     let (mut tree, csv) = match tree {
       SkillTree::Adventurer => (
         some!(owner.get_node_as::<Tree>(&self.adventurer), false),
@@ -435,7 +435,7 @@ impl Offline {
           continue;
         };
 
-        let level = if let Some(val) = info.get_skill_exp(&id) {
+        let level = if let Some(val) = game_info.get_skill_exp(&id) {
           let val = val as f64;
           let mut level = 0;
           // Find the level for the given experience.
@@ -474,7 +474,7 @@ impl Offline {
     }
   }
 
-  fn collect_skills(&self, owner: Node, tree: SkillTree, info: &mut CharInfo) -> bool {
+  fn collect_skills(&self, owner: Node, tree: SkillTree, game_info: &mut GameInfo) -> bool {
     let mut tree = match tree {
       SkillTree::Adventurer => some!(owner.get_node_as::<Tree>(&self.adventurer), false),
       SkillTree::Producer => some!(owner.get_node_as::<Tree>(&self.producer), false),
@@ -499,10 +499,10 @@ impl Offline {
             let lvl = item.get_range(3) as usize;
             if lvl > 0 {
               let exp = (SKILL_EXP_VALUES[lvl - 1] as f64 * mul).ceil() as i64;
-              info.set_skill_exp(&key, exp);
+              game_info.set_skill_exp(&key, exp);
             } else {
               // The level is zero, remove the skill if it exists.
-              info.remove_skill(&key);
+              game_info.remove_skill(&key);
             }
           }
           node = item.get_next();

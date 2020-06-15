@@ -719,57 +719,16 @@ pub fn get_lost_vale_countdown() -> f64 {
   }
 }
 
-// Structure to hold SotA save-game XML.
-pub struct GameInfo {
-  node: level2::RefNode,
-  path: String,
+trait NodeJson {
+  fn get_inner_text(&self, name: &str) -> Option<String>;
+  fn get_node_json(&self, name: &str) -> Option<Variant>;
+  fn set_inner_text(&mut self, name: &str, json: &str) -> bool;
+  fn set_node_json(&mut self, name: &str, json: &Variant) -> bool;
 }
 
-impl GameInfo {
-  // Read the XML from a file and create a new GameInfo from it.
-  pub fn read(path: &str) -> Option<Self> {
-    match std::fs::read_to_string(path) {
-      Ok(xml) => match parser::read_xml(&xml) {
-        Ok(node) => {
-          return Some(GameInfo {
-            node,
-            path: String::from(path),
-          })
-        }
-        Err(err) => {
-          godot_print!("Unable to load: {:?}", err);
-        }
-      },
-      Err(err) => {
-        if let Some(err) = err.get_ref() {
-          godot_print!("Unable to load: {:?}", err);
-        }
-      }
-    }
-    None
-  }
-
-  pub fn write(&self) -> bool {
-    match File::create(self.path()) {
-      Ok(mut file) => match file.write_all(self.xml().as_bytes()) {
-        Ok(()) => return true,
-        Err(err) => {
-          if let Some(err) = err.get_ref() {
-            godot_print!("Unable to save: {:?}", err);
-          }
-        }
-      },
-      Err(err) => {
-        if let Some(err) = err.get_ref() {
-          godot_print!("Unable to save: {:?}", err);
-        }
-      }
-    }
-    false
-  }
-
-  fn get_inner_text(collection: &level2::RefNode, name: &str) -> Option<String> {
-    let element = ok!(level2::convert::as_element(collection), None);
+impl NodeJson for level2::RefNode {
+  fn get_inner_text(&self, name: &str) -> Option<String> {
+    let element = ok!(level2::convert::as_element(self), None);
     let attribute = some!(element.get_attribute("name"), None);
     if attribute != name {
       return None;
@@ -780,8 +739,8 @@ impl GameInfo {
       if let Ok(element) = level2::convert::as_element(&record) {
         let nodes = element.child_nodes();
         for node in nodes {
-          if let Ok(text) = level2::convert::as_text(&node) {
-            return text.node_value();
+          if let Ok(node) = level2::convert::as_text(&node) {
+            return node.node_value();
           }
         }
       }
@@ -789,20 +748,24 @@ impl GameInfo {
     None
   }
 
-  // Get the inner JSON text from a 'collection'.
-  pub fn get_node_json(&self, name: &str) -> Option<String> {
-    let document = ok!(level2::convert::as_document(&self.node), None);
+  fn get_node_json(&self, name: &str) -> Option<Variant> {
+    let document = ok!(level2::convert::as_document(&self), None);
     let collections = document.get_elements_by_tag_name("collection");
     for collection in collections {
-      if let Some(text) = GameInfo::get_inner_text(&collection, name) {
-        return Some(text);
+      if let Some(text) = collection.get_inner_text(name) {
+        if let Some(result) = JSON::godot_singleton().parse(GodotString::from(text)) {
+          let json = result.get_result();
+          if json.try_to_dictionary().is_some() {
+            return Some(json);
+          }
+        }
       }
     }
     None
   }
 
-  fn set_inner_text(collection: &mut level2::RefNode, name: &str, json: &str) -> bool {
-    let element = ok!(level2::convert::as_element_mut(collection), false);
+  fn set_inner_text(&mut self, name: &str, text: &str) -> bool {
+    let element = ok!(level2::convert::as_element_mut(self), false);
     let attribute = some!(element.get_attribute("name"), false);
     if attribute != name {
       return false;
@@ -813,8 +776,8 @@ impl GameInfo {
       if let Ok(element) = level2::convert::as_element_mut(record) {
         let mut nodes = element.child_nodes();
         for node in &mut nodes {
-          if let Ok(text) = level2::convert::as_text_mut(node) {
-            return text.set_node_value(json).is_ok();
+          if let Ok(node) = level2::convert::as_text_mut(node) {
+            return node.set_node_value(text).is_ok();
           }
         }
       }
@@ -822,185 +785,17 @@ impl GameInfo {
     false
   }
 
-  // Replace the inner JSON text in a 'collection'.
-  pub fn set_node_json(&mut self, name: &str, json: &str) -> bool {
-    let document = ok!(level2::convert::as_document(&self.node), false);
+  fn set_node_json(&mut self, name: &str, json: &Variant) -> bool {
+    let document = ok!(level2::convert::as_document(self), false);
+    let dictionary = some!(json.try_to_dictionary(), false);
+    let text = dictionary.to_json();
     let mut collections = document.get_elements_by_tag_name("collection");
     for collection in &mut collections {
-      if GameInfo::set_inner_text(collection, name, json) {
+      if collection.set_inner_text(name, text.to_utf8().as_str()) {
         return true;
       }
     }
     false
-  }
-
-  pub fn path(&self) -> &str {
-    &self.path
-  }
-
-  pub fn xml(&self) -> String {
-    self.node.to_string()
-  }
-}
-
-// Structure to manipulate the character information from a save-game file.
-pub struct CharInfo {
-  game_info: GameInfo,
-  // Dictionaries.
-  character: Variant,
-  skills: Variant,
-  gold: Variant,
-  // Save date.
-  date: GodotString,
-  // Keys.
-  ae: Variant,
-  g: Variant,
-  m: Variant,
-  t: Variant,
-  x: Variant,
-}
-
-impl CharInfo {
-  pub fn new(game_info: Option<GameInfo>) -> Option<Self> {
-    let game_info = some!(game_info, None);
-
-    // Parse the 'CharacterSheet' json.
-    let text = some!(game_info.get_node_json("CharacterSheet"), None);
-    let mut parser = JSON::godot_singleton();
-    let result = some!(parser.parse(GodotString::from(text)), None);
-    let character = result.get_result();
-    if character.try_to_dictionary().is_none() {
-      return None;
-    }
-
-    // Get the date.
-    let date = some!(
-      character
-        .get(&Variant::from("rd"))
-        .get(&Variant::from("c"))
-        .to_text(),
-      None
-    );
-
-    // Get the skills dictionary.
-    let skills = some!(character.get(&Variant::from("sk2")), None);
-    if skills.try_to_dictionary().is_none() {
-      return None;
-    }
-
-    // Parse the 'UserGold' json.
-    let text = some!(game_info.get_node_json("UserGold"), None);
-    let result = some!(parser.parse(GodotString::from(text)), None);
-    let gold = result.get_result();
-    if gold.try_to_dictionary().is_none() {
-      return None;
-    }
-
-    Some(CharInfo {
-      game_info,
-      character,
-      skills,
-      gold,
-      date,
-      ae: Variant::from("ae"),
-      g: Variant::from("g"),
-      m: Variant::from("m"),
-      t: Variant::from("t"),
-      x: Variant::from("x"),
-    })
-  }
-
-  pub fn save(&mut self) -> bool {
-    let json = some!(self.get_gold_json(), false);
-    if !self
-      .game_info
-      .set_node_json("UserGold", &json.to_utf8().as_str())
-    {
-      return false;
-    }
-
-    let json = some!(self.get_char_json(), false);
-    if !self
-      .game_info
-      .set_node_json("CharacterSheet", &json.to_utf8().as_str())
-    {
-      return false;
-    }
-
-    if !self.game_info.write() {
-      return false;
-    }
-
-    true
-  }
-
-  pub fn game_info(&self) -> &GameInfo {
-    &self.game_info
-  }
-
-  pub fn get_gold(&self) -> Option<i64> {
-    self.gold.get(&self.g).to_int()
-  }
-
-  pub fn set_gold(&mut self, gold: i64) {
-    self.gold.set(&self.g, &Variant::from(gold));
-  }
-
-  pub fn get_adv_lvl(&self) -> Option<u32> {
-    if let Some(val) = self.character.get(&self.ae).to_int() {
-      for (lvl, exp) in LEVEL_EXP_VALUES.iter().enumerate().rev() {
-        if val >= *exp {
-          return Some(lvl as u32 + 1);
-        }
-      }
-    }
-    None
-  }
-
-  pub fn set_adv_lvl(&mut self, lvl: u32) {
-    let exp = LEVEL_EXP_VALUES[lvl as usize - 1];
-    self.character.set(&self.ae, &Variant::from(exp));
-  }
-
-  pub fn get_skill_exp(&self, key: &GodotString) -> Option<i64> {
-    self.skills.get(&Variant::from(key)).get(&self.x).to_int()
-  }
-
-  pub fn set_skill_exp(&mut self, key: &GodotString, exp: i64) {
-    let key = Variant::from(key);
-    if let Some(mut skill) = self.skills.get(&key) {
-      if let Some(cur) = skill.get(&self.x).to_int() {
-        // Change it only if it's different.
-        if exp != cur {
-          skill.set(&self.x, &Variant::from(exp));
-        }
-        return;
-      }
-    }
-    // Add a new dictionary for the skill ID.
-    let mut skill = Dictionary::new();
-    skill.set(&self.x, &Variant::from(exp));
-    skill.set(&self.t, &Variant::from(&self.date));
-    skill.set(&self.m, &Variant::from(0i64));
-    self.skills.set(&key, &Variant::from(&skill));
-  }
-
-  pub fn remove_skill(&mut self, key: &GodotString) {
-    self.skills.erase(&Variant::from(key));
-  }
-
-  pub fn get_gold_json(&self) -> Option<GodotString> {
-    if let Some(gold) = self.gold.try_to_dictionary() {
-      return Some(gold.to_json());
-    }
-    None
-  }
-
-  pub fn get_char_json(&self) -> Option<GodotString> {
-    if let Some(character) = self.character.try_to_dictionary() {
-      return Some(character.to_json());
-    }
-    None
   }
 }
 
@@ -1092,5 +887,162 @@ impl ToInt for Option<Variant> {
       return Some(variant.to_i64());
     }
     None
+  }
+}
+
+// Structure to manipulate a SotA save-game file.
+pub struct GameInfo {
+  // Save file path.
+  path: String,
+  // XML.
+  node: level2::RefNode,
+  // Dictionaries.
+  character: Variant,
+  skills: Variant,
+  gold: Variant,
+  // Save date.
+  date: GodotString,
+  // Keys.
+  ae: Variant,
+  g: Variant,
+  m: Variant,
+  t: Variant,
+  x: Variant,
+}
+
+impl GameInfo {
+  pub fn load(path: &str) -> Option<Self> {
+    let node = match std::fs::read_to_string(path) {
+      Ok(xml) => match parser::read_xml(&xml) {
+        Ok(node) => node,
+        Err(err) => {
+          godot_print!("Unable to load: {:?}", err);
+          return None;
+        }
+      },
+      Err(err) => {
+        if let Some(err) = err.get_ref() {
+          godot_print!("Unable to load: {:?}", err);
+        }
+        return None;
+      }
+    };
+
+    // Parse the 'CharacterSheet' json.
+    let character = some!(node.get_node_json("CharacterSheet"), None);
+
+    // Get the date.
+    let date = some!(
+      character
+        .get(&Variant::from("rd"))
+        .get(&Variant::from("c"))
+        .to_text(),
+      None
+    );
+
+    // Get the skills dictionary.
+    let skills = some!(character.get(&Variant::from("sk2")), None);
+    if skills.try_to_dictionary().is_none() {
+      return None;
+    }
+
+    // Parse the 'UserGold' json.
+    let gold = some!(node.get_node_json("UserGold"), None);
+
+    Some(GameInfo {
+      path: String::from(path),
+      node,
+      character,
+      skills,
+      gold,
+      date,
+      ae: Variant::from("ae"),
+      g: Variant::from("g"),
+      m: Variant::from("m"),
+      t: Variant::from("t"),
+      x: Variant::from("x"),
+    })
+  }
+
+  pub fn save(&mut self) -> bool {
+    if !self.node.set_node_json("UserGold", &self.gold) {
+      return false;
+    }
+
+    if !self.node.set_node_json("CharacterSheet", &self.character) {
+      return false;
+    }
+
+    match File::create(&self.path) {
+      Ok(mut file) => match file.write_all(self.node.to_string().as_bytes()) {
+        Ok(()) => return true,
+        Err(err) => {
+          if let Some(err) = err.get_ref() {
+            godot_print!("Unable to save: {:?}", err);
+          }
+        }
+      },
+      Err(err) => {
+        if let Some(err) = err.get_ref() {
+          godot_print!("Unable to save: {:?}", err);
+        }
+      }
+    }
+    false
+  }
+
+  pub fn get_gold(&self) -> Option<i64> {
+    self.gold.get(&self.g).to_int()
+  }
+
+  pub fn set_gold(&mut self, gold: i64) {
+    self.gold.set(&self.g, &Variant::from(gold));
+  }
+
+  pub fn get_adv_lvl(&self) -> Option<u32> {
+    if let Some(val) = self.character.get(&self.ae).to_int() {
+      for (lvl, exp) in LEVEL_EXP_VALUES.iter().enumerate().rev() {
+        if val >= *exp {
+          return Some(lvl as u32 + 1);
+        }
+      }
+    }
+    None
+  }
+
+  pub fn set_adv_lvl(&mut self, lvl: u32) {
+    let exp = LEVEL_EXP_VALUES[lvl as usize - 1];
+    self.character.set(&self.ae, &Variant::from(exp));
+  }
+
+  pub fn get_skill_exp(&self, key: &GodotString) -> Option<i64> {
+    self.skills.get(&Variant::from(key)).get(&self.x).to_int()
+  }
+
+  pub fn set_skill_exp(&mut self, key: &GodotString, exp: i64) {
+    let key = Variant::from(key);
+    if let Some(mut skill) = self.skills.get(&key) {
+      if let Some(cur) = skill.get(&self.x).to_int() {
+        // Change it only if it's different.
+        if exp != cur {
+          skill.set(&self.x, &Variant::from(exp));
+        }
+        return;
+      }
+    }
+    // Add a new dictionary for the skill ID.
+    let mut skill = Dictionary::new();
+    skill.set(&self.x, &Variant::from(exp));
+    skill.set(&self.t, &Variant::from(&self.date));
+    skill.set(&self.m, &Variant::from(0i64));
+    self.skills.set(&key, &Variant::from(&skill));
+  }
+
+  pub fn remove_skill(&mut self, key: &GodotString) {
+    self.skills.erase(&Variant::from(key));
+  }
+
+  pub fn path(&self) -> &str {
+    &self.path
   }
 }
