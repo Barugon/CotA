@@ -59,8 +59,8 @@ impl Offline {
   fn _ready(&self, owner: Node) {
     owner.connect_to(&self.adventurer, "item_edited", "adv_skill_changed");
     owner.connect_to(&self.producer, "item_edited", "adv_skill_changed");
-    self.connect_spin_changed(owner, &self.gold);
-    self.connect_spin_changed(owner, &self.adv_lvl);
+    owner.connect_to(&self.adv_lvl, "value_changed", "spin_value_changed");
+    owner.connect_to(&self.gold, "value_changed", "spin_value_changed");
 
     // Make the edit portion of the gold entry unfocusable.
     self.enable_gold(owner, None);
@@ -303,32 +303,6 @@ impl Offline {
     unsafe {
       if let Some(mut scene) = owner.get_tree() {
         scene.quit(0);
-      }
-    }
-  }
-
-  fn connect_spin_changed(&self, owner: Node, path: &NodePath) {
-    let mut spin_box = some!(owner.get_node_as::<SpinBox>(path));
-    unsafe {
-      if spin_box
-        .connect(
-          GodotString::from("value_changed"),
-          Some(owner.to_object()),
-          GodotString::from("spin_value_changed"),
-          VariantArray::new(),
-          0,
-        )
-        .is_ok()
-      {
-        if let Some(mut edit) = spin_box.get_line_edit() {
-          let _ = edit.connect(
-            GodotString::from("text_changed"),
-            Some(owner.to_object()),
-            GodotString::from("spin_text_changed"),
-            VariantArray::new(),
-            0,
-          );
-        }
       }
     }
   }
