@@ -845,6 +845,7 @@ impl GameInfo {
 
 // Structure to manipulate the character information from a save-game file.
 pub struct CharInfo {
+  game_info: GameInfo,
   // Dictionaries.
   character: Variant,
   skills: Variant,
@@ -860,11 +861,11 @@ pub struct CharInfo {
 }
 
 impl CharInfo {
-  pub fn new(info: Option<&GameInfo>) -> Option<Self> {
-    let info = some!(info, None);
+  pub fn new(game_info: Option<GameInfo>) -> Option<Self> {
+    let game_info = some!(game_info, None);
 
     // Parse the 'CharacterSheet' json.
-    let text = some!(info.get_node_json("CharacterSheet"), None);
+    let text = some!(game_info.get_node_json("CharacterSheet"), None);
     let mut parser = JSON::godot_singleton();
     let result = some!(parser.parse(GodotString::from(text)), None);
     let character = result.get_result();
@@ -888,7 +889,7 @@ impl CharInfo {
     }
 
     // Parse the 'UserGold' json.
-    let text = some!(info.get_node_json("UserGold"), None);
+    let text = some!(game_info.get_node_json("UserGold"), None);
     let result = some!(parser.parse(GodotString::from(text)), None);
     let gold = result.get_result();
     if gold.try_to_dictionary().is_none() {
@@ -896,6 +897,7 @@ impl CharInfo {
     }
 
     Some(CharInfo {
+      game_info,
       character,
       skills,
       gold,
@@ -906,6 +908,34 @@ impl CharInfo {
       t: Variant::from("t"),
       x: Variant::from("x"),
     })
+  }
+
+  pub fn save(&mut self) -> bool {
+    let json = some!(self.get_gold_json(), false);
+    if !self
+      .game_info
+      .set_node_json("UserGold", &json.to_utf8().as_str())
+    {
+      return false;
+    }
+
+    let json = some!(self.get_char_json(), false);
+    if !self
+      .game_info
+      .set_node_json("CharacterSheet", &json.to_utf8().as_str())
+    {
+      return false;
+    }
+
+    if !self.game_info.write() {
+      return false;
+    }
+
+    true
+  }
+
+  pub fn game_info(&self) -> &GameInfo {
+    &self.game_info
   }
 
   pub fn get_gold(&self) -> Option<i64> {
