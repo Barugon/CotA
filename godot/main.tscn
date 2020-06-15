@@ -724,7 +724,6 @@ columns = 4
 allow_reselect = true
 hide_folding = true
 hide_root = true
-select_mode = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -747,7 +746,6 @@ columns = 4
 allow_reselect = true
 hide_folding = true
 hide_root = true
-select_mode = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
