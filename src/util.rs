@@ -932,13 +932,9 @@ impl GameInfo {
     let character = some!(node.get_node_json("CharacterSheet"), None);
 
     // Get the date.
-    let date = some!(
-      character
-        .get(&Variant::from("rd"))
-        .get(&Variant::from("c"))
-        .to_text(),
-      None
-    );
+    let rd = Variant::from("rd");
+    let c = Variant::from("c");
+    let date = some!(character.get(&rd).get(&c).to_text(), None);
 
     // Get the skills dictionary.
     let skills = some!(character.get(&Variant::from("sk2")), None);
