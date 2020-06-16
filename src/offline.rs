@@ -326,7 +326,7 @@ impl Offline {
     unsafe {
       match gold {
         Some(gold) => {
-          spin_box.to_range().set_value(gold as f64);
+          spin_box.set_value(gold as f64);
           spin_box.set_editable(true);
           spin_box.set_focus_mode(Control::FOCUS_ALL);
           if let Some(mut edit) = spin_box.get_line_edit() {
@@ -334,7 +334,7 @@ impl Offline {
           }
         }
         None => {
-          spin_box.to_range().set_value(0.0);
+          spin_box.set_value(0.0);
           spin_box.set_editable(false);
           spin_box.set_focus_mode(Control::FOCUS_NONE);
           if let Some(mut edit) = spin_box.get_line_edit() {
@@ -350,7 +350,7 @@ impl Offline {
     unsafe {
       match lvl {
         Some(lvl) => {
-          spin_box.to_range().set_value(lvl as f64);
+          spin_box.set_value(lvl as f64);
           spin_box.set_editable(true);
           spin_box.set_focus_mode(Control::FOCUS_ALL);
           if let Some(mut edit) = spin_box.get_line_edit() {
@@ -358,7 +358,7 @@ impl Offline {
           }
         }
         None => {
-          spin_box.to_range().set_value(0.0);
+          spin_box.set_value(0.0);
           spin_box.set_editable(false);
           spin_box.set_focus_mode(Control::FOCUS_NONE);
           if let Some(mut edit) = spin_box.get_line_edit() {
