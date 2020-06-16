@@ -757,10 +757,14 @@ margin_bottom = 568.0
 align = 1
 
 [node name="FileDialog" type="FileDialog" parent="."]
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_top = 125.0
-margin_bottom = -100.0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -234.0
+margin_top = -201.5
+margin_right = 234.0
+margin_bottom = 201.5
 window_title = ""
 mode_overrides_title = false
 mode = 0
@@ -772,10 +776,14 @@ __meta__ = {
 }
 
 [node name="FilterDialog" type="ConfirmationDialog" parent="."]
-margin_left = 117.0
-margin_top = 274.0
-margin_right = 348.0
-margin_bottom = 344.0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -115.5
+margin_top = -35.0
+margin_right = 115.5
+margin_bottom = 35.0
 window_title = "Filter Stats"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -797,10 +805,14 @@ margin_right = 215.0
 margin_bottom = 22.0
 
 [node name="NotesDialog" type="ConfirmationDialog" parent="."]
-margin_left = 58.0
-margin_top = 161.0
-margin_right = 426.0
-margin_bottom = 536.0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -184.0
+margin_top = -187.5
+margin_right = 184.0
+margin_bottom = 187.5
 window_title = "Notes"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -820,10 +832,14 @@ margin_bottom = 329.0
 size_flags_vertical = 3
 
 [node name="AboutDialog" type="AcceptDialog" parent="."]
-margin_left = 81.0
-margin_top = 183.0
-margin_right = 393.0
-margin_bottom = 441.0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -156.0
+margin_top = -129.0
+margin_right = 156.0
+margin_bottom = 129.0
 window_title = "Companion of the Avatar"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -860,9 +876,13 @@ text = "Created by: Barugon"
 align = 1
 
 [node name="ConfirmationDialog" type="ConfirmationDialog" parent="."]
-margin_left = 129.0
-margin_top = 285.0
-margin_right = 351.0
-margin_bottom = 370.0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -111.0
+margin_top = -42.5
+margin_right = 111.0
+margin_bottom = 42.5
 dialog_text = "There are unsaved changes!
 "
