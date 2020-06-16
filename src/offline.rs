@@ -77,7 +77,7 @@ impl Offline {
     // Connect save_clicked.
     owner.connect_to(&self.save, "pressed", "save_clicked");
 
-    // Connect the quit dialog.
+    // Connect the confirmation dialog.
     owner.connect_to(&self.confirm, "confirmed", "confirmed");
 
     self.initialize_tree(owner, SkillTree::Adventurer);
@@ -169,13 +169,17 @@ impl Offline {
             self.enable_gold(owner, Some(gold));
             if let Some(lvl) = game_info.get_adv_lvl() {
               self.enable_adv_lvl(owner, Some(lvl));
+              *self.game_info.borrow_mut() = Some(game_info);
+
+              // Set the status message.
               let path = path.to_utf8();
               if let Some(path) = Path::new(path.as_str()).file_name() {
                 if let Some(path) = path.to_str() {
-                  self.set_status_message(owner, &format!("Editing '{}'", path));
+                  self.set_status_message(owner, &format!("Editing \"{}\"", path));
                 }
               }
-              *self.game_info.borrow_mut() = Some(game_info);
+
+              // Disable the save button.
               self.enable_save(owner, false);
               return;
             }
@@ -187,11 +191,14 @@ impl Offline {
       self.disable_tree(owner, SkillTree::Adventurer);
     }
 
+    // Disable the save button.
     self.enable_save(owner, false);
+
+    // Set the status message.
     let path = path.to_utf8();
     if let Some(path) = Path::new(path.as_str()).file_name() {
       if let Some(path) = path.to_str() {
-        self.set_status_message(owner, &format!("Unable to edit '{}'", path));
+        self.set_status_message(owner, &format!("Unable to edit \"{}\"", path));
       }
     }
   }
@@ -207,7 +214,7 @@ impl Offline {
     let path = game_info.path().to_utf8();
     let path = some!(Path::new(path.as_str()).file_name());
     let path = some!(path.to_str());
-    self.set_status_message(owner, &format!("Unable to save '{}'", path));
+    self.set_status_message(owner, &format!("Unable to save \"{}\"", path));
   }
 
   fn skill_changed(&self, owner: Node, tree: SkillTree) {
