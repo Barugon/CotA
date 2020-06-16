@@ -87,14 +87,6 @@ impl Experience {
           .as_str()
           .parse::<usize>()
           .unwrap_or(0);
-
-        let tgt = target
-          .get_text()
-          .to_utf8()
-          .as_str()
-          .parse::<usize>()
-          .unwrap_or(0);
-
         let cur_valid = cur >= 1 && cur < 200;
         if cur_valid {
           current.set(self.color_name.new_ref(), self.good_color.clone());
@@ -102,6 +94,12 @@ impl Experience {
           current.set(self.color_name.new_ref(), self.bad_color.clone());
         }
 
+        let tgt = target
+          .get_text()
+          .to_utf8()
+          .as_str()
+          .parse::<usize>()
+          .unwrap_or(0);
         let tgt_valid = tgt >= 1 && tgt <= 200 && (!cur_valid || tgt > cur);
         if tgt_valid {
           target.set(self.color_name.new_ref(), self.good_color.clone());
