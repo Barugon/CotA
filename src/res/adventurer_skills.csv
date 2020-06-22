@@ -99,6 +99,7 @@ Flurry,1,96
 Focus Specialization,20,2519
 Follow Through,4,183
 Fortify Defenses,1,1358
+Frenzy,1,6351
 Glancing Blow,1,72
 Ground Pound,1,29
 Gust,0.5,1
@@ -158,6 +159,11 @@ Offhand Power,4,160
 Opportunity Strike,2,1359
 Parry,1,11
 Passive Stance,1,307
+Pet Attack Precision Training,1,3563
+Pet Hide Toughness Training,1,3561
+Pet Speed Training,1,3560
+Pet Strength Training,1,3562
+Pet Taunting Training,1,3564
 Pick Locks,2,519
 Pick Pockets,2,518
 Piercing Shot,1,123
@@ -235,7 +241,7 @@ Swiftness,4,95
 Sympathy of Stone,4,60
 Tabula Rasa,2,31
 Tactics Specialization,20,2517
-Tame Creature,1,133
+Tame Creature,1,430
 Taming Specialization,20,2520
 Tap Soul,2,450
 Taunt,1,80
