@@ -116,7 +116,7 @@ impl Experience {
         {
           if cur_valid && tgt_valid {
             let val = SKILL_EXP_VALUES[tgt - 1] - SKILL_EXP_VALUES[cur - 1];
-            let val = (val as f64 * mul).round() as i64;
+            let val = (val as f64 * mul).ceil() as i64;
             text = GodotString::from(val.to_formatted_string(&self.locale));
           }
         }
