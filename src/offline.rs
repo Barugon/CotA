@@ -234,17 +234,20 @@ impl Offline {
           .trim_end_matches('x')
           .parse::<f64>()
         {
+          let cur = info.get_skill_exp(&item.get_text(2));
           let lvl = item.get_range(3) as usize;
           if lvl > 0 {
             let exp = (SKILL_EXP_VALUES[lvl - 1] as f64 * mul).ceil() as i64;
-            if let Some(cur) = info.get_skill_exp(&item.get_text(2)) {
+            if let Some(cur) = cur {
               if cur == exp {
                 // No change.
                 return;
               }
             }
-            self.enable_save(owner, true);
+          } else if cur.is_none() {
+            return;
           }
+          self.enable_save(owner, true);
         }
       }
     }
