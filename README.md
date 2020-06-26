@@ -19,7 +19,7 @@ Experience needed calculator!
 
 Offline saved game editor.
 
-![screenshot](https://a4.pbase.com/o12/09/605909/1/170775639.lD9UWu0E.Screenshotfrom20200623112847.png)
+![screenshot](https://a4.pbase.com/o12/09/605909/1/170775639.XYbYzRaS.Screenshotfrom20200626120928.png)
 
 CotA uses the [Godot game engine](https://godotengine.org) for it's GUI, so there's nothing extra to install. Just download and go.
 
