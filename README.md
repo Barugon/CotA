@@ -5,17 +5,17 @@ CotA is a companion application for [Shroud of the Avatar](https://www.shroudoft
 Show the stats recorded to chat-logs via the `/stats` command.
 > Hint: *press F5 to refresh the display after typing `/stats` in-game.*
 
-![screenshot](https://a4.pbase.com/o12/09/605909/1/164136608.IybcUCUb.Screenshotfrom20200529161246.png)
+![screenshot](https://a4.pbase.com/o12/09/605909/1/164136608.CbCEyC4W.Screenshotfrom20200627184723.png)
 
 Press Ctrl+R to get a list of effective resists or Ctrl+F to filter the stats.
 
 Portal chronometer.
 
-![screenshot](https://a4.pbase.com/o12/09/605909/1/166622004.MiH6f64Y.Screenshotfrom20200531024002.png)
+![screenshot](https://a4.pbase.com/o12/09/605909/1/166622004.LRnaK3tl.Screenshotfrom20200627184734.png)
 
 Experience needed calculator!
 
-![screenshot](https://a4.pbase.com/o12/09/605909/1/169657368.KriGFgUz.Screenshotfrom20200531023739.png)
+![screenshot](https://a4.pbase.com/o12/09/605909/1/169657368.88B4T1E4.Screenshotfrom20200627184800.png)
 
 Offline saved game editor.
 
