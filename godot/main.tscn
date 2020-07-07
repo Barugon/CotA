@@ -769,8 +769,8 @@ window_title = ""
 mode_overrides_title = false
 mode = 0
 access = 2
-current_dir = "/home/barugon/Desktop/Dev/Projects/cota"
-current_path = "/home/barugon/Desktop/Dev/Projects/cota/"
+current_dir = "/home/Barugon/Desktop/Dev/Projects/cota/godot"
+current_path = "/home/Barugon/Desktop/Dev/Projects/cota/godot/"
 __meta__ = {
 "_edit_use_anchors_": false
 }
