@@ -156,6 +156,9 @@ impl Offline {
     self.disable_tree(owner, SkillTree::Adventurer);
     self.disable_tree(owner, SkillTree::Producer);
 
+    // Disable the save button.
+    self.enable_save(owner, false);
+
     // Disable the gold input.
     self.enable_gold(owner, None);
 
@@ -178,9 +181,6 @@ impl Offline {
                   self.set_status_message(owner, &format!("Editing \"{}\"", path));
                 }
               }
-
-              // Disable the save button.
-              self.enable_save(owner, false);
               return;
             }
             self.enable_gold(owner, None);
@@ -190,9 +190,6 @@ impl Offline {
       }
       self.disable_tree(owner, SkillTree::Adventurer);
     }
-
-    // Disable the save button.
-    self.enable_save(owner, false);
 
     // Set the status message.
     let path = path.to_utf8();
