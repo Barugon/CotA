@@ -103,7 +103,7 @@ impl Stats {
     }
     self.populate_avatars(owner);
   }
-
+//
   #[export]
   fn view_menu_select(&self, owner: TRef<Node>, id: i64) {
     match id {
