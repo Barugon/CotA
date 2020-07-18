@@ -57,7 +57,7 @@ impl Offline {
   }
 
   #[export]
-  fn _ready(&self, owner: TRef<'_, Node>) {
+  fn _ready(&self, owner: TRef<Node>) {
     owner.connect_to(&self.adventurer, "item_edited", "adv_skill_changed");
     owner.connect_to(&self.producer, "item_edited", "pro_skill_changed");
     owner.connect_to(&self.adv_lvl, "value_changed", "spin_value_changed");
@@ -86,7 +86,7 @@ impl Offline {
   }
 
   #[export]
-  fn _notification(&self, owner: TRef<'_, Node>, what: i64) {
+  fn _notification(&self, owner: TRef<Node>, what: i64) {
     if what != MainLoop::NOTIFICATION_WM_QUIT_REQUEST {
       return;
     }
@@ -110,7 +110,7 @@ impl Offline {
   }
 
   #[export]
-  fn confirmed(&self, owner: TRef<'_, Node>) {
+  fn confirmed(&self, owner: TRef<Node>) {
     match *self.confirmation.borrow() {
       Confirmation::Load => self.load(owner),
       Confirmation::Quit => self.quit(owner),
@@ -118,17 +118,17 @@ impl Offline {
   }
 
   #[export]
-  fn adv_skill_changed(&self, owner: TRef<'_, Node>) {
+  fn adv_skill_changed(&self, owner: TRef<Node>) {
     self.skill_changed(owner, SkillTree::Adventurer);
   }
 
   #[export]
-  fn pro_skill_changed(&self, owner: TRef<'_, Node>) {
+  fn pro_skill_changed(&self, owner: TRef<Node>) {
     self.skill_changed(owner, SkillTree::Producer);
   }
 
   #[export]
-  fn spin_value_changed(&self, owner: TRef<'_, Node>, _val: f64) {
+  fn spin_value_changed(&self, owner: TRef<Node>, _val: f64) {
     if self.game_info.borrow().is_some() {
       // Gold or adv lvl has changed, enable the save button.
       self.enable_save(owner, true);
@@ -136,7 +136,7 @@ impl Offline {
   }
 
   #[export]
-  fn load_clicked(&self, owner: TRef<'_, Node>) {
+  fn load_clicked(&self, owner: TRef<Node>) {
     if let Some(button) = owner.get_node_as::<Button>(&self.save) {
       if !button.is_disabled() {
         if let Some(dialog) = owner.get_node_as::<ConfirmationDialog>(&self.confirm) {
@@ -150,7 +150,7 @@ impl Offline {
   }
 
   #[export]
-  fn file_selected(&self, owner: TRef<'_, Node>, path: GodotString) {
+  fn file_selected(&self, owner: TRef<Node>, path: GodotString) {
     // Clear and disable the trees.
     self.disable_tree(owner, SkillTree::Adventurer);
     self.disable_tree(owner, SkillTree::Producer);
@@ -200,7 +200,7 @@ impl Offline {
   }
 
   #[export]
-  fn save_clicked(&self, owner: TRef<'_, Node>) {
+  fn save_clicked(&self, owner: TRef<Node>) {
     if self.save(owner) {
       return;
     }
@@ -213,7 +213,7 @@ impl Offline {
     self.set_status_message(owner, &format!("Unable to save \"{}\"", path));
   }
 
-  fn skill_changed(&self, owner: TRef<'_, Node>, tree: SkillTree) {
+  fn skill_changed(&self, owner: TRef<Node>, tree: SkillTree) {
     if let Some(info) = self.game_info.borrow().as_ref() {
       let tree = match tree {
         SkillTree::Adventurer => &self.adventurer,
@@ -249,7 +249,7 @@ impl Offline {
     }
   }
 
-  fn save(&self, owner: TRef<'_, Node>) -> bool {
+  fn save(&self, owner: TRef<Node>) -> bool {
     let mut game_info = self.game_info.borrow_mut();
     let game_info = some!(game_info.as_mut(), false);
     if !self.collect_skills(owner, SkillTree::Adventurer, game_info)
@@ -277,7 +277,7 @@ impl Offline {
     return true;
   }
 
-  fn load(&self, owner: TRef<'_, Node>) {
+  fn load(&self, owner: TRef<Node>) {
     let dialog = some!(owner.get_node_as::<FileDialog>(&self.file_dialog));
 
     dialog.set_title(self.file_dialog_title.clone());
@@ -298,13 +298,13 @@ impl Offline {
     dialog.popup_centered(Vector2::zero());
   }
 
-  fn quit(&self, owner: TRef<'_, Node>) {
+  fn quit(&self, owner: TRef<Node>) {
     if let Some(scene) = owner.get_tree() {
       unsafe { scene.assume_safe() }.quit(0);
     }
   }
 
-  fn enable_save(&self, owner: TRef<'_, Node>, enable: bool) {
+  fn enable_save(&self, owner: TRef<Node>, enable: bool) {
     let button = some!(owner.get_node_as::<Button>(&self.save));
 
     if enable {
@@ -316,7 +316,7 @@ impl Offline {
     }
   }
 
-  fn enable_gold(&self, owner: TRef<'_, Node>, gold: Option<i64>) {
+  fn enable_gold(&self, owner: TRef<Node>, gold: Option<i64>) {
     let spin_box = some!(owner.get_node_as::<SpinBox>(&self.gold));
 
     match gold {
@@ -339,7 +339,7 @@ impl Offline {
     }
   }
 
-  fn enable_adv_lvl(&self, owner: TRef<'_, Node>, lvl: Option<u32>) {
+  fn enable_adv_lvl(&self, owner: TRef<Node>, lvl: Option<u32>) {
     let spin_box = some!(owner.get_node_as::<SpinBox>(&self.adv_lvl));
 
     match lvl {
@@ -362,7 +362,7 @@ impl Offline {
     }
   }
 
-  fn initialize_tree(&self, owner: TRef<'_, Node>, tree: SkillTree) {
+  fn initialize_tree(&self, owner: TRef<Node>, tree: SkillTree) {
     let tree = match tree {
       SkillTree::Adventurer => some!(owner.get_node_as::<Tree>(&self.adventurer)),
       SkillTree::Producer => some!(owner.get_node_as::<Tree>(&self.producer)),
@@ -377,7 +377,7 @@ impl Offline {
     // tree.set_column_titles_visible(true);
   }
 
-  fn disable_tree(&self, owner: TRef<'_, Node>, tree: SkillTree) {
+  fn disable_tree(&self, owner: TRef<Node>, tree: SkillTree) {
     let tree = match tree {
       SkillTree::Adventurer => some!(owner.get_node_as::<Tree>(&self.adventurer)),
       SkillTree::Producer => some!(owner.get_node_as::<Tree>(&self.producer)),
@@ -387,7 +387,7 @@ impl Offline {
     tree.set_focus_mode(Control::FOCUS_NONE);
   }
 
-  fn populate_tree(&self, owner: TRef<'_, Node>, tree: SkillTree, game_info: &GameInfo) -> bool {
+  fn populate_tree(&self, owner: TRef<Node>, tree: SkillTree, game_info: &GameInfo) -> bool {
     let (tree, csv) = match tree {
       SkillTree::Adventurer => (
         some!(owner.get_node_as::<Tree>(&self.adventurer), false),
@@ -472,12 +472,7 @@ impl Offline {
     return true;
   }
 
-  fn collect_skills(
-    &self,
-    owner: TRef<'_, Node>,
-    tree: SkillTree,
-    game_info: &mut GameInfo,
-  ) -> bool {
+  fn collect_skills(&self, owner: TRef<Node>, tree: SkillTree, game_info: &mut GameInfo) -> bool {
     let tree = match tree {
       SkillTree::Adventurer => some!(owner.get_node_as::<Tree>(&self.adventurer), false),
       SkillTree::Producer => some!(owner.get_node_as::<Tree>(&self.producer), false),
@@ -518,7 +513,7 @@ impl Offline {
     }
   }
 
-  fn set_status_message(&self, owner: TRef<'_, Node>, text: &str) {
+  fn set_status_message(&self, owner: TRef<Node>, text: &str) {
     if let Some(label) = owner.get_node_as::<Label>(&self.status) {
       label.set_text(GodotString::from(text));
     }

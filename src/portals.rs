@@ -68,13 +68,13 @@ impl Portals {
   }
 
   #[export]
-  fn _ready(&self, owner: TRef<'_, Node>) {
+  fn _ready(&self, owner: TRef<Node>) {
     // Connect the timer.
     owner.connect_to(&self.timer, "timeout", "update");
   }
 
   #[export]
-  fn update(&self, owner: TRef<'_, Node>) {
+  fn update(&self, owner: TRef<Node>) {
     // Get the lunar phase.
     let phase = get_lunar_phase();
     let mut rift = phase as usize;

@@ -55,7 +55,7 @@ impl Stats {
   }
 
   #[export]
-  fn _ready(&self, owner: TRef<'_, Node>) {
+  fn _ready(&self, owner: TRef<Node>) {
     // Connect the view menu and set shortcuts.
     owner.connect_to(&self.view, "id_pressed", "view_menu_select");
     if let Some(button) = owner.get_node_as::<MenuButton>(&self.view) {
@@ -105,7 +105,7 @@ impl Stats {
   }
 
   #[export]
-  fn view_menu_select(&self, owner: TRef<'_, Node>, id: i64) {
+  fn view_menu_select(&self, owner: TRef<Node>, id: i64) {
     match id {
       REFRESH_ID => self.populate_avatars(owner),
       RESISTS_ID => {
@@ -146,7 +146,7 @@ impl Stats {
   }
 
   #[export]
-  fn avatar_changed(&self, owner: TRef<'_, Node>, item: i64) {
+  fn avatar_changed(&self, owner: TRef<Node>, item: i64) {
     if let Some(button) = owner.get_node_as::<OptionButton>(&self.avatars) {
       let avatar = button.get_item_text(item);
       self.config.set_avatar(Some(&avatar));
@@ -160,7 +160,7 @@ impl Stats {
   }
 
   #[export]
-  fn date_changed(&self, owner: TRef<'_, Node>, item: i64) {
+  fn date_changed(&self, owner: TRef<Node>, item: i64) {
     if let Some(avatar) = self.get_current_avatar(owner) {
       if let Some(button) = owner.get_node_as::<OptionButton>(&self.dates) {
         let ts = button.get_item_id(item);
@@ -179,14 +179,14 @@ impl Stats {
   }
 
   #[export]
-  fn log_folder_changed(&self, owner: TRef<'_, Node>, folder: GodotString) {
+  fn log_folder_changed(&self, owner: TRef<Node>, folder: GodotString) {
     *self.data.borrow_mut() = LogData::new(&folder);
     self.config.set_log_folder(Some(&folder));
     self.populate_avatars(owner);
   }
 
   #[export]
-  fn filter_changed(&self, owner: TRef<'_, Node>) {
+  fn filter_changed(&self, owner: TRef<Node>) {
     if let Some(edit) = owner.get_node_as::<LineEdit>(&self.filter_edit) {
       let text = edit.text();
       if !text.is_empty() {
@@ -205,7 +205,7 @@ impl Stats {
   }
 
   #[export]
-  fn notes_clicked(&self, owner: TRef<'_, Node>) {
+  fn notes_clicked(&self, owner: TRef<Node>) {
     if let Some(dialog) = owner.get_node_as::<ConfirmationDialog>(&self.notes_dialog) {
       if let Some(edit) = owner.get_node_as::<TextEdit>(&self.notes_edit) {
         if let Some(avatar) = self.get_current_avatar(owner) {
@@ -225,7 +225,7 @@ impl Stats {
   }
 
   #[export]
-  fn notes_changed(&self, owner: TRef<'_, Node>) {
+  fn notes_changed(&self, owner: TRef<Node>) {
     if let Some(edit) = owner.get_node_as::<TextEdit>(&self.notes_edit) {
       let text = edit.text();
       if let Some(avatar) = self.get_current_avatar(owner) {
@@ -238,7 +238,7 @@ impl Stats {
     self.data.borrow().get_avatars()
   }
 
-  fn populate_avatars(&self, owner: TRef<'_, Node>) {
+  fn populate_avatars(&self, owner: TRef<Node>) {
     if let Some(button) = owner.get_node_as::<OptionButton>(&self.avatars) {
       self.enable_notes(owner, false);
       button.clear();
@@ -264,7 +264,7 @@ impl Stats {
     self.populate_dates(owner, None);
   }
 
-  fn get_current_avatar(&self, owner: TRef<'_, Node>) -> Option<GodotString> {
+  fn get_current_avatar(&self, owner: TRef<Node>) -> Option<GodotString> {
     if let Some(button) = owner.get_node_as::<OptionButton>(&self.avatars) {
       let id = button.get_selected_id();
       if id != 0 {
@@ -281,7 +281,7 @@ impl Stats {
     self.data.borrow().get_stats_timestamps(avatar)
   }
 
-  fn populate_dates(&self, owner: TRef<'_, Node>, avatar: Option<&str>) {
+  fn populate_dates(&self, owner: TRef<Node>, avatar: Option<&str>) {
     if let Some(button) = owner.get_node_as::<OptionButton>(&self.dates) {
       button.clear();
       if let Some(avatar) = avatar {
@@ -303,7 +303,7 @@ impl Stats {
     self.populate_stats(owner, avatar, None, StatOpts::None);
   }
 
-  fn get_current_date(&self, owner: TRef<'_, Node>) -> Option<i64> {
+  fn get_current_date(&self, owner: TRef<Node>) -> Option<i64> {
     if let Some(button) = owner.get_node_as::<OptionButton>(&self.dates) {
       let ts = button.get_selected_id();
       if ts != 0 {
@@ -313,7 +313,7 @@ impl Stats {
     None
   }
 
-  fn enable_notes(&self, owner: TRef<'_, Node>, enable: bool) {
+  fn enable_notes(&self, owner: TRef<Node>, enable: bool) {
     if let Some(button) = owner.get_node_as::<Button>(&self.notes) {
       button.set_disabled(!enable);
       button.set_focus_mode(if enable {
@@ -330,7 +330,7 @@ impl Stats {
 
   fn populate_stats(
     &self,
-    owner: TRef<'_, Node>,
+    owner: TRef<Node>,
     avatar: Option<&str>,
     ts: Option<i64>,
     opts: StatOpts,
@@ -502,7 +502,7 @@ impl Stats {
     return;
   }
 
-  fn set_status_message(&self, owner: TRef<'_, Node>, text: Option<&str>) {
+  fn set_status_message(&self, owner: TRef<Node>, text: Option<&str>) {
     if let Some(label) = owner.get_node_as::<Label>(&self.status) {
       match text {
         Some(text) => label.set_text(GodotString::from(text)),

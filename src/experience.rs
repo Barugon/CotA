@@ -33,7 +33,7 @@ impl Experience {
   }
 
   #[export]
-  fn _ready(&self, owner: TRef<'_, Node>) {
+  fn _ready(&self, owner: TRef<Node>) {
     let path = owner.get_path().to_string();
     if path.ends_with("/AdvPanel") {
       self.populate_tree(owner, ADVENTURER_SKILLS)
@@ -61,12 +61,12 @@ impl Experience {
   }
 
   #[export]
-  fn text_changed(&self, owner: TRef<'_, Node>, _text: GodotString) {
+  fn text_changed(&self, owner: TRef<Node>, _text: GodotString) {
     self.update(owner);
   }
 
   #[export]
-  fn update(&self, owner: TRef<'_, Node>) {
+  fn update(&self, owner: TRef<Node>) {
     let tree = some!(owner.get_node_as::<Tree>(&self.tree));
     let current = some!(owner.get_node_as::<LineEdit>(&self.current));
     let target = some!(owner.get_node_as::<LineEdit>(&self.target));
@@ -129,7 +129,7 @@ impl Experience {
     result.set_text(text);
   }
 
-  fn populate_tree(&self, owner: TRef<'_, Node>, csv: &str) {
+  fn populate_tree(&self, owner: TRef<Node>, csv: &str) {
     let tree = some!(owner.get_node_as::<Tree>(&self.tree));
     let skill_color = Color::rgb(0.4, 0.6, 0.7);
     let info_color = Color::rgb(0.5, 0.5, 0.5);

@@ -42,7 +42,7 @@ impl App {
   }
 
   #[export]
-  fn _ready(&self, owner: TRef<'_, Node>) {
+  fn _ready(&self, owner: TRef<Node>) {
     if let Some(scene) = owner.get_tree() {
       unsafe { scene.assume_safe() }.set_auto_accept_quit(false);
     }
@@ -65,7 +65,7 @@ impl App {
   }
 
   #[export]
-  fn file_menu_select(&self, owner: TRef<'_, Node>, id: i64) {
+  fn file_menu_select(&self, owner: TRef<Node>, id: i64) {
     match id {
       LOG_FOLDER_ID => {
         if let Some(dialog) = owner.get_node_as::<FileDialog>(&self.file_dialog) {
@@ -84,7 +84,7 @@ impl App {
   }
 
   #[export]
-  fn help_menu_select(&self, owner: TRef<'_, Node>, id: i64) {
+  fn help_menu_select(&self, owner: TRef<Node>, id: i64) {
     match id {
       ABOUT_ID => {
         if let Some(dialog) = owner.get_node_as::<AcceptDialog>(&self.about_dialog) {
@@ -99,7 +99,7 @@ impl App {
   }
 
   #[export]
-  fn tab_changed(&self, owner: TRef<'_, Node>, idx: i64) {
+  fn tab_changed(&self, owner: TRef<Node>, idx: i64) {
     if let Some(timer) = owner.get_node_as::<Timer>(&self.portals_timer) {
       self.enable_stat_menus(owner, idx == STATS_IDX);
       if idx == PORTALS_IDX {
@@ -111,7 +111,7 @@ impl App {
     }
   }
 
-  fn enable_stat_menus(&self, owner: TRef<'_, Node>, enable: bool) {
+  fn enable_stat_menus(&self, owner: TRef<Node>, enable: bool) {
     if let Some(menu) = owner.get_node_as::<MenuButton>(&self.file) {
       if let Some(popup) = menu.get_popup() {
         unsafe { popup.assume_safe() }.set_item_disabled(
