@@ -113,19 +113,39 @@ impl OptionButtonText for TRef<'_, OptionButton> {
   }
 }
 
+pub trait ToRef<'a, 'r, T>
+where
+  gdnative::object::AssumeSafeLifetime<'a, 'r>:
+    gdnative::object::LifetimeConstraint<<T as GodotObject>::RefKind>,
+  T: GodotObject + SubClass<Object>,
+{
+  fn to_ref(&'r self) -> TRef<'a, T, Shared>;
+}
+
+impl<'a, 'r, T> ToRef<'a, 'r, T> for Ref<T, Shared>
+where
+  gdnative::object::AssumeSafeLifetime<'a, 'r>:
+    gdnative::object::LifetimeConstraint<<T as GodotObject>::RefKind>,
+  T: GodotObject + SubClass<Object>,
+{
+  fn to_ref(&'r self) -> TRef<'a, T, Shared> {
+    unsafe { self.assume_safe() }
+  }
+}
+
 pub trait GetNodeAs {
-  fn get_node_as<T>(&self, path: &GodotString) -> Option<TRef<'_, T, Shared>>
+  fn get_node_as<T>(self, path: &GodotString) -> Option<TRef<'_, T, Shared>>
   where
     T: GodotObject + SubClass<Node>;
 }
 
-impl GetNodeAs for Node {
-  fn get_node_as<T>(&self, path: &GodotString) -> Option<TRef<'_, T, Shared>>
+impl GetNodeAs for TRef<'_, Node> {
+  fn get_node_as<T>(self, path: &GodotString) -> Option<TRef<'_, T, Shared>>
   where
     T: GodotObject + SubClass<Node>,
   {
     if let Some(node) = self.get_node(path.clone()) {
-      let node = unsafe { node.assume_safe() }.cast();
+      let node = node.to_ref().cast();
       if node.is_none() {
         godot_print!(
           "Unable to cast node {} as {:?}",
