@@ -148,17 +148,16 @@ pub trait ConnectTo {
 impl ConnectTo for TRef<'_, Node> {
   fn connect_to(self, path: &GodotString, signal: &str, slot: &str) -> bool {
     if let Some(node) = self.get_node(path.clone()) {
-      let node = unsafe { node.assume_safe() };
+      let mut node = unsafe { node.assume_safe() };
 
       // Get the popup if this is a menu button.
       if let Some(button) = node.cast::<MenuButton>() {
         if let Some(popup) = button.get_popup() {
-          return unsafe { popup.assume_safe() }
-            .upcast::<Node>()
-            .connect_to(path, signal, slot);
+          node = unsafe { popup.assume_safe() }.upcast::<Node>();
+        } else {
+          godot_print!("Unable to get popup for {}", path);
+          return false;
         }
-        godot_print!("Unable to get MenuButton popup");
-        return false;
       }
 
       if let Err(err) = node.connect(signal, self, slot, VariantArray::new_shared(), 0) {
