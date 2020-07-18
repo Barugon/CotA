@@ -1,13 +1,13 @@
 use crate::constants::*;
 use crate::util::*;
 use gdnative::*;
-use std::collections::HashMap;
+use std::{cell::RefCell, collections::HashMap};
 
 #[derive(NativeClass)]
 #[inherit(Node)]
 pub struct Stats {
   config: Config,
-  data: LogData,
+  data: RefCell<LogData>,
   view: NodePath,
   avatars: NodePath,
   dates: NodePath,
@@ -38,7 +38,7 @@ impl Stats {
     };
     Stats {
       config: config,
-      data: LogData::new(folder),
+      data: RefCell::new(LogData::new(folder)),
       view: NodePath::from("/root/App/VBox/Menu/View"),
       avatars: NodePath::from("Tools/Avatars"),
       dates: NodePath::from("Tools/Dates"),
@@ -54,7 +54,7 @@ impl Stats {
   }
 
   #[export]
-  fn _ready(&mut self, owner: Node) {
+  fn _ready(&self, owner: Node) {
     unsafe {
       // Connect the view menu and set shortcuts.
       owner.connect_to(&self.view, "id_pressed", "view_menu_select");
@@ -103,7 +103,7 @@ impl Stats {
   }
 
   #[export]
-  fn view_menu_select(&mut self, owner: Node, id: i64) {
+  fn view_menu_select(&self, owner: Node, id: i64) {
     match id {
       REFRESH_ID => self.populate_avatars(owner),
       RESISTS_ID => {
@@ -146,7 +146,7 @@ impl Stats {
   }
 
   #[export]
-  fn avatar_changed(&mut self, owner: Node, item: i64) {
+  fn avatar_changed(&self, owner: Node, item: i64) {
     if let Some(button) = owner.get_node_as::<OptionButton>(&self.avatars) {
       unsafe {
         let avatar = button.get_item_text(item);
@@ -162,7 +162,7 @@ impl Stats {
   }
 
   #[export]
-  fn date_changed(&mut self, owner: Node, item: i64) {
+  fn date_changed(&self, owner: Node, item: i64) {
     if let Some(avatar) = self.get_current_avatar(owner) {
       if let Some(button) = owner.get_node_as::<OptionButton>(&self.dates) {
         unsafe {
@@ -183,8 +183,8 @@ impl Stats {
   }
 
   #[export]
-  fn log_folder_changed(&mut self, owner: Node, folder: GodotString) {
-    self.data = LogData::new(folder.new_ref());
+  fn log_folder_changed(&self, owner: Node, folder: GodotString) {
+    *self.data.borrow_mut() = LogData::new(folder.new_ref());
     self.config.set_log_folder(Some(folder));
     self.populate_avatars(owner);
   }
@@ -240,13 +240,17 @@ impl Stats {
     }
   }
 
+  fn get_avatars(&self) -> Vec<String> {
+    self.data.borrow().get_avatars()
+  }
+
   fn populate_avatars(&self, owner: Node) {
     if let Some(mut button) = owner.get_node_as::<OptionButton>(&self.avatars) {
       unsafe {
         self.enable_notes(owner, false);
         button.clear();
 
-        let names = self.data.get_avatars();
+        let names = self.get_avatars();
         for (idx, name) in names.iter().enumerate() {
           button.add_item(GodotString::from(name), idx as i64 + 1);
         }
@@ -283,12 +287,16 @@ impl Stats {
     None
   }
 
+  fn get_stats_timestamps(&self, avatar: &str) -> Vec<i64> {
+    self.data.borrow().get_stats_timestamps(avatar)
+  }
+
   fn populate_dates(&self, owner: Node, avatar: Option<&str>) {
     if let Some(mut button) = owner.get_node_as::<OptionButton>(&self.dates) {
       unsafe {
         button.clear();
         if let Some(avatar) = avatar {
-          let timestamps = self.data.get_stats_timestamps(avatar);
+          let timestamps = self.get_stats_timestamps(avatar);
           if !timestamps.is_empty() {
             for ts in timestamps {
               let date = timestamp_to_view_date(ts);
@@ -332,6 +340,10 @@ impl Stats {
     }
   }
 
+  fn get_stats(&self, avatar: &str, ts: i64) -> Option<StatsData> {
+    self.data.borrow().get_stats(avatar, ts)
+  }
+
   fn populate_stats(&self, owner: Node, avatar: Option<&str>, ts: Option<i64>, opts: StatOpts) {
     self.set_status_message(owner, None);
     unsafe {
@@ -341,7 +353,7 @@ impl Stats {
 
       let avatar = some!(avatar);
       if let Some(ts) = ts {
-        if let Some(stats) = self.data.get_stats(avatar, ts) {
+        if let Some(stats) = self.get_stats(avatar, ts) {
           if let Some(parent) = tree.create_item(None, -1) {
             let locale = get_locale();
             let mut bg_color = Cycle::new(vec![
