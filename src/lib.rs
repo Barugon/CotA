@@ -2,8 +2,8 @@
 mod util;
 
 mod app;
-mod experience;
 mod constants;
+mod experience;
 mod offline;
 mod portals;
 mod stats;
@@ -13,9 +13,9 @@ use crate::experience::*;
 use crate::offline::*;
 use crate::portals::*;
 use crate::stats::*;
-use gdnative::*;
+use gdnative::prelude::*;
 
-fn init(handle: gdnative::init::InitHandle) {
+fn init(handle: InitHandle) {
   handle.add_class::<App>();
   handle.add_class::<Experience>();
   handle.add_class::<Offline>();
@@ -23,6 +23,4 @@ fn init(handle: gdnative::init::InitHandle) {
   handle.add_class::<Stats>();
 }
 
-godot_gdnative_init!();
-godot_nativescript_init!(init);
-godot_gdnative_terminate!();
+godot_init!(init);

@@ -1,6 +1,7 @@
 use crate::constants::*;
 use chrono::{NaiveDate, NaiveDateTime, NaiveTime, TimeZone, Utc};
-use gdnative::*;
+use gdnative::api::*;
+use gdnative::prelude::*;
 use num_cpus;
 use num_format::Locale;
 use regex::Regex;
@@ -87,27 +88,25 @@ impl<T> Cycle<T> {
 }
 
 pub trait OptionButtonText {
-  fn find_item_index(&self, text: GodotString) -> Option<i64>;
-  fn select_item(&mut self, text: GodotString) -> bool;
+  fn find_item_index(self, text: &GodotString) -> Option<i64>;
+  fn select_item(self, text: &GodotString) -> bool;
 }
 
-impl OptionButtonText for OptionButton {
-  fn find_item_index(&self, text: GodotString) -> Option<i64> {
-    let count = unsafe { self.get_item_count() };
+impl OptionButtonText for TRef<'_, OptionButton> {
+  fn find_item_index(self, text: &GodotString) -> Option<i64> {
+    let count = self.get_item_count();
     for index in 0..count {
-      let item_text = unsafe { self.get_item_text(index) };
-      if item_text == text {
+      let item_text = self.get_item_text(index);
+      if item_text == *text {
         return Some(index);
       }
     }
     None
   }
 
-  fn select_item(&mut self, text: GodotString) -> bool {
+  fn select_item(self, text: &GodotString) -> bool {
     if let Some(index) = self.find_item_index(text) {
-      unsafe {
-        self.select(index);
-      }
+      self.select(index);
       return true;
     }
     false
@@ -115,62 +114,60 @@ impl OptionButtonText for OptionButton {
 }
 
 pub trait GetNodeAs {
-  fn get_node_as<T: GodotObject>(self, path: &NodePath) -> Option<T>;
+  fn get_node_as<T>(&self, path: &GodotString) -> Option<TRef<'_, T, Shared>>
+  where
+    T: GodotObject + SubClass<Node>;
 }
 
 impl GetNodeAs for Node {
-  fn get_node_as<T: GodotObject>(self, path: &NodePath) -> Option<T> {
-    unsafe {
-      if let Some(node) = self.get_node(path.new_ref()) {
-        let node = node.cast::<T>();
-        if node.is_none() {
-          let name = path.to_godot_string();
-          godot_print!(
-            "Unable to cast node {} as {:?}",
-            name,
-            std::any::type_name::<T>()
-          );
-        }
-        return node;
-      } else {
-        let name = path.to_godot_string();
-        godot_print!("Unable to get node {}", name);
+  fn get_node_as<T>(&self, path: &GodotString) -> Option<TRef<'_, T, Shared>>
+  where
+    T: GodotObject + SubClass<Node>,
+  {
+    if let Some(node) = self.get_node(path.clone()) {
+      let node = unsafe { node.assume_safe() }.cast();
+      if node.is_none() {
+        godot_print!(
+          "Unable to cast node {} as {:?}",
+          path,
+          std::any::type_name::<T>()
+        );
       }
+      return node;
+    } else {
+      godot_print!("Unable to get node {}", path);
     }
     None
   }
 }
 
 pub trait ConnectTo {
-  fn connect_to(self, path: &NodePath, signal: &str, slot: &str) -> bool;
+  fn connect_to(self, path: &GodotString, signal: &str, slot: &str) -> bool;
 }
 
-impl ConnectTo for Node {
-  fn connect_to(self, path: &NodePath, signal: &str, slot: &str) -> bool {
-    unsafe {
-      if let Some(mut node) = self.get_node(path.new_ref()) {
-        // Get the popup if this is a menu button.
-        if let Some(button) = node.cast::<MenuButton>() {
-          if let Some(popup) = button.get_popup() {
-            node = popup.to_node();
-          }
-        }
+impl ConnectTo for TRef<'_, Node> {
+  fn connect_to(self, path: &GodotString, signal: &str, slot: &str) -> bool {
+    if let Some(node) = self.get_node(path.clone()) {
+      let node = unsafe { node.assume_safe() };
 
-        if let Err(err) = node.connect(
-          GodotString::from(signal),
-          Some(self.to_object()),
-          GodotString::from(slot),
-          VariantArray::new(),
-          0,
-        ) {
-          godot_print!("Unable to connect {}: {:?}", slot, err);
-        } else {
-          return true;
+      // Get the popup if this is a menu button.
+      if let Some(button) = node.cast::<MenuButton>() {
+        if let Some(popup) = button.get_popup() {
+          return unsafe { popup.assume_safe() }
+            .upcast::<Node>()
+            .connect_to(path, signal, slot);
         }
-      } else {
-        let name = path.to_godot_string();
-        godot_print!("Unable to get node {}", name);
+        godot_print!("Unable to get MenuButton popup");
+        return false;
       }
+
+      if let Err(err) = node.connect(signal, self, slot, VariantArray::new_shared(), 0) {
+        godot_print!("Unable to connect {}: {:?}", slot, err);
+      } else {
+        return true;
+      }
+    } else {
+      godot_print!("Unable to get node {}", path);
     }
     false
   }
@@ -180,14 +177,12 @@ pub trait SetShortcut {
   fn set_shortcut(self, id: i64, key: i64, ctrl: bool);
 }
 
-impl SetShortcut for PopupMenu {
-  fn set_shortcut(mut self, id: i64, key: i64, ctrl: bool) {
-    let mut input = InputEventKey::new();
+impl SetShortcut for TRef<'_, PopupMenu> {
+  fn set_shortcut(self, id: i64, key: i64, ctrl: bool) {
+    let input = InputEventKey::new();
     input.set_control(ctrl);
     input.set_scancode(key);
-    unsafe {
-      self.set_item_accelerator(self.get_item_index(id), input.get_scancode_with_modifiers());
-    }
+    self.set_item_accelerator(self.get_item_index(id), input.get_scancode_with_modifiers());
   }
 }
 
@@ -224,7 +219,7 @@ impl Config {
     }
   }
 
-  fn notes_key(avatar: GodotString) -> GodotString {
+  fn notes_key(avatar: &GodotString) -> GodotString {
     GodotString::from(format!(
       "{}_notes",
       avatar.to_utf8().as_str().replace(' ', "_")
@@ -232,44 +227,44 @@ impl Config {
   }
 
   pub fn get_log_folder(&self) -> Option<GodotString> {
-    if let Some(folder) = self.get_value(self.folder_key.new_ref()) {
+    if let Some(folder) = self.get_value(&self.folder_key) {
       return Some(folder);
     } else if let Some(folder) = &self.log_path {
-      return Some(folder.new_ref());
+      return Some(folder.clone());
     }
     None
   }
 
-  pub fn set_log_folder(&self, folder: Option<GodotString>) {
-    self.set_value(self.folder_key.new_ref(), folder);
+  pub fn set_log_folder(&self, folder: Option<&GodotString>) {
+    self.set_value(&self.folder_key, folder);
   }
 
   pub fn get_avatar(&self) -> Option<GodotString> {
-    self.get_value(self.avatar_key.new_ref())
+    self.get_value(&self.avatar_key)
   }
 
-  pub fn set_avatar(&self, avatar: Option<GodotString>) {
-    self.set_value(self.avatar_key.new_ref(), avatar);
+  pub fn set_avatar(&self, avatar: Option<&GodotString>) {
+    self.set_value(&self.avatar_key, avatar);
   }
 
-  pub fn get_notes(&self, avatar: GodotString) -> Option<GodotString> {
+  pub fn get_notes(&self, avatar: &GodotString) -> Option<GodotString> {
     if !avatar.is_empty() {
-      return self.get_value(Config::notes_key(avatar));
+      return self.get_value(&Config::notes_key(avatar));
     }
     None
   }
 
-  pub fn set_notes(&self, avatar: GodotString, notes: Option<GodotString>) {
+  pub fn set_notes(&self, avatar: &GodotString, notes: Option<&GodotString>) {
     if !avatar.is_empty() {
-      self.set_value(Config::notes_key(avatar), notes);
+      self.set_value(&Config::notes_key(avatar), notes);
     }
   }
 
-  fn get_value(&self, key: GodotString) -> Option<GodotString> {
-    let mut config = ConfigFile::new();
-    if !self.cfg_path.is_empty() && config.load(self.cfg_path.new_ref()).is_ok() {
-      if config.has_section_key(self.section.new_ref(), key.new_ref()) {
-        let value = config.get_value(self.section.new_ref(), key.new_ref(), Variant::new());
+  fn get_value(&self, key: &GodotString) -> Option<GodotString> {
+    let config = ConfigFile::new();
+    if !self.cfg_path.is_empty() && config.load(self.cfg_path.clone()).is_ok() {
+      if config.has_section_key(self.section.clone(), key.clone()) {
+        let value = config.get_value(self.section.clone(), key.clone(), Variant::new());
         if !value.is_nil() {
           return Some(value.to_godot_string());
         }
@@ -278,19 +273,19 @@ impl Config {
     None
   }
 
-  fn set_value(&self, key: GodotString, value: Option<GodotString>) {
-    let mut config = ConfigFile::new();
-    let _ = config.load(self.cfg_path.new_ref());
+  fn set_value(&self, key: &GodotString, value: Option<&GodotString>) {
+    let config = ConfigFile::new();
+    let _ = config.load(self.cfg_path.clone());
     if let Some(value) = value {
       config.set_value(
-        self.section.new_ref(),
-        key.new_ref(),
+        self.section.clone(),
+        key.clone(),
         Variant::from_godot_string(&value),
       );
-    } else if config.has_section_key(self.section.new_ref(), key.new_ref()) {
-      config.erase_section_key(self.section.new_ref(), key.new_ref());
+    } else if config.has_section_key(self.section.clone(), key.clone()) {
+      config.erase_section_key(self.section.clone(), key.clone());
     }
-    let _ = config.save(self.cfg_path.new_ref());
+    let _ = config.save(self.cfg_path.clone());
   }
 }
 
@@ -534,7 +529,7 @@ pub struct LogData {
 }
 
 impl LogData {
-  pub fn new(folder: GodotString) -> LogData {
+  pub fn new(folder: &GodotString) -> LogData {
     let cpus = std::cmp::max(num_cpus::get(), 2);
     LogData {
       folder: PathBuf::from(folder.to_utf8().as_str()),
@@ -754,7 +749,7 @@ impl NodeJson for level2::RefNode {
     for collection in collections {
       if let Some(text) = collection.get_inner_text(name) {
         if let Some(result) = JSON::godot_singleton().parse(GodotString::from(text)) {
-          let json = result.get_result();
+          let json = unsafe { result.assume_safe() }.result();
           if json.try_to_dictionary().is_some() {
             return Some(json);
           }
@@ -827,8 +822,8 @@ pub trait Set {
 
 impl Set for Variant {
   fn set(&mut self, key: &Variant, value: &Variant) -> bool {
-    if let Some(mut dictionary) = self.try_to_dictionary() {
-      dictionary.set(key, value);
+    if let Some(dictionary) = self.try_to_dictionary() {
+      unsafe { dictionary.assume_unique() }.insert(key, value);
       return true;
     }
     false
@@ -850,8 +845,8 @@ pub trait Erase {
 
 impl Erase for Variant {
   fn erase(&mut self, key: &Variant) {
-    if let Some(mut dictionary) = self.try_to_dictionary() {
-      dictionary.erase(key);
+    if let Some(dictionary) = self.try_to_dictionary() {
+      unsafe { dictionary.assume_unique() }.erase(key);
     }
   }
 }
@@ -946,7 +941,7 @@ impl GameInfo {
     let gold = some!(node.get_node_json("UserGold"), None);
 
     Some(GameInfo {
-      path: path.new_ref(),
+      path: path.clone(),
       node,
       character,
       skills,
@@ -1027,11 +1022,11 @@ impl GameInfo {
       }
     }
     // Add a new dictionary for the skill ID.
-    let mut skill = Dictionary::new();
-    skill.set(&self.x, &Variant::from(exp));
-    skill.set(&self.t, &Variant::from(&self.date));
-    skill.set(&self.m, &Variant::from(0i64));
-    self.skills.set(&key, &Variant::from(&skill));
+    let skill = Dictionary::new();
+    skill.insert(&self.x, exp);
+    skill.insert(&self.t, self.date.clone());
+    skill.insert(&self.m, 0i64);
+    self.skills.set(&key, &Variant::from(&skill.into_shared()));
   }
 
   pub fn remove_skill(&mut self, key: &GodotString) {
