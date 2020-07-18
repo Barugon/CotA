@@ -74,7 +74,7 @@ impl Experience {
     let mut text = GodotString::new();
 
     if let Some(item) = tree.get_selected() {
-      let item = unsafe { item.assume_safe() };
+      let item = item.to_ref();
       current.set_editable(true);
       current.set_focus_mode(Control::FOCUS_ALL);
       target.set_editable(true);
@@ -135,11 +135,11 @@ impl Experience {
     let info_color = Color::rgb(0.5, 0.5, 0.5);
 
     let parent = some!(tree.create_item(Object::null(), -1));
-    let parent = unsafe { parent.assume_safe() };
+    let parent = parent.to_ref();
 
     for line in csv.lines() {
       if let Some(item) = tree.create_item(parent, -1) {
-        let item = unsafe { item.assume_safe() };
+        let item = item.to_ref();
         let mut iter = line.split(',');
 
         // Skill name.

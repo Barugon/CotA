@@ -44,14 +44,16 @@ impl App {
   #[export]
   fn _ready(&self, owner: TRef<Node>) {
     if let Some(scene) = owner.get_tree() {
-      unsafe { scene.assume_safe() }.set_auto_accept_quit(false);
+      scene.to_ref().set_auto_accept_quit(false);
     }
 
     // Connect the file menu and set shortcuts.
     owner.connect_to(&self.file, "id_pressed", "file_menu_select");
     if let Some(button) = owner.get_node_as::<MenuButton>(&self.file) {
       if let Some(popup) = button.get_popup() {
-        unsafe { popup.assume_safe() }.set_shortcut(QUIT_ID, GlobalConstants::KEY_Q, true);
+        popup
+          .to_ref()
+          .set_shortcut(QUIT_ID, GlobalConstants::KEY_Q, true);
       } else {
         godot_print!("Unable to get popup from File");
       }
@@ -114,18 +116,18 @@ impl App {
   fn enable_stat_menus(&self, owner: TRef<Node>, enable: bool) {
     if let Some(menu) = owner.get_node_as::<MenuButton>(&self.file) {
       if let Some(popup) = menu.get_popup() {
-        unsafe { popup.assume_safe() }.set_item_disabled(
-          unsafe { popup.assume_safe() }.get_item_index(LOG_FOLDER_ID),
-          !enable,
-        );
+        popup
+          .to_ref()
+          .set_item_disabled(popup.to_ref().get_item_index(LOG_FOLDER_ID), !enable);
       }
     }
 
     if let Some(menu) = owner.get_node_as::<MenuButton>(&self.view) {
       if let Some(popup) = menu.get_popup() {
         for id in &[REFRESH_ID, RESISTS_ID, FILTER_ID, RESET_ID] {
-          unsafe { popup.assume_safe() }
-            .set_item_disabled(unsafe { popup.assume_safe() }.get_item_index(*id), !enable);
+          popup
+            .to_ref()
+            .set_item_disabled(popup.to_ref().get_item_index(*id), !enable);
         }
       }
     }

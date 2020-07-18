@@ -95,8 +95,8 @@ impl Offline {
       if !button.is_disabled() {
         if let Some(dialog) = owner.get_node_as::<ConfirmationDialog>(&self.confirm) {
           *self.confirmation.borrow_mut() = Confirmation::Quit;
+          // Calling popup_centered directly from here causes an internal godot error.
           unsafe {
-            // Calling popup_centered directly from here causes an internal godot error.
             dialog.call_deferred(
               self.popup_centered.clone(),
               &[Variant::from_vector2(&Vector2::zero())],
@@ -223,7 +223,7 @@ impl Offline {
 
       // Make sure the value actually changed.
       let item = some!(tree.get_edited());
-      let item = unsafe { item.assume_safe() };
+      let item = item.to_ref();
       if let Ok(mul) = item
         .get_text(1)
         .to_utf8()
@@ -300,7 +300,7 @@ impl Offline {
 
   fn quit(&self, owner: TRef<Node>) {
     if let Some(scene) = owner.get_tree() {
-      unsafe { scene.assume_safe() }.quit(0);
+      scene.to_ref().quit(0);
     }
   }
 
@@ -325,7 +325,7 @@ impl Offline {
         spin_box.set_editable(true);
         spin_box.set_focus_mode(Control::FOCUS_ALL);
         if let Some(edit) = spin_box.get_line_edit() {
-          unsafe { edit.assume_safe() }.set_focus_mode(Control::FOCUS_ALL);
+          edit.to_ref().set_focus_mode(Control::FOCUS_ALL);
         }
       }
       None => {
@@ -333,7 +333,7 @@ impl Offline {
         spin_box.set_editable(false);
         spin_box.set_focus_mode(Control::FOCUS_NONE);
         if let Some(edit) = spin_box.get_line_edit() {
-          unsafe { edit.assume_safe() }.set_focus_mode(Control::FOCUS_NONE);
+          edit.to_ref().set_focus_mode(Control::FOCUS_NONE);
         }
       }
     }
@@ -348,7 +348,7 @@ impl Offline {
         spin_box.set_editable(true);
         spin_box.set_focus_mode(Control::FOCUS_ALL);
         if let Some(edit) = spin_box.get_line_edit() {
-          unsafe { edit.assume_safe() }.set_focus_mode(Control::FOCUS_ALL);
+          edit.to_ref().set_focus_mode(Control::FOCUS_ALL);
         }
       }
       None => {
@@ -356,7 +356,7 @@ impl Offline {
         spin_box.set_editable(false);
         spin_box.set_focus_mode(Control::FOCUS_NONE);
         if let Some(edit) = spin_box.get_line_edit() {
-          unsafe { edit.assume_safe() }.set_focus_mode(Control::FOCUS_NONE);
+          edit.to_ref().set_focus_mode(Control::FOCUS_NONE);
         }
       }
     }
@@ -449,7 +449,7 @@ impl Offline {
       };
 
       if let Some(item) = tree.create_item(parent, -1) {
-        let item = unsafe { item.assume_safe() };
+        let item = item.to_ref();
         // Skill name.
         item.set_custom_color(0, skill_color);
         item.set_text(0, GodotString::from(skill));
@@ -479,11 +479,11 @@ impl Offline {
     };
 
     let root = some!(tree.get_root(), false);
-    let root = unsafe { root.assume_safe() };
+    let root = root.to_ref();
     let mut node = root.get_children();
     loop {
       if let Some(item) = node {
-        let item = unsafe { item.assume_safe() };
+        let item = item.to_ref();
 
         // Get the skill multiplier.
         if let Ok(mul) = item

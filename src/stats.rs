@@ -60,7 +60,7 @@ impl Stats {
     owner.connect_to(&self.view, "id_pressed", "view_menu_select");
     if let Some(button) = owner.get_node_as::<MenuButton>(&self.view) {
       if let Some(popup) = button.get_popup() {
-        let popup = unsafe { popup.assume_safe() };
+        let popup = popup.to_ref();
         popup.set_shortcut(REFRESH_ID, GlobalConstants::KEY_F5, false);
         popup.set_shortcut(RESISTS_ID, GlobalConstants::KEY_R, true);
         popup.set_shortcut(FILTER_ID, GlobalConstants::KEY_F, true);
@@ -432,7 +432,7 @@ impl Stats {
               for (pos, key) in RESIST_KEYS.iter().enumerate() {
                 if let Some(value) = resist_values.get(key) {
                   if let Some(item) = tree.create_item(parent, -1) {
-                    let item = unsafe { item.assume_safe() };
+                    let item = item.to_ref();
                     let name = RESIST_NAMES[pos];
                     let value = value.to_display_string(&locale);
                     let bg = *bg_color.get();
@@ -468,7 +468,7 @@ impl Stats {
                 // Stats possibly use ',' as the decimal separator depending on locale.
                 if let Ok(value) = value.replacen(',', ".", 1).parse::<f64>() {
                   if let Some(item) = tree.create_item(parent, -1) {
-                    let item = unsafe { item.assume_safe() };
+                    let item = item.to_ref();
                     let value = &value.to_display_string(&locale);
                     let bg = *bg_color.get();
 
