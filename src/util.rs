@@ -144,7 +144,7 @@ impl GetNodeAs for TRef<'_, Node> {
   where
     T: GodotObject + SubClass<Node>,
   {
-    if let Some(node) = self.get_node(path.clone()) {
+    if let Some(node) = self.get_node(NodePath::new(path)) {
       let node = node.to_ref().cast();
       if node.is_none() {
         godot_print!(
@@ -167,7 +167,7 @@ pub trait ConnectTo {
 
 impl ConnectTo for TRef<'_, Node> {
   fn connect_to(self, path: &GodotString, signal: &str, slot: &str) -> bool {
-    if let Some(node) = self.get_node(path.clone()) {
+    if let Some(node) = self.get_node(NodePath::new(path)) {
       let mut node = node.to_ref();
 
       // Get the popup if this is a menu button.
