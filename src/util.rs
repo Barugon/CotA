@@ -168,12 +168,12 @@ pub trait ConnectTo {
 impl ConnectTo for TRef<'_, Node> {
   fn connect_to(self, path: &GodotString, signal: &str, slot: &str) -> bool {
     if let Some(node) = self.get_node(path.clone()) {
-      let mut node = unsafe { node.assume_safe() };
+      let mut node = node.to_ref();
 
       // Get the popup if this is a menu button.
       if let Some(button) = node.cast::<MenuButton>() {
         if let Some(popup) = button.get_popup() {
-          node = unsafe { popup.assume_safe() }.upcast::<Node>();
+          node = popup.to_ref().upcast::<Node>();
         } else {
           godot_print!("Unable to get popup for {}", path);
           return false;
@@ -768,7 +768,7 @@ impl NodeJson for level2::RefNode {
     for collection in collections {
       if let Some(text) = collection.get_inner_text(name) {
         if let Some(result) = JSON::godot_singleton().parse(GodotString::from(text)) {
-          let json = unsafe { result.assume_safe() }.result();
+          let json = result.to_ref().result();
           if json.try_to_dictionary().is_some() {
             return Some(json);
           }
