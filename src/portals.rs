@@ -1,4 +1,5 @@
 use crate::util::*;
+use chrono::{TimeZone, Utc};
 use gdnative::api::*;
 use gdnative::prelude::*;
 
@@ -161,5 +162,39 @@ impl Portals {
         seconds
       )));
     }
+  }
+}
+
+/// Get the current lunar phase as f64.
+pub fn get_lunar_phase() -> f64 {
+  // Get the elapsed time since the lunar rift epoch.
+  let dur = Utc::now() - Utc.ymd(1997, 9, 2).and_hms(0, 0, 0);
+
+  // Calculate the lunar phase from the duration. Each phase is 525 seconds and there are 8 phases, for a total of 4200
+  // seconds per lunar cycle.
+  return (dur.num_seconds() % 4200) as f64 / 525.0;
+}
+
+/// Get the current Lost Vale countdown (in minutes) as f64.
+pub fn get_lost_vale_countdown() -> f64 {
+  // Get the elapsed time since 2018/02/23 13:00:00 UTC (first sighting).
+  let dur = Utc::now() - Utc.ymd(2018, 2, 23).and_hms(13, 0, 0);
+
+  // Calculate the time window using the original 28 hour duration.
+  const HSECS: i64 = 60 * 60;
+  let win = dur.num_seconds() % (28 * HSECS);
+
+  // Get the 11-11-6 hour segment within the time window (new as of R57).
+  let seg = win % (11 * HSECS);
+
+  if seg < HSECS {
+    // Lost vale is currently open.
+    -(HSECS - seg) as f64 / 60.0
+  } else if win < (22 * HSECS) {
+    // First two 11 hour segments.
+    (11 * HSECS - seg) as f64 / 60.0
+  } else {
+    // Last 6 hour segment.
+    (6 * HSECS - seg) as f64 / 60.0
   }
 }
