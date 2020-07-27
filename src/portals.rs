@@ -166,7 +166,7 @@ impl Portals {
 }
 
 /// Get the current lunar phase as f64.
-pub fn get_lunar_phase() -> f64 {
+fn get_lunar_phase() -> f64 {
   // Get the elapsed time since the lunar rift epoch.
   let dur = Utc::now() - Utc.ymd(1997, 9, 2).and_hms(0, 0, 0);
 
@@ -176,7 +176,7 @@ pub fn get_lunar_phase() -> f64 {
 }
 
 /// Get the current Lost Vale countdown (in minutes) as f64.
-pub fn get_lost_vale_countdown() -> f64 {
+fn get_lost_vale_countdown() -> f64 {
   // Get the elapsed time since 2018/02/23 13:00:00 UTC (first sighting).
   let dur = Utc::now() - Utc.ymd(2018, 2, 23).and_hms(13, 0, 0);
 

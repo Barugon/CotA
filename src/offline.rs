@@ -601,7 +601,7 @@ impl NodeJson for level2::RefNode {
   }
 }
 
-pub trait Get {
+trait Get {
   fn get(&self, key: &Variant) -> Option<Variant>;
 }
 
@@ -623,7 +623,7 @@ impl Get for Option<Variant> {
   }
 }
 
-pub trait Set {
+trait Set {
   fn set(&mut self, key: &Variant, value: &Variant) -> bool;
 }
 
@@ -646,7 +646,7 @@ impl Set for Option<Variant> {
   }
 }
 
-pub trait Erase {
+trait Erase {
   fn erase(&mut self, key: &Variant);
 }
 
@@ -666,7 +666,7 @@ impl Erase for Option<Variant> {
   }
 }
 
-pub trait ToText {
+trait ToText {
   fn to_text(&self) -> Option<GodotString>;
 }
 
@@ -679,7 +679,7 @@ impl ToText for Option<Variant> {
   }
 }
 
-pub trait ToInt {
+trait ToInt {
   fn to_int(&self) -> Option<i64>;
 }
 
@@ -693,7 +693,7 @@ impl ToInt for Option<Variant> {
 }
 
 // Structure to load and modify a SotA save-game file.
-pub struct GameInfo {
+struct GameInfo {
   // Save file path.
   path: GodotString,
   // XML.
@@ -713,7 +713,7 @@ pub struct GameInfo {
 }
 
 impl GameInfo {
-  pub fn load(path: &GodotString) -> Option<Self> {
+  fn load(path: &GodotString) -> Option<Self> {
     let node = match std::fs::read_to_string(path.to_utf8().as_str()) {
       Ok(xml) => match parser::read_xml(&xml) {
         Ok(node) => node,
@@ -762,7 +762,7 @@ impl GameInfo {
     })
   }
 
-  pub fn save(&mut self) -> bool {
+  fn save(&mut self) -> bool {
     if !self.node.set_node_json("UserGold", &self.gold) {
       return false;
     }
@@ -789,15 +789,15 @@ impl GameInfo {
     false
   }
 
-  pub fn get_gold(&self) -> Option<i64> {
+  fn get_gold(&self) -> Option<i64> {
     self.gold.get(&self.g).to_int()
   }
 
-  pub fn set_gold(&mut self, gold: i64) {
+  fn set_gold(&mut self, gold: i64) {
     self.gold.set(&self.g, &Variant::from(gold));
   }
 
-  pub fn get_adv_lvl(&self) -> Option<u32> {
+  fn get_adv_lvl(&self) -> Option<u32> {
     if let Some(val) = self.character.get(&self.ae).to_int() {
       for (lvl, exp) in LEVEL_EXP_VALUES.iter().enumerate().rev() {
         if val >= *exp {
@@ -808,16 +808,16 @@ impl GameInfo {
     None
   }
 
-  pub fn set_adv_lvl(&mut self, lvl: u32) {
+  fn set_adv_lvl(&mut self, lvl: u32) {
     let exp = LEVEL_EXP_VALUES[lvl as usize - 1];
     self.character.set(&self.ae, &Variant::from(exp));
   }
 
-  pub fn get_skill_exp(&self, key: &GodotString) -> Option<i64> {
+  fn get_skill_exp(&self, key: &GodotString) -> Option<i64> {
     self.skills.get(&Variant::from(key)).get(&self.x).to_int()
   }
 
-  pub fn set_skill_exp(&mut self, key: &GodotString, exp: i64) {
+  fn set_skill_exp(&mut self, key: &GodotString, exp: i64) {
     let key = Variant::from(key);
     if let Some(mut skill) = self.skills.get(&key) {
       if let Some(cur) = skill.get(&self.x).to_int() {
@@ -836,11 +836,11 @@ impl GameInfo {
     self.skills.set(&key, &Variant::from(&skill.into_shared()));
   }
 
-  pub fn remove_skill(&mut self, key: &GodotString) {
+  fn remove_skill(&mut self, key: &GodotString) {
     self.skills.erase(&Variant::from(key));
   }
 
-  pub fn path(&self) -> &GodotString {
+  fn path(&self) -> &GodotString {
     &self.path
   }
 }

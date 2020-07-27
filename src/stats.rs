@@ -524,7 +524,7 @@ impl Stats {
 }
 
 /// Convert a timestamp into a date & time string.
-pub fn timestamp_to_view_date(ts: i64) -> String {
+fn timestamp_to_view_date(ts: i64) -> String {
   NaiveDateTime::from_timestamp(ts, 0)
     .format("%Y-%m-%d @ %H:%M:%S")
     .to_string()
@@ -624,7 +624,7 @@ fn get_stats_text<'a>(line: &'a str, ts: i64, date: &NaiveDate) -> Option<&'a st
 const FILENAME_START: &str = "SotAChatLog_";
 const STATS_KEY: &str = " AdventurerLevel: ";
 
-pub struct StatsIter<'a> {
+struct StatsIter<'a> {
   iter: SplitWhitespace<'a>,
 }
 
@@ -653,7 +653,7 @@ impl<'a> Iterator for StatsIter<'a> {
   }
 }
 
-pub struct StatsData {
+struct StatsData {
   text: String,
 }
 
@@ -662,19 +662,19 @@ impl StatsData {
     StatsData { text: text }
   }
 
-  pub fn iter<'a>(&'a self) -> StatsIter<'a> {
+  fn iter<'a>(&'a self) -> StatsIter<'a> {
     StatsIter::new(&self.text)
   }
 }
 
 /// Object that reads from SotA chat logs.
-pub struct LogData {
+struct LogData {
   folder: PathBuf,
   pool: RefCell<ThreadPool>,
 }
 
 impl LogData {
-  pub fn new(folder: &GodotString) -> LogData {
+  fn new(folder: &GodotString) -> LogData {
     let cpus = std::cmp::max(num_cpus::get(), 2);
     LogData {
       folder: PathBuf::from(folder.to_utf8().as_str()),
@@ -683,7 +683,7 @@ impl LogData {
   }
 
   /// Get a vector of avatar names.
-  pub fn get_avatars(&self) -> Vec<String> {
+  fn get_avatars(&self) -> Vec<String> {
     let filenames = self.get_log_filenames(None, None);
     let mut name_set = HashSet::<&str>::new();
 
@@ -704,7 +704,7 @@ impl LogData {
   }
 
   /// Get a vector of timestamps where `/stats` was used for the specified avatar.
-  pub fn get_stats_timestamps(&self, avatar: &str) -> Vec<i64> {
+  fn get_stats_timestamps(&self, avatar: &str) -> Vec<i64> {
     let tasks = {
       let filenames = self.get_log_filenames(Some(avatar), None);
       let mut tasks = Vec::new();
@@ -754,7 +754,7 @@ impl LogData {
   }
 
   /// Get the stats for the specified avatar and timestamp.
-  pub fn get_stats(&self, avatar: &str, ts: i64) -> Option<StatsData> {
+  fn get_stats(&self, avatar: &str, ts: i64) -> Option<StatsData> {
     let filenames = self.get_log_filenames(Some(avatar), Some(ts));
 
     // There will actually only be one file with the specific avatar name and date.
