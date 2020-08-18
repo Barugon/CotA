@@ -6,45 +6,39 @@ use std::cmp::Ordering;
 #[macro_export]
 macro_rules! some {
   ($opt:expr) => {
-    if let Some(val) = $opt {
-      val
-    } else {
-      return;
+    match $opt {
+      Some(val) => val,
+      None => return,
     }
   };
   ($opt:expr, $ret:expr) => {
-    if let Some(val) = $opt {
-      val
-    } else {
-      return $ret;
+    match $opt {
+      Some(val) => val,
+      None => return $ret,
     }
   };
 }
 
 #[macro_export]
 macro_rules! ok {
-  ($res:expr) => {{
-    let val = $res;
-    if let Ok(val) = val {
-      val
-    } else {
-      if let Err(err) = val {
+  ($res:expr) => {
+    match $res {
+      Ok(val) => val,
+      Err(err) => {
         godot_print!("{:?}", err);
+        return;
       }
-      return;
     }
-  }};
-  ($res:expr, $ret:expr) => {{
-    let val = $res;
-    if let Ok(val) = val {
-      val
-    } else {
-      if let Err(err) = val {
+  };
+  ($res:expr, $ret:expr) => {
+    match $res {
+      Ok(val) => val,
+      Err(err) => {
         godot_print!("{:?}", err);
+        return $ret;
       }
-      return $ret;
     }
-  }};
+  };
 }
 
 pub struct Cycle<T> {
