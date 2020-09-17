@@ -435,16 +435,11 @@ impl Offline {
       };
 
       let level = if let Some(val) = game_info.get_skill_exp(&id) {
-        let val = val as f64;
-        let mut level = 0;
-        // Find the level for the given experience.
-        for (lvl, exp) in SKILL_EXP_VALUES.iter().enumerate().rev() {
-          if val >= *exp as f64 * mul_val {
-            level = lvl + 1;
-            break;
-          }
+        let val = (val as f64 / mul_val) as i64;
+        match find_min(val, &SKILL_EXP_VALUES) {
+          Some(level) => level + 1,
+          None => 0,
         }
-        level
       } else {
         0
       };
@@ -519,6 +514,15 @@ impl Offline {
       label.set_text(GodotString::from(text));
     }
   }
+}
+
+fn find_min<T: PartialOrd>(value: T, values: &[T]) -> Option<usize> {
+  for (idx, val) in values.iter().enumerate().rev() {
+    if value >= *val {
+      return Some(idx);
+    }
+  }
+  None
 }
 
 trait NodeJson {
@@ -799,10 +803,8 @@ impl GameInfo {
 
   fn get_adv_lvl(&self) -> Option<u32> {
     if let Some(val) = self.character.get(&self.ae).to_int() {
-      for (lvl, exp) in LEVEL_EXP_VALUES.iter().enumerate().rev() {
-        if val >= *exp {
-          return Some(lvl as u32 + 1);
-        }
+      if let Some(level) = find_min(val, &LEVEL_EXP_VALUES) {
+        return Some(level as u32 + 1);
       }
     }
     None
@@ -828,6 +830,7 @@ impl GameInfo {
         return;
       }
     }
+
     // Add a new dictionary for the skill ID.
     let skill = Dictionary::new();
     skill.insert(&self.x, exp);
