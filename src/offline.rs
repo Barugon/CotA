@@ -407,24 +407,29 @@ impl Offline {
 
     for line in csv.lines() {
       let mut iter = line.split(',');
+
+      // Get the skill name.
       let skill = if let Some(text) = iter.next() {
         text
       } else {
         continue;
       };
 
-      let mul = if let Some(text) = iter.next() {
+      // Get the skill multiplier text.
+      let mul_text = if let Some(text) = iter.next() {
         text
       } else {
         continue;
       };
 
-      let mul_val = if let Ok(val) = mul.parse::<f64>() {
+      // Parse the multiplier text.
+      let mul = if let Ok(val) = mul_text.parse::<f64>() {
         val
       } else {
         continue;
       };
 
+      // Get the skill ID.
       let id = if let Some(text) = iter.next() {
         if text.parse::<u32>().is_err() {
           continue;
@@ -434,8 +439,9 @@ impl Offline {
         continue;
       };
 
+      // Find the skill level from the experience.
       let level = if let Some(val) = game_info.get_skill_exp(&id) {
-        let val = (val as f64 / mul_val) as i64;
+        let val = (val as f64 / mul) as i64;
         match find_min(val, &SKILL_EXP_VALUES) {
           Some(level) => level + 1,
           None => 0,
@@ -452,7 +458,7 @@ impl Offline {
 
         // Experience multiplier.
         item.set_custom_color(1, info_color);
-        item.set_text(1, GodotString::from(format!("{}x", mul)));
+        item.set_text(1, GodotString::from(format!("{}x", mul_text)));
 
         // Skill ID.
         item.set_custom_color(2, info_color);
