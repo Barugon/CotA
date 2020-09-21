@@ -8,7 +8,7 @@ edition = "2018"
 [dependencies]
 chrono = "*"
 dirs = "*"
-gdnative = "0.9.0-preview"
+gdnative = "0.9"
 num_cpus = "*"
 num-format = "*"
 regex = "*"
