@@ -744,12 +744,12 @@ impl GameInfo {
     let character = some!(node.get_node_json("CharacterSheet"), None);
 
     // Get the date.
-    let rd = Variant::from("rd");
-    let c = Variant::from("c");
+    let rd = Variant::from_str("rd");
+    let c = Variant::from_str("c");
     let date = some!(character.get(&rd).get(&c).to_text(), None);
 
     // Get the skills dictionary.
-    let skills = some!(character.get(&Variant::from("sk2")), None);
+    let skills = some!(character.get(&Variant::from_str("sk2")), None);
     if skills.try_to_dictionary().is_none() {
       return None;
     }
@@ -764,11 +764,11 @@ impl GameInfo {
       skills,
       gold,
       date,
-      ae: Variant::from("ae"),
-      g: Variant::from("g"),
-      m: Variant::from("m"),
-      t: Variant::from("t"),
-      x: Variant::from("x"),
+      ae: Variant::from_str("ae"),
+      g: Variant::from_str("g"),
+      m: Variant::from_str("m"),
+      t: Variant::from_str("t"),
+      x: Variant::from_str("x"),
     })
   }
 
@@ -804,7 +804,7 @@ impl GameInfo {
   }
 
   fn set_gold(&mut self, gold: i64) {
-    self.gold.set(&self.g, &Variant::from(gold));
+    self.gold.set(&self.g, &Variant::from_i64(gold));
   }
 
   fn get_adv_lvl(&self) -> Option<u32> {
@@ -818,20 +818,20 @@ impl GameInfo {
 
   fn set_adv_lvl(&mut self, lvl: u32) {
     let exp = LEVEL_EXP_VALUES[lvl as usize - 1];
-    self.character.set(&self.ae, &Variant::from(exp));
+    self.character.set(&self.ae, &Variant::from_i64(exp));
   }
 
   fn get_skill_exp(&self, key: &GodotString) -> Option<i64> {
-    self.skills.get(&Variant::from(key)).get(&self.x).to_int()
+    self.skills.get(&Variant::from_godot_string(key)).get(&self.x).to_int()
   }
 
   fn set_skill_exp(&mut self, key: &GodotString, exp: i64) {
-    let key = Variant::from(key);
+    let key = Variant::from_godot_string(key);
     if let Some(mut skill) = self.skills.get(&key) {
       if let Some(cur) = skill.get(&self.x).to_int() {
         // Change it only if it's different.
         if exp != cur {
-          skill.set(&self.x, &Variant::from(exp));
+          skill.set(&self.x, &Variant::from_i64(exp));
         }
         return;
       }
@@ -842,11 +842,11 @@ impl GameInfo {
     skill.insert(&self.x, exp);
     skill.insert(&self.t, self.date.clone());
     skill.insert(&self.m, 0i64);
-    self.skills.set(&key, &Variant::from(&skill.into_shared()));
+    self.skills.set(&key, &Variant::from_dictionary(&skill.into_shared()));
   }
 
   fn remove_skill(&mut self, key: &GodotString) {
-    self.skills.erase(&Variant::from(key));
+    self.skills.erase(&Variant::from_godot_string(key));
   }
 
   fn path(&self) -> &GodotString {
