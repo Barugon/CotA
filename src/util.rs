@@ -315,10 +315,6 @@ pub fn ascii_contains_ignore_case(container: &[u8], pattern: &[u8]) -> bool {
   false
 }
 
-pub fn _ascii_equals_ignore_case(left: &[u8], right: &[u8]) -> bool {
-  left.len() == right.len() && ascii_starts_with_ignore_case(left, right)
-}
-
 pub fn ascii_compare_ignore_case(left: &[u8], right: &[u8]) -> Ordering {
   let mut il = left.iter();
   let mut ir = right.iter();
