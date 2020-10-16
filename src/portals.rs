@@ -172,7 +172,7 @@ fn get_lunar_phase() -> f64 {
 
   // Calculate the lunar phase from the duration. Each phase is 525 seconds and there are 8 phases, for a total of 4200
   // seconds per lunar cycle.
-  return (dur.num_seconds() % 4200) as f64 / 525.0;
+  (dur.num_seconds() % 4200) as f64 / 525.0
 }
 
 /// Get the current Lost Vale countdown (in minutes) as f64.

@@ -3,10 +3,10 @@ use crate::util::*;
 use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
 use gdnative::api::*;
 use gdnative::prelude::*;
-use num_cpus;
 use regex::Regex;
 use std::{
   cell::RefCell,
+  cmp::Reverse,
   collections::HashMap,
   collections::HashSet,
   fs,
@@ -49,7 +49,7 @@ impl Stats {
       GodotString::new()
     };
     Stats {
-      config: config,
+      config,
       data: RefCell::new(LogData::new(&folder)),
       view: GodotString::from("/root/App/VBox/Menu/View"),
       avatars: GodotString::from("Tools/Avatars"),
@@ -510,7 +510,6 @@ impl Stats {
 
     let text = format!("No stats found for {}", avatar);
     self.set_status_message(owner, Some(&text));
-    return;
   }
 
   fn set_status_message(&self, owner: TRef<Node>, text: Option<&str>) {
@@ -558,10 +557,10 @@ fn log_date_to_timestamp(text: &str, date: &NaiveDate) -> Option<i64> {
     let mut hour = ok!(parts[0].parse(), None);
     if let Some(ap) = ap {
       let bytes = ap.as_bytes();
-      if bytes.len() > 0 {
+      if !bytes.is_empty() {
         let ch = bytes[0] as char;
         if ch == 'P' || ch == 'p' {
-          hour = hour + 12;
+          hour += 12;
           if hour == 24 {
             hour = 0;
           }
@@ -574,7 +573,7 @@ fn log_date_to_timestamp(text: &str, date: &NaiveDate) -> Option<i64> {
   let minute = ok!(parts[1].parse(), None);
   let second = ok!(parts[2].parse(), None);
 
-  Some(NaiveDateTime::new(date.clone(), NaiveTime::from_hms(hour, minute, second)).timestamp())
+  Some(NaiveDateTime::new(*date, NaiveTime::from_hms(hour, minute, second)).timestamp())
 }
 
 // Convert a timestamp into a log filename date string.
@@ -659,10 +658,10 @@ struct StatsData {
 
 impl StatsData {
   fn new(text: String) -> StatsData {
-    StatsData { text: text }
+    StatsData { text }
   }
 
-  fn iter<'a>(&'a self) -> StatsIter<'a> {
+  fn iter(&self) -> StatsIter<'_> {
     StatsIter::new(&self.text)
   }
 }
@@ -749,7 +748,7 @@ impl LogData {
     }
 
     // Sort the timestamps so that the most recent is first.
-    timestamps.sort_unstable_by(|a, b| b.cmp(a));
+    timestamps.sort_unstable_by_key(|&key| Reverse(key));
     timestamps
   }
 

@@ -87,16 +87,13 @@ impl App {
 
   #[export]
   fn help_menu_select(&self, owner: TRef<Node>, id: i64) {
-    match id {
-      ABOUT_ID => {
-        if let Some(dialog) = owner.get_node_as::<AcceptDialog>(&self.about_dialog) {
-          if let Some(label) = owner.get_node_as::<Label>(&self.about_version) {
-            label.set_text(GodotString::from(format!("v{}", env!("CARGO_PKG_VERSION"))));
-          }
-          dialog.popup_centered(Vector2::zero());
+    if id == ABOUT_ID {
+      if let Some(dialog) = owner.get_node_as::<AcceptDialog>(&self.about_dialog) {
+        if let Some(label) = owner.get_node_as::<Label>(&self.about_version) {
+          label.set_text(GodotString::from(format!("v{}", env!("CARGO_PKG_VERSION"))));
         }
+        dialog.popup_centered(Vector2::zero());
       }
-      _ => {}
     }
   }
 

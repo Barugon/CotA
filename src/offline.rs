@@ -275,7 +275,7 @@ impl Offline {
 
     // Saving was good, now disable the save button.
     self.enable_save(owner, false);
-    return true;
+    true
   }
 
   fn load(&self, owner: TRef<Node>) {
@@ -471,7 +471,8 @@ impl Offline {
         item.set_editable(3, true);
       }
     }
-    return true;
+
+    true
   }
 
   fn collect_skills(&self, owner: TRef<Node>, tree: SkillTree, game_info: &mut GameInfo) -> bool {
@@ -750,9 +751,7 @@ impl GameInfo {
 
     // Get the skills dictionary.
     let skills = some!(character.get(&Variant::from_str("sk2")), None);
-    if skills.try_to_dictionary().is_none() {
-      return None;
-    }
+    skills.try_to_dictionary()?;
 
     // Parse the 'UserGold' json.
     let gold = some!(node.get_node_json("UserGold"), None);
@@ -822,7 +821,11 @@ impl GameInfo {
   }
 
   fn get_skill_exp(&self, key: &GodotString) -> Option<i64> {
-    self.skills.get(&Variant::from_godot_string(key)).get(&self.x).to_int()
+    self
+      .skills
+      .get(&Variant::from_godot_string(key))
+      .get(&self.x)
+      .to_int()
   }
 
   fn set_skill_exp(&mut self, key: &GodotString, exp: i64) {
@@ -842,7 +845,9 @@ impl GameInfo {
     skill.insert(&self.x, exp);
     skill.insert(&self.t, self.date.clone());
     skill.insert(&self.m, 0i64);
-    self.skills.set(&key, &Variant::from_dictionary(&skill.into_shared()));
+    self
+      .skills
+      .set(&key, &Variant::from_dictionary(&skill.into_shared()));
   }
 
   fn remove_skill(&mut self, key: &GodotString) {

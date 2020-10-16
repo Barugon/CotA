@@ -49,15 +49,12 @@ pub struct Cycle<T> {
 impl<T> Cycle<T> {
   pub fn new(values: Vec<T>) -> Self {
     assert!(!values.is_empty());
-    Self {
-      index: 0,
-      values: values,
-    }
+    Self { index: 0, values }
   }
 
   pub fn get(&mut self) -> &T {
     let index = self.index;
-    self.index = self.index + 1;
+    self.index += 1;
     if self.index >= self.values.len() {
       self.index = 0;
     }
@@ -209,7 +206,7 @@ impl Config {
     }
 
     Config {
-      log_path: log_path,
+      log_path,
       cfg_path: GodotString::from("user://settings.cfg"),
       section: GodotString::from("main"),
       folder_key: GodotString::from("log_folder"),
@@ -260,12 +257,13 @@ impl Config {
 
   fn get_value(&self, key: &GodotString) -> Option<GodotString> {
     let config = ConfigFile::new();
-    if !self.cfg_path.is_empty() && config.load(self.cfg_path.clone()).is_ok() {
-      if config.has_section_key(self.section.clone(), key.clone()) {
-        let value = config.get_value(self.section.clone(), key.clone(), Variant::new());
-        if !value.is_nil() {
-          return Some(value.to_godot_string());
-        }
+    if !self.cfg_path.is_empty()
+      && config.load(self.cfg_path.clone()).is_ok()
+      && config.has_section_key(self.section.clone(), key.clone())
+    {
+      let value = config.get_value(self.section.clone(), key.clone(), Variant::new());
+      if !value.is_nil() {
+        return Some(value.to_godot_string());
       }
     }
     None
@@ -298,7 +296,7 @@ pub fn ascii_starts_with_ignore_case(container: &[u8], pattern: &[u8]) -> bool {
     }
   }
 
-  return true;
+  true
 }
 
 pub fn ascii_contains_ignore_case(container: &[u8], pattern: &[u8]) -> bool {
