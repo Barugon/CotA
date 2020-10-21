@@ -714,7 +714,7 @@ impl LogData {
         let path = self.folder.join(filename.as_str());
         if let Some(date) = get_log_file_date(&path) {
           // Each task will read and scan one log file.
-          let task = pool.exec(move |cancel| {
+          let task = pool.exec_ret(move |cancel| {
             let mut timestamps = Vec::new();
             if let Ok(text) = fs::read_to_string(&path) {
               for line in text.lines() {
