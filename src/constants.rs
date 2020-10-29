@@ -20,4 +20,4 @@ pub const ABOUT_ID: i64 = 0;
 pub const STATS_IDX: i64 = 0;
 pub const PORTALS_IDX: i64 = 1;
 pub const _EXPERIENCE_IDX: i64 = 2;
-pub const _OFFLINE_IDX: i64 = 2;
+pub const _OFFLINE_IDX: i64 = 3;
