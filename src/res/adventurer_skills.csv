@@ -13,7 +13,7 @@ Armor Preservation,4,155
 Armor Weak Points,4,119
 Atonal Aria,1,4303
 Backstab,4,2557
-Banish Undead,2,87
+Banish Undead,2,86
 Bard Specialization,20,4301
 Bec de Faucon,4,3323
 Beneficent Blessing,4,777
@@ -117,6 +117,10 @@ Heavy Armor Specialization,20,2508
 Heavy Lifter,4,156
 Heightened Awareness,5,181
 Highly Flammable,4,68
+Horse Cary Capacity Focus,10,5776
+Horse Gallop Speed,10,5774
+Horse Speed Focus,10,5879
+Horsemanship,10,5773
 Ice Arrow,1,165
 Ice Field,1,167
 Ice Fist,1,161
@@ -154,7 +158,6 @@ Musical Fortitude,5,4311
 Night Step,1,359
 Night Vision,1,102
 Obedience,1,432
-Obsidian Arrow,2,53
 Offhand Attack,1,152
 Offhand Defense,4,157
 Offhand Power,4,160
@@ -211,6 +214,7 @@ Shield of Crystal,2,314
 Shield of Ice,1,164
 Shield Preservation,4,139
 Shield Specialization,20,2514
+Shooting Star,1,3766
 Silent Movement,2,98
 Skewer,1,118
 Sneak Attack,2,100
@@ -220,6 +224,7 @@ Spellbinder Stance,1,1357
 Spinning Attack,1,116
 Sprint,1,97
 Stand your ground,4,140
+Stone Arrow,2,53
 Stone Fist,1,52
 Strength of Earth,1,57
 Stunner,4,23
