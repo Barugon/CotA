@@ -523,13 +523,17 @@ impl Offline {
   }
 }
 
-fn find_min<T: PartialOrd>(value: T, values: &[T]) -> Option<usize> {
-  for (idx, val) in values.iter().enumerate().rev() {
-    if value >= *val {
-      return Some(idx);
+fn find_min<T: Ord>(value: T, values: &[T]) -> Option<usize> {
+  match values.binary_search(&value) {
+    Ok(idx) => Some(idx),
+    Err(idx) => {
+      if idx > 0 {
+        Some(idx - 1)
+      } else {
+        None
+      }
     }
   }
-  None
 }
 
 trait NodeJson {
