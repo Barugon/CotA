@@ -640,9 +640,9 @@ impl<'a> Iterator for StatsIter<'a> {
 
   fn next(&mut self) -> Option<Self::Item> {
     while let Some(name) = self.iter.next() {
-      if name.ends_with(':') {
+      if let Some(name) = name.strip_suffix(':') {
         if let Some(value) = self.iter.next() {
-          return Some((&name[..name.len() - 1], value));
+          return Some((name, value));
         }
         break;
       }
