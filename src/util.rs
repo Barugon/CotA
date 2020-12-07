@@ -1,4 +1,5 @@
 use gdnative::api::*;
+use gdnative::object::{AssumeSafeLifetime, LifetimeConstraint};
 use gdnative::prelude::*;
 use num_format::Locale;
 use std::cmp::Ordering;
@@ -89,20 +90,13 @@ impl OptionButtonText for TRef<'_, OptionButton> {
   }
 }
 
-pub trait ToRef<'a, 'r, T>
-where
-  gdnative::object::AssumeSafeLifetime<'a, 'r>:
-    gdnative::object::LifetimeConstraint<<T as GodotObject>::RefKind>,
-  T: GodotObject + SubClass<Object>,
-{
+pub trait ToRef<'a, 'r, T: GodotObject> {
   fn to_ref(&'r self) -> TRef<'a, T, Shared>;
 }
 
-impl<'a, 'r, T> ToRef<'a, 'r, T> for Ref<T, Shared>
+impl<'a, 'r, T: GodotObject> ToRef<'a, 'r, T> for Ref<T, Shared>
 where
-  gdnative::object::AssumeSafeLifetime<'a, 'r>:
-    gdnative::object::LifetimeConstraint<<T as GodotObject>::RefKind>,
-  T: GodotObject + SubClass<Object>,
+  AssumeSafeLifetime<'a, 'r>: LifetimeConstraint<<T>::RefKind>,
 {
   fn to_ref(&'r self) -> TRef<'a, T, Shared> {
     unsafe { self.assume_safe() }
