@@ -365,7 +365,7 @@ impl Stats {
           match opts {
             StatOpts::Resists => {
               #[derive(Hash, Eq, PartialEq, Copy, Clone)]
-              enum Resists {
+              enum Resist {
                 Air,
                 Chaos,
                 Death,
@@ -377,44 +377,44 @@ impl Stats {
                 Water,
                 Magic,
               }
-              const RESIST_STATS: [(&str, (Resists, f64)); 19] = [
-                ("AirAttunement", (Resists::Air, 0.5)),
-                ("AirResistance", (Resists::Air, 1.0)),
-                ("ChaosAttunement", (Resists::Chaos, 0.5)),
-                ("ChaosResistance", (Resists::Chaos, 1.0)),
-                ("DeathAttunement", (Resists::Death, 0.5)),
-                ("DeathResistance", (Resists::Death, 1.0)),
-                ("EarthAttunement", (Resists::Earth, 0.5)),
-                ("EarthResistance", (Resists::Earth, 1.0)),
-                ("FireAttunement", (Resists::Fire, 0.5)),
-                ("FireResistance", (Resists::Fire, 1.0)),
-                ("LifeAttunement", (Resists::Life, 0.5)),
-                ("LifeResistance", (Resists::Life, 1.0)),
-                ("MoonAttunement", (Resists::Moon, 0.5)),
-                ("MoonResistance", (Resists::Moon, 1.0)),
-                ("SunAttunement", (Resists::Sun, 0.5)),
-                ("SunResistance", (Resists::Sun, 1.0)),
-                ("WaterAttunement", (Resists::Water, 0.5)),
-                ("WaterResistance", (Resists::Water, 1.0)),
-                ("MagicResistance", (Resists::Magic, 1.0)),
+              const RESIST_STATS: [(&str, (Resist, f64)); 19] = [
+                ("AirAttunement", (Resist::Air, 0.5)),
+                ("AirResistance", (Resist::Air, 1.0)),
+                ("ChaosAttunement", (Resist::Chaos, 0.5)),
+                ("ChaosResistance", (Resist::Chaos, 1.0)),
+                ("DeathAttunement", (Resist::Death, 0.5)),
+                ("DeathResistance", (Resist::Death, 1.0)),
+                ("EarthAttunement", (Resist::Earth, 0.5)),
+                ("EarthResistance", (Resist::Earth, 1.0)),
+                ("FireAttunement", (Resist::Fire, 0.5)),
+                ("FireResistance", (Resist::Fire, 1.0)),
+                ("LifeAttunement", (Resist::Life, 0.5)),
+                ("LifeResistance", (Resist::Life, 1.0)),
+                ("MoonAttunement", (Resist::Moon, 0.5)),
+                ("MoonResistance", (Resist::Moon, 1.0)),
+                ("SunAttunement", (Resist::Sun, 0.5)),
+                ("SunResistance", (Resist::Sun, 1.0)),
+                ("WaterAttunement", (Resist::Water, 0.5)),
+                ("WaterResistance", (Resist::Water, 1.0)),
+                ("MagicResistance", (Resist::Magic, 1.0)),
               ];
               const RESIST_NAMES: [&str; 9] = [
                 "Air", "Chaos", "Death", "Earth", "Fire", "Life", "Moon", "Sun", "Water",
               ];
-              const RESIST_KEYS: [Resists; 9] = [
-                Resists::Air,
-                Resists::Chaos,
-                Resists::Death,
-                Resists::Earth,
-                Resists::Fire,
-                Resists::Life,
-                Resists::Moon,
-                Resists::Sun,
-                Resists::Water,
+              const RESIST_KEYS: [Resist; 9] = [
+                Resist::Air,
+                Resist::Chaos,
+                Resist::Death,
+                Resist::Earth,
+                Resist::Fire,
+                Resist::Life,
+                Resist::Moon,
+                Resist::Sun,
+                Resist::Water,
               ];
-              let resist_stats: HashMap<&str, (Resists, f64)> =
+              let resist_stats: HashMap<&str, (Resist, f64)> =
                 RESIST_STATS.iter().cloned().collect();
-              let mut resist_values: HashMap<Resists, f64> = HashMap::new();
+              let mut resist_values: HashMap<Resist, f64> = HashMap::new();
 
               // Collect and sum the resistances.
               for (name, value) in stats.iter() {
@@ -431,9 +431,9 @@ impl Stats {
               }
 
               // Add-in magic resistance.
-              if let Some(magic) = resist_values.remove(&Resists::Magic) {
+              if let Some(magic) = resist_values.remove(&Resist::Magic) {
                 for (key, resist) in &mut resist_values {
-                  if *key != Resists::Chaos {
+                  if *key != Resist::Chaos {
                     *resist += magic;
                   }
                 }
