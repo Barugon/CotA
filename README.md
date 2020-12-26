@@ -15,11 +15,11 @@ Portal chronometer.
 
 Experience needed calculator!
 
-![screenshot](https://a4.pbase.com/o12/09/605909/1/169657368.88B4T1E4.Screenshotfrom20200627184800.png)
+![screenshot](https://a4.pbase.com/o12/09/605909/1/169657368.OsanfDMF.Screenshotfrom20201225185538.png)
 
 Offline saved game editor.
 
-![screenshot](https://a4.pbase.com/o12/09/605909/1/170775639.XYbYzRaS.Screenshotfrom20200626120928.png)
+![screenshot](https://a4.pbase.com/o12/09/605909/1/170775639.Xsj1AWdX.Screenshotfrom20201225185646.png)
 
 CotA uses the [Godot game engine](https://godotengine.org) for it's GUI, so there's nothing extra to install. Just download and go.
 
