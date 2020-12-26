@@ -44,6 +44,9 @@ impl Experience {
     // Connect tree item_selected.
     owner.connect_to(&self.tree, "item_selected", "update");
 
+    // Connect tree item_collapsed.
+    owner.connect_to(&self.tree, "item_collapsed", "item_collapsed");
+
     // Connect current text_changed.
     owner.connect_to(&self.current, "text_changed", "text_changed");
 
@@ -61,6 +64,11 @@ impl Experience {
   }
 
   #[export]
+  fn item_collapsed(&self, owner: TRef<Node>, _item: Ref<TreeItem>) {
+    self.update(owner);
+  }
+
+  #[export]
   fn text_changed(&self, owner: TRef<Node>, _text: GodotString) {
     self.update(owner);
   }
@@ -75,55 +83,54 @@ impl Experience {
 
     if let Some(item) = tree.get_selected() {
       let item = item.to_ref();
-      current.set_editable(true);
-      current.set_focus_mode(Control::FOCUS_ALL);
-      target.set_editable(true);
-      target.set_focus_mode(Control::FOCUS_ALL);
-
-      let cur = current
-        .text()
-        .to_utf8()
-        .as_str()
-        .parse::<usize>()
-        .unwrap_or(0);
-      let cur_valid = cur >= 1 && cur < 200;
-      if cur_valid {
-        current.set(self.color_name.clone(), self.good_color.clone());
+      let visible = if let Some(parent) = item.get_parent() {
+        let parent = parent.to_ref();
+        !parent.is_collapsed()
       } else {
-        current.set(self.color_name.clone(), self.bad_color.clone());
-      }
+        false
+      };
 
-      let tgt = target
-        .text()
-        .to_utf8()
-        .as_str()
-        .parse::<usize>()
-        .unwrap_or(0);
-      let tgt_valid = tgt >= 1 && tgt <= 200 && (!cur_valid || tgt > cur);
-      if tgt_valid {
-        target.set(self.color_name.clone(), self.good_color.clone());
-      } else {
-        target.set(self.color_name.clone(), self.bad_color.clone());
-      }
+      if visible {
+        let cur = current
+          .text()
+          .to_utf8()
+          .as_str()
+          .parse::<usize>()
+          .unwrap_or(0);
+        let cur_valid = cur >= 1 && cur < 200;
+        if cur_valid {
+          current.set(self.color_name.clone(), self.good_color.clone());
+        } else {
+          current.set(self.color_name.clone(), self.bad_color.clone());
+        }
 
-      if let Ok(mul) = item
-        .get_text(1)
-        .to_utf8()
-        .as_str()
-        .trim_end_matches('x')
-        .parse::<f64>()
-      {
-        if cur_valid && tgt_valid {
-          let val = SKILL_EXP_VALUES[tgt - 1] - SKILL_EXP_VALUES[cur - 1];
-          let val = (val as f64 * mul).ceil() as i64;
-          text = GodotString::from(val.to_formatted_string(&self.locale));
+        let tgt = target
+          .text()
+          .to_utf8()
+          .as_str()
+          .parse::<usize>()
+          .unwrap_or(0);
+        let tgt_valid = tgt >= 1 && tgt <= 200 && (!cur_valid || tgt > cur);
+        if tgt_valid {
+          target.set(self.color_name.clone(), self.good_color.clone());
+        } else {
+          target.set(self.color_name.clone(), self.bad_color.clone());
+        }
+
+        if let Ok(mul) = item
+          .get_text(1)
+          .to_utf8()
+          .as_str()
+          .trim_end_matches('x')
+          .parse::<f64>()
+        {
+          if cur_valid && tgt_valid {
+            let val = SKILL_EXP_VALUES[tgt - 1] - SKILL_EXP_VALUES[cur - 1];
+            let val = (val as f64 * mul).ceil() as i64;
+            text = GodotString::from(val.to_formatted_string(&self.locale));
+          }
         }
       }
-    } else {
-      current.set_focus_mode(Control::FOCUS_NONE);
-      current.set_editable(false);
-      target.set_focus_mode(Control::FOCUS_NONE);
-      target.set_editable(false);
     }
 
     result.set_text(text);
@@ -133,31 +140,47 @@ impl Experience {
     let tree = some!(owner.get_node_as::<Tree>(&self.tree));
     let skill_color = Color::rgb(0.4, 0.6, 0.7);
     let info_color = Color::rgb(0.5, 0.5, 0.5);
-
-    let parent = some!(tree.create_item(Object::null(), -1));
-    let parent = parent.to_ref();
+    let root = some!(tree.create_item(Object::null(), -1));
+    let mut parent = None;
+    let mut category = "";
 
     for line in csv.lines() {
-      if let Some(item) = tree.create_item(parent, -1) {
-        let item = item.to_ref();
-        let mut iter = line.split(',');
+      let mut iter = line.split(',');
 
-        // Skill name.
-        if let Some(text) = iter.next() {
-          item.set_custom_color(0, skill_color);
-          item.set_text(0, GodotString::from(text));
+      // Category.
+      if let Some(text) = iter.next() {
+        if category != text {
+          category = text;
+          if let Some(item) = tree.create_item(root, -1) {
+            let item = item.to_ref();
+            item.set_selectable(0, false);
+            item.set_selectable(1, false);
+            item.set_selectable(2, false);
+            item.set_text(0, GodotString::from(text));
+            item.set_collapsed(true);
+            parent = Some(item);
+          }
         }
 
-        // Experience multiplier.
-        if let Some(text) = iter.next() {
-          item.set_custom_color(1, info_color);
-          item.set_text(1, GodotString::from(format!("{}x", text)));
-        }
-
-        // Skill ID.
-        if let Some(text) = iter.next() {
-          item.set_custom_color(2, info_color);
-          item.set_text(2, GodotString::from(text));
+        if let Some(parent) = parent {
+          if let Some(item) = tree.create_item(parent, -1) {
+            let item = item.to_ref();
+            // Skill name.
+            if let Some(text) = iter.next() {
+              item.set_custom_color(0, skill_color);
+              item.set_text(0, GodotString::from(text));
+            }
+            // Experience multiplier.
+            if let Some(text) = iter.next() {
+              item.set_custom_color(1, info_color);
+              item.set_text(1, GodotString::from(format!("{}x", text)));
+            }
+            // Skill ID.
+            if let Some(text) = iter.next() {
+              item.set_custom_color(2, info_color);
+              item.set_text(2, GodotString::from(text));
+            }
+          }
         }
       }
     }

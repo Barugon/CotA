@@ -399,76 +399,97 @@ impl Offline {
         PRODUCER_SKILLS,
       ),
     };
+
     let skill_color = Color::rgb(0.4, 0.6, 0.7);
     let info_color = Color::rgb(0.4, 0.4, 0.4);
+    let root = some!(tree.create_item(Object::null(), -1), false);
+    let mut parent = None;
+    let mut category = "";
 
-    let parent = some!(tree.create_item(Object::null(), -1), false);
     tree.set_focus_mode(Control::FOCUS_ALL);
-
     for line in csv.lines() {
       let mut iter = line.split(',');
 
-      // Get the skill name.
-      let skill = if let Some(text) = iter.next() {
-        text
-      } else {
-        continue;
-      };
+      // TODO: Category.
+      if let Some(text) = iter.next() {
+        if category != text {
+          category = text;
+          if let Some(item) = tree.create_item(root, -1) {
+            let item = item.to_ref();
+            item.set_selectable(0, false);
+            item.set_selectable(1, false);
+            item.set_selectable(2, false);
+            item.set_selectable(3, false);
+            item.set_text(0, GodotString::from(text));
+            item.set_collapsed(true);
+            parent = Some(item);
+          }
+        }
+      }
 
-      // Get the skill multiplier text.
-      let mul_text = if let Some(text) = iter.next() {
-        text
-      } else {
-        continue;
-      };
-
-      // Parse the multiplier text.
-      let mul = if let Ok(val) = mul_text.parse::<f64>() {
-        val
-      } else {
-        continue;
-      };
-
-      // Get the skill ID.
-      let id = if let Some(text) = iter.next() {
-        if text.parse::<u32>().is_err() {
+      if let Some(parent) = parent {
+        // Get the skill name.
+        let skill = if let Some(text) = iter.next() {
+          text
+        } else {
           continue;
+        };
+
+        // Get the skill multiplier text.
+        let mul_text = if let Some(text) = iter.next() {
+          text
+        } else {
+          continue;
+        };
+
+        // Parse the multiplier text.
+        let mul = if let Ok(val) = mul_text.parse::<f64>() {
+          val
+        } else {
+          continue;
+        };
+
+        // Get the skill ID.
+        let id = if let Some(text) = iter.next() {
+          if text.parse::<u32>().is_err() {
+            continue;
+          }
+          GodotString::from(text)
+        } else {
+          continue;
+        };
+
+        // Find the skill level from the experience.
+        let level = if let Some(val) = game_info.get_skill_exp(&id) {
+          let val = (val as f64 / mul) as i64;
+          match find_min(val, &SKILL_EXP_VALUES) {
+            Some(level) => level + 1,
+            None => 0,
+          }
+        } else {
+          0
+        };
+
+        if let Some(item) = tree.create_item(parent, -1) {
+          let item = item.to_ref();
+          // Skill name.
+          item.set_custom_color(0, skill_color);
+          item.set_text(0, GodotString::from(skill));
+
+          // Experience multiplier.
+          item.set_custom_color(1, info_color);
+          item.set_text(1, GodotString::from(format!("{}x", mul_text)));
+
+          // Skill ID.
+          item.set_custom_color(2, info_color);
+          item.set_text(2, id);
+
+          // Skill level.
+          item.set_cell_mode(3, TreeItem::CELL_MODE_RANGE);
+          item.set_range_config(3, 0.0, 200.0, 1.0, false);
+          item.set_range(3, level as f64);
+          item.set_editable(3, true);
         }
-        GodotString::from(text)
-      } else {
-        continue;
-      };
-
-      // Find the skill level from the experience.
-      let level = if let Some(val) = game_info.get_skill_exp(&id) {
-        let val = (val as f64 / mul) as i64;
-        match find_min(val, &SKILL_EXP_VALUES) {
-          Some(level) => level + 1,
-          None => 0,
-        }
-      } else {
-        0
-      };
-
-      if let Some(item) = tree.create_item(parent, -1) {
-        let item = item.to_ref();
-        // Skill name.
-        item.set_custom_color(0, skill_color);
-        item.set_text(0, GodotString::from(skill));
-
-        // Experience multiplier.
-        item.set_custom_color(1, info_color);
-        item.set_text(1, GodotString::from(format!("{}x", mul_text)));
-
-        // Skill ID.
-        item.set_custom_color(2, info_color);
-        item.set_text(2, id);
-
-        // Skill level.
-        item.set_cell_mode(3, TreeItem::CELL_MODE_RANGE);
-        item.set_range_config(3, 0.0, 200.0, 1.0, false);
-        item.set_range(3, level as f64);
-        item.set_editable(3, true);
       }
     }
 
@@ -485,31 +506,37 @@ impl Offline {
     let root = root.to_ref();
     let mut node = root.get_children();
     loop {
-      if let Some(item) = node {
-        let item = item.to_ref();
+      if let Some(parent) = node {
+        let parent = parent.to_ref();
+        let mut child = parent.get_children();
 
-        // Get the skill multiplier.
-        if let Ok(mul) = item
-          .get_text(1)
-          .to_utf8()
-          .as_str()
-          .trim_end_matches('x')
-          .parse::<f64>()
-        {
-          // Get the skill ID.
-          let key = item.get_text(2);
+        while let Some(item) = child {
+          let item = item.to_ref();
 
-          // Get the skill level.
-          let lvl = item.get_range(3) as usize;
-          if lvl > 0 {
-            let exp = (SKILL_EXP_VALUES[lvl - 1] as f64 * mul).ceil() as i64;
-            game_info.set_skill_exp(&key, exp);
-          } else {
-            // The level is zero, remove the skill if it exists.
-            game_info.remove_skill(&key);
+          // Get the skill multiplier.
+          if let Ok(mul) = item
+            .get_text(1)
+            .to_utf8()
+            .as_str()
+            .trim_end_matches('x')
+            .parse::<f64>()
+          {
+            // Get the skill ID.
+            let key = item.get_text(2);
+
+            // Get the skill level.
+            let lvl = item.get_range(3) as usize;
+            if lvl > 0 {
+              let exp = (SKILL_EXP_VALUES[lvl - 1] as f64 * mul).ceil() as i64;
+              game_info.set_skill_exp(&key, exp);
+            } else {
+              // The level is zero, remove the skill if it exists.
+              game_info.remove_skill(&key);
+            }
           }
+          child = item.get_next();
         }
-        node = item.get_next();
+        node = parent.get_next();
       } else {
         return true;
       }

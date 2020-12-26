@@ -459,7 +459,6 @@ margin_bottom = -1.0
 size_flags_vertical = 3
 columns = 3
 allow_reselect = true
-hide_folding = true
 hide_root = true
 select_mode = 1
 __meta__ = {
@@ -488,9 +487,7 @@ text = "Current Level"
 margin_left = 97.0
 margin_right = 216.0
 margin_bottom = 22.0
-focus_mode = 0
 size_flags_horizontal = 3
-editable = false
 
 [node name="Spacer" type="Container" parent="VBox/Tabs/Experience/AdvPanel/VBox/LvlHBox"]
 margin_left = 220.0
@@ -509,9 +506,7 @@ text = "Target Level"
 margin_left = 323.0
 margin_right = 442.0
 margin_bottom = 22.0
-focus_mode = 0
 size_flags_horizontal = 3
-editable = false
 
 [node name="ResHBox" type="HBoxContainer" parent="VBox/Tabs/Experience/AdvPanel/VBox"]
 margin_top = 244.0
@@ -566,7 +561,6 @@ margin_bottom = -1.0
 size_flags_vertical = 3
 columns = 3
 allow_reselect = true
-hide_folding = true
 hide_root = true
 select_mode = 1
 __meta__ = {
@@ -594,9 +588,7 @@ text = "Current Level"
 margin_left = 97.0
 margin_right = 216.0
 margin_bottom = 22.0
-focus_mode = 0
 size_flags_horizontal = 3
-editable = false
 
 [node name="Spacer" type="Container" parent="VBox/Tabs/Experience/ProPanel/VBox/LvlHBox"]
 margin_left = 220.0
@@ -615,9 +607,7 @@ text = "Target Level"
 margin_left = 323.0
 margin_right = 442.0
 margin_bottom = 22.0
-focus_mode = 0
 size_flags_horizontal = 3
-editable = false
 
 [node name="ResHBox" type="HBoxContainer" parent="VBox/Tabs/Experience/ProPanel/VBox"]
 margin_top = 244.0
@@ -722,7 +712,6 @@ margin_bottom = -1.0
 focus_mode = 0
 columns = 4
 allow_reselect = true
-hide_folding = true
 hide_root = true
 __meta__ = {
 "_edit_use_anchors_": false
@@ -744,7 +733,6 @@ margin_bottom = -1.0
 focus_mode = 0
 columns = 4
 allow_reselect = true
-hide_folding = true
 hide_root = true
 __meta__ = {
 "_edit_use_anchors_": false
