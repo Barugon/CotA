@@ -3,6 +3,7 @@ use crate::util::*;
 use gdnative::api::*;
 use gdnative::prelude::*;
 use num_format::{Locale, ToFormattedString};
+use std::cell::RefCell;
 
 #[derive(NativeClass)]
 #[inherit(Node)]
@@ -15,6 +16,7 @@ pub struct Experience {
   good_color: Variant,
   bad_color: Variant,
   locale: Locale,
+  selected: RefCell<bool>,
 }
 
 #[methods]
@@ -29,6 +31,7 @@ impl Experience {
       good_color: Variant::from_color(&Color::rgb(0.81, 0.81, 0.81)),
       bad_color: Variant::from_color(&Color::rgb(1.0, 0.0, 0.0)),
       locale: get_locale(),
+      selected: RefCell::new(false),
     }
   }
 
@@ -42,7 +45,7 @@ impl Experience {
     }
 
     // Connect tree item_selected.
-    owner.connect_to(&self.tree, "item_selected", "update");
+    owner.connect_to(&self.tree, "item_selected", "item_selected");
 
     // Connect tree item_collapsed.
     owner.connect_to(&self.tree, "item_collapsed", "item_collapsed");
@@ -64,70 +67,91 @@ impl Experience {
   }
 
   #[export]
+  fn item_selected(&self, owner: TRef<Node>) {
+    let tree = some!(owner.get_node_as::<Tree>(&self.tree));
+    *self.selected.borrow_mut() = true;
+    self.update(owner, tree);
+  }
+
+  #[export]
   fn item_collapsed(&self, owner: TRef<Node>, _item: Ref<TreeItem>) {
-    self.update(owner);
+    let tree = some!(owner.get_node_as::<Tree>(&self.tree));
+    // This is a bit kludgy but the item is actually still selected
+    // but n ot highlighted after the parent is collapsed.
+    if let Some(item) = tree.get_selected() {
+      let item = item.to_ref();
+      if let Some(parent) = item.get_parent() {
+        let parent = parent.to_ref();
+        if parent.is_collapsed() {
+          *self.selected.borrow_mut() = false;
+        }
+      }
+    }
+    self.update(owner, tree);
   }
 
   #[export]
   fn text_changed(&self, owner: TRef<Node>, _text: GodotString) {
-    self.update(owner);
+    let tree = some!(owner.get_node_as::<Tree>(&self.tree));
+    self.update(owner, tree);
   }
 
-  #[export]
-  fn update(&self, owner: TRef<Node>) {
-    let tree = some!(owner.get_node_as::<Tree>(&self.tree));
-    let current = some!(owner.get_node_as::<LineEdit>(&self.current));
-    let target = some!(owner.get_node_as::<LineEdit>(&self.target));
-    let result = some!(owner.get_node_as::<Label>(&self.result));
+  fn update(&self, owner: TRef<Node>, tree: TRef<Tree>) {
     let mut text = GodotString::new();
+    let result = some!(owner.get_node_as::<Label>(&self.result));
 
-    if let Some(item) = tree.get_selected() {
-      let item = item.to_ref();
-      let visible = if let Some(parent) = item.get_parent() {
-        let parent = parent.to_ref();
-        !parent.is_collapsed()
-      } else {
-        false
-      };
+    if *self.selected.borrow() {
+      let current = some!(owner.get_node_as::<LineEdit>(&self.current));
+      let target = some!(owner.get_node_as::<LineEdit>(&self.target));
 
-      if visible {
-        let cur = current
-          .text()
-          .to_utf8()
-          .as_str()
-          .parse::<usize>()
-          .unwrap_or(0);
-        let cur_valid = cur >= 1 && cur < 200;
-        if cur_valid {
-          current.set(self.color_name.clone(), self.good_color.clone());
+      if let Some(item) = tree.get_selected() {
+        let item = item.to_ref();
+        let visible = if let Some(parent) = item.get_parent() {
+          let parent = parent.to_ref();
+          !parent.is_collapsed()
         } else {
-          current.set(self.color_name.clone(), self.bad_color.clone());
-        }
+          false
+        };
 
-        let tgt = target
-          .text()
-          .to_utf8()
-          .as_str()
-          .parse::<usize>()
-          .unwrap_or(0);
-        let tgt_valid = tgt >= 1 && tgt <= 200 && (!cur_valid || tgt > cur);
-        if tgt_valid {
-          target.set(self.color_name.clone(), self.good_color.clone());
-        } else {
-          target.set(self.color_name.clone(), self.bad_color.clone());
-        }
+        if visible {
+          let cur = current
+            .text()
+            .to_utf8()
+            .as_str()
+            .parse::<usize>()
+            .unwrap_or(0);
+          let cur_valid = cur >= 1 && cur < 200;
+          if cur_valid {
+            current.set(self.color_name.clone(), self.good_color.clone());
+          } else {
+            current.set(self.color_name.clone(), self.bad_color.clone());
+          }
 
-        if let Ok(mul) = item
-          .get_text(1)
-          .to_utf8()
-          .as_str()
-          .trim_end_matches('x')
-          .parse::<f64>()
-        {
-          if cur_valid && tgt_valid {
-            let val = SKILL_EXP_VALUES[tgt - 1] - SKILL_EXP_VALUES[cur - 1];
-            let val = (val as f64 * mul).ceil() as i64;
-            text = GodotString::from(val.to_formatted_string(&self.locale));
+          let tgt = target
+            .text()
+            .to_utf8()
+            .as_str()
+            .parse::<usize>()
+            .unwrap_or(0);
+          let tgt_valid = tgt >= 1 && tgt <= 200 && (!cur_valid || tgt > cur);
+          if tgt_valid {
+            target.set(self.color_name.clone(), self.good_color.clone());
+          } else {
+            target.set(self.color_name.clone(), self.bad_color.clone());
+          }
+
+          if let Ok(mul) = item
+            .get_text(1)
+            .to_utf8()
+            .as_str()
+            .trim_end_matches('x')
+            .parse::<f64>()
+          {
+            if cur_valid && tgt_valid {
+              let val = SKILL_EXP_VALUES[tgt - 1] - SKILL_EXP_VALUES[cur - 1];
+              let val = (val as f64 * mul).ceil() as i64;
+              text = GodotString::from(val.to_formatted_string(&self.locale));
+            }
           }
         }
       }
