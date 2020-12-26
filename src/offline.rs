@@ -812,7 +812,7 @@ impl GameInfo {
     }
 
     match File::create(self.path.to_utf8().as_str()) {
-      Ok(mut file) => match file.write_all(self.node.to_string().as_bytes()) {
+      Ok(mut file) => match file.write_all(self.node.to_string().replace("&#34;", "\"").as_bytes()) {
         Ok(()) => return true,
         Err(err) => {
           if let Some(err) = err.get_ref() {
