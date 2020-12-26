@@ -13,7 +13,6 @@ num_cpus = "*"
 num-format = "*"
 regex = "*"
 thread-pool = { path = "../thread-pool" }
-xml_dom = "*"
 
 [lib]
 crate-type = ["cdylib"]

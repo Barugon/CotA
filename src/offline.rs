@@ -3,7 +3,6 @@ use crate::util::*;
 use gdnative::api::*;
 use gdnative::prelude::*;
 use std::{cell::RefCell, fs::File, io::prelude::*, path::Path};
-use xml_dom::*;
 
 enum SkillTree {
   Adventurer,
@@ -156,9 +155,6 @@ impl Offline {
     self.disable_tree(owner, SkillTree::Adventurer);
     self.disable_tree(owner, SkillTree::Producer);
 
-    // Disable the save button.
-    self.enable_save(owner, false);
-
     // Disable the gold input.
     self.enable_gold(owner, None);
 
@@ -181,6 +177,9 @@ impl Offline {
                   self.set_status_message(owner, &format!("Editing \"{}\"", path));
                 }
               }
+
+              // Disable the save button.
+              self.enable_save(owner, false);
               return;
             }
             self.enable_gold(owner, None);
@@ -563,86 +562,6 @@ fn find_min<T: Ord>(value: T, values: &[T]) -> Option<usize> {
   }
 }
 
-trait NodeJson {
-  fn get_inner_text(&self, name: &str) -> Option<String>;
-  fn get_node_json(&self, name: &str) -> Option<Variant>;
-  fn set_inner_text(&mut self, name: &str, json: &str) -> bool;
-  fn set_node_json(&mut self, name: &str, json: &Variant) -> bool;
-}
-
-impl NodeJson for level2::RefNode {
-  fn get_inner_text(&self, name: &str) -> Option<String> {
-    let element = ok!(level2::convert::as_element(self), None);
-    let attribute = some!(element.get_attribute("name"), None);
-    if attribute != name {
-      return None;
-    }
-
-    let records = element.get_elements_by_tag_name("record");
-    for record in records {
-      if let Ok(element) = level2::convert::as_element(&record) {
-        let nodes = element.child_nodes();
-        for node in nodes {
-          if let Ok(node) = level2::convert::as_text(&node) {
-            return node.node_value();
-          }
-        }
-      }
-    }
-    None
-  }
-
-  fn get_node_json(&self, name: &str) -> Option<Variant> {
-    let document = ok!(level2::convert::as_document(&self), None);
-    let collections = document.get_elements_by_tag_name("collection");
-    for collection in collections {
-      if let Some(text) = collection.get_inner_text(name) {
-        if let Some(result) = JSON::godot_singleton().parse(GodotString::from(text)) {
-          let json = result.to_ref().result();
-          if json.try_to_dictionary().is_some() {
-            return Some(json);
-          }
-        }
-      }
-    }
-    None
-  }
-
-  fn set_inner_text(&mut self, name: &str, text: &str) -> bool {
-    let element = ok!(level2::convert::as_element_mut(self), false);
-    let attribute = some!(element.get_attribute("name"), false);
-    if attribute != name {
-      return false;
-    }
-
-    let mut records = element.get_elements_by_tag_name("record");
-    for record in &mut records {
-      if let Ok(element) = level2::convert::as_element_mut(record) {
-        let mut nodes = element.child_nodes();
-        for node in &mut nodes {
-          if let Ok(node) = level2::convert::as_text_mut(node) {
-            return node.set_node_value(text).is_ok();
-          }
-        }
-      }
-    }
-    false
-  }
-
-  fn set_node_json(&mut self, name: &str, json: &Variant) -> bool {
-    let document = ok!(level2::convert::as_document(self), false);
-    let dictionary = some!(json.try_to_dictionary(), false);
-    let text = dictionary.to_json();
-    let mut collections = document.get_elements_by_tag_name("collection");
-    for collection in &mut collections {
-      if collection.set_inner_text(name, text.to_utf8().as_str()) {
-        return true;
-      }
-    }
-    false
-  }
-}
-
 trait Get {
   fn get(&self, key: &Variant) -> Option<Variant>;
 }
@@ -738,8 +657,8 @@ impl ToInt for Option<Variant> {
 struct GameInfo {
   // Save file path.
   path: GodotString,
-  // XML.
-  node: level2::RefNode,
+  // XML text.
+  xml: String,
   // Dictionaries.
   character: Variant,
   skills: Variant,
@@ -754,75 +673,144 @@ struct GameInfo {
   x: Variant,
 }
 
+fn get_json(text: &str, collection: &str) -> Option<Variant> {
+  let find = format!("<collection name=\"{}\">", collection);
+  if let Some(pos) = text.find(&find) {
+    let text = &text[pos + find.len()..];
+    let find = "<record Id=\"";
+    if let Some(pos) = text.find(find) {
+      let text = &text[pos + find.len()..];
+      let find = "\">";
+      if let Some(pos) = text.find(find) {
+        let text = &text[pos + find.len()..];
+        if let Some(pos) = text.find("</record>") {
+          if let Some(result) = JSON::godot_singleton().parse(GodotString::from(&text[..pos])) {
+            let json = result.to_ref().result();
+            if json.try_to_dictionary().is_some() {
+              return Some(json);
+            }
+          }
+        }
+      }
+    }
+  }
+  None
+}
+
+fn set_json(text: &str, collection: &str, json: &str) -> Option<String> {
+  let find = format!("<collection name=\"{}\">", collection);
+  if let Some(pos) = text.find(&find) {
+    let start = pos + find.len();
+    let slice = &text[start..];
+    let find = "<record Id=\"";
+    if let Some(pos) = slice.find(find) {
+      let pos = pos + find.len();
+      let slice = &slice[pos..];
+      let start = start + pos;
+      let find = "\">";
+      if let Some(pos) = slice.find(find) {
+        let pos = pos + find.len();
+        let slice = &slice[pos..];
+        let start = start + pos;
+        if let Some(pos) = slice.find("</record>") {
+          let end = start + pos;
+          let parts = [&text[..start], json, &text[end..]];
+          let mut result = String::new();
+          result.reserve(parts[0].len() + parts[1].len() + parts[2].len());
+          result.push_str(parts[0]);
+          result.push_str(parts[1]);
+          result.push_str(parts[2]);
+          return Some(result);
+        }
+      }
+    }
+  }
+  None
+}
+
+fn find_date(skills: &Variant) -> Option<GodotString> {
+  if let Some(dict) = skills.try_to_dictionary() {
+    let t = Variant::from_str("t");
+    for (_, value) in dict.iter() {
+      if let Some(value) = value.get(&t) {
+        return Some(value.to_godot_string());
+      }
+    }
+  }
+  None
+}
+
 impl GameInfo {
   fn load(path: &GodotString) -> Option<Self> {
-    let node = match std::fs::read_to_string(path.to_utf8().as_str()) {
-      Ok(xml) => match parser::read_xml(&xml) {
-        Ok(node) => node,
-        Err(err) => {
-          godot_print!("Unable to load: {:?}", err);
-          return None;
+    match std::fs::read_to_string(path.to_utf8().as_str()) {
+      Ok(xml) => {
+        // Find the 'CharacterSheet' JSON.
+        if let Some(character) = get_json(&xml, "CharacterSheet") {
+          // Get the skills dictionary.
+          let skills = some!(character.get(&Variant::from_str("sk2")), None);
+          // Find a date.
+          if let Some(date) = find_date(&skills) {
+            // Find the 'UserGold' json.
+            if let Some(gold) = get_json(&xml, "UserGold") {
+              return Some(GameInfo {
+                path: path.clone(),
+                xml,
+                character,
+                skills,
+                gold,
+                date,
+                ae: Variant::from_str("ae"),
+                g: Variant::from_str("g"),
+                m: Variant::from_str("m"),
+                t: Variant::from_str("t"),
+                x: Variant::from_str("x"),
+              });
+            } else {
+              godot_print!("Unable to find user gold");
+            }
+          } else {
+            godot_print!("Unable to find the date/time");
+          }
+        } else {
+          godot_print!("Unable to find character sheet");
         }
-      },
+      }
       Err(err) => {
         if let Some(err) = err.get_ref() {
           godot_print!("Unable to load: {:?}", err);
         }
-        return None;
       }
-    };
-
-    // Parse the 'CharacterSheet' json.
-    let character = some!(node.get_node_json("CharacterSheet"), None);
-
-    // Get the date.
-    let rd = Variant::from_str("rd");
-    let c = Variant::from_str("c");
-    let date = some!(character.get(&rd).get(&c).to_text(), None);
-
-    // Get the skills dictionary.
-    let skills = some!(character.get(&Variant::from_str("sk2")), None);
-    skills.try_to_dictionary()?;
-
-    // Parse the 'UserGold' json.
-    let gold = some!(node.get_node_json("UserGold"), None);
-
-    Some(GameInfo {
-      path: path.clone(),
-      node,
-      character,
-      skills,
-      gold,
-      date,
-      ae: Variant::from_str("ae"),
-      g: Variant::from_str("g"),
-      m: Variant::from_str("m"),
-      t: Variant::from_str("t"),
-      x: Variant::from_str("x"),
-    })
+    }
+    None
   }
 
   fn save(&mut self) -> bool {
-    if !self.node.set_node_json("UserGold", &self.gold) {
-      return false;
-    }
-
-    if !self.node.set_node_json("CharacterSheet", &self.character) {
-      return false;
-    }
-
-    match File::create(self.path.to_utf8().as_str()) {
-      Ok(mut file) => match file.write_all(self.node.to_string().replace("&#34;", "\"").as_bytes()) {
-        Ok(()) => return true,
-        Err(err) => {
-          if let Some(err) = err.get_ref() {
-            godot_print!("Unable to save: {:?}", err);
+    if let Some(json) = self.gold.try_to_dictionary() {
+      let json = json.to_json();
+      let json = json.to_utf8();
+      let json = json.as_str();
+      if let Some(xml) = set_json(&self.xml, "UserGold", json) {
+        if let Some(json) = self.character.try_to_dictionary() {
+          let json = json.to_json();
+          let json = json.to_utf8();
+          let json = json.as_str();
+          if let Some(xml) = set_json(&xml, "CharacterSheet", json) {
+            match File::create(self.path.to_utf8().as_str()) {
+              Ok(mut file) => match file.write_all(xml.as_bytes()) {
+                Ok(()) => return true,
+                Err(err) => {
+                  if let Some(err) = err.get_ref() {
+                    godot_print!("Unable to save: {:?}", err);
+                  }
+                }
+              },
+              Err(err) => {
+                if let Some(err) = err.get_ref() {
+                  godot_print!("Unable to save: {:?}", err);
+                }
+              }
+            }
           }
-        }
-      },
-      Err(err) => {
-        if let Some(err) = err.get_ref() {
-          godot_print!("Unable to save: {:?}", err);
         }
       }
     }
