@@ -190,6 +190,9 @@ impl Offline {
       self.disable_tree(owner, SkillTree::Adventurer);
     }
 
+    // Disable the save button.
+    self.enable_save(owner, false);
+
     // Set the status message.
     let path = path.to_utf8();
     if let Some(path) = Path::new(path.as_str()).file_name() {
@@ -409,7 +412,7 @@ impl Offline {
     for line in csv.lines() {
       let mut iter = line.split(',');
 
-      // TODO: Category.
+      // Category.
       if let Some(text) = iter.next() {
         if category != text {
           category = text;
@@ -424,74 +427,73 @@ impl Offline {
             parent = Some(item);
           }
         }
-      }
 
-      if let Some(parent) = parent {
-        // Get the skill name.
-        let skill = if let Some(text) = iter.next() {
-          text
-        } else {
-          continue;
-        };
-
-        // Get the skill multiplier text.
-        let mul_text = if let Some(text) = iter.next() {
-          text
-        } else {
-          continue;
-        };
-
-        // Parse the multiplier text.
-        let mul = if let Ok(val) = mul_text.parse::<f64>() {
-          val
-        } else {
-          continue;
-        };
-
-        // Get the skill ID.
-        let id = if let Some(text) = iter.next() {
-          if text.parse::<u32>().is_err() {
+        if let Some(parent) = parent {
+          // Get the skill name.
+          let skill = if let Some(text) = iter.next() {
+            text
+          } else {
             continue;
+          };
+
+          // Get the skill multiplier text.
+          let mul_text = if let Some(text) = iter.next() {
+            text
+          } else {
+            continue;
+          };
+
+          // Parse the multiplier text.
+          let mul = if let Ok(val) = mul_text.parse::<f64>() {
+            val
+          } else {
+            continue;
+          };
+
+          // Get the skill ID.
+          let id = if let Some(text) = iter.next() {
+            if text.parse::<u32>().is_err() {
+              continue;
+            }
+            GodotString::from(text)
+          } else {
+            continue;
+          };
+
+          // Find the skill level from the experience.
+          let level = if let Some(val) = game_info.get_skill_exp(&id) {
+            let val = (val as f64 / mul) as i64;
+            match find_min(val, &SKILL_EXP_VALUES) {
+              Some(level) => level + 1,
+              None => 0,
+            }
+          } else {
+            0
+          };
+
+          if let Some(item) = tree.create_item(parent, -1) {
+            let item = item.to_ref();
+            // Skill name.
+            item.set_custom_color(0, skill_color);
+            item.set_text(0, GodotString::from(skill));
+
+            // Experience multiplier.
+            item.set_custom_color(1, info_color);
+            item.set_text(1, GodotString::from(format!("{}x", mul_text)));
+
+            // Skill ID.
+            item.set_custom_color(2, info_color);
+            item.set_text(2, id);
+
+            // Skill level.
+            item.set_cell_mode(3, TreeItem::CELL_MODE_RANGE);
+            item.set_range_config(3, 0.0, 200.0, 1.0, false);
+            item.set_range(3, level as f64);
+            item.set_editable(3, true);
           }
-          GodotString::from(text)
-        } else {
-          continue;
-        };
-
-        // Find the skill level from the experience.
-        let level = if let Some(val) = game_info.get_skill_exp(&id) {
-          let val = (val as f64 / mul) as i64;
-          match find_min(val, &SKILL_EXP_VALUES) {
-            Some(level) => level + 1,
-            None => 0,
-          }
-        } else {
-          0
-        };
-
-        if let Some(item) = tree.create_item(parent, -1) {
-          let item = item.to_ref();
-          // Skill name.
-          item.set_custom_color(0, skill_color);
-          item.set_text(0, GodotString::from(skill));
-
-          // Experience multiplier.
-          item.set_custom_color(1, info_color);
-          item.set_text(1, GodotString::from(format!("{}x", mul_text)));
-
-          // Skill ID.
-          item.set_custom_color(2, info_color);
-          item.set_text(2, id);
-
-          // Skill level.
-          item.set_cell_mode(3, TreeItem::CELL_MODE_RANGE);
-          item.set_range_config(3, 0.0, 200.0, 1.0, false);
-          item.set_range(3, level as f64);
-          item.set_editable(3, true);
         }
       }
     }
-
     true
   }
 
@@ -503,43 +505,39 @@ impl Offline {
 
     let root = some!(tree.get_root(), false);
     let root = root.to_ref();
-    let mut node = root.get_children();
-    loop {
-      if let Some(parent) = node {
-        let parent = parent.to_ref();
-        let mut child = parent.get_children();
+    let mut parent = root.get_children();
+    while let Some(item) = parent {
+      let item = item.to_ref();
+      let mut child = item.get_children();
+      while let Some(item) = child {
+        let item = item.to_ref();
 
-        while let Some(item) = child {
-          let item = item.to_ref();
+        // Get the skill multiplier.
+        if let Ok(mul) = item
+          .get_text(1)
+          .to_utf8()
+          .as_str()
+          .trim_end_matches('x')
+          .parse::<f64>()
+        {
+          // Get the skill ID.
+          let key = item.get_text(2);
 
-          // Get the skill multiplier.
-          if let Ok(mul) = item
-            .get_text(1)
-            .to_utf8()
-            .as_str()
-            .trim_end_matches('x')
-            .parse::<f64>()
-          {
-            // Get the skill ID.
-            let key = item.get_text(2);
-
-            // Get the skill level.
-            let lvl = item.get_range(3) as usize;
-            if lvl > 0 {
-              let exp = (SKILL_EXP_VALUES[lvl - 1] as f64 * mul).ceil() as i64;
-              game_info.set_skill_exp(&key, exp);
-            } else {
-              // The level is zero, remove the skill if it exists.
-              game_info.remove_skill(&key);
-            }
+          // Get the skill level.
+          let lvl = item.get_range(3) as usize;
+          if lvl > 0 {
+            let exp = (SKILL_EXP_VALUES[lvl - 1] as f64 * mul).ceil() as i64;
+            game_info.set_skill_exp(&key, exp);
+          } else {
+            // The level is zero, remove the skill if it exists.
+            game_info.remove_skill(&key);
           }
-          child = item.get_next();
         }
-        node = parent.get_next();
-      } else {
-        return true;
+        child = item.get_next();
       }
+      parent = item.get_next();
     }
+    true
   }
 
   fn set_status_message(&self, owner: TRef<Node>, text: &str) {
@@ -673,68 +671,101 @@ struct GameInfo {
   x: Variant,
 }
 
+fn get_avatar_id(text: &str) -> Option<GodotString> {
+  // Find the 'User' collection tag.
+  let find = "<collection name=\"User\">";
+  let pos = some!(text.find(find), None);
+  let text = &text[pos + find.len()..];
+
+  // Find the record tag.
+  let find = "<record Id=\"000000000000000000000001\">";
+  let pos = some!(text.find(find), None);
+  let text = &text[pos + find.len()..];
+
+  // Find the record end tag.
+  let pos = some!(text.find("</record>"), None);
+  let text = &text[..pos];
+
+  // Parse the JSON text.
+  let result = some!(JSON::godot_singleton().parse(GodotString::from(text)), None);
+  let var = result.to_ref().result();
+
+  // Get the avatar ID.
+  let dc = Variant::from_str("dc");
+  let id = some!(var.get(&dc), None);
+  Some(id.to_godot_string())
+}
+
 fn get_json(text: &str, collection: &str) -> Option<Variant> {
+  // Get the avatar ID
+  let id = some!(get_avatar_id(text), None);
+  // let id = id.to_utf8();
+  // let id = id.as_str();
+
+  // Find the collection tag.
   let find = format!("<collection name=\"{}\">", collection);
-  if let Some(pos) = text.find(&find) {
-    let text = &text[pos + find.len()..];
-    let find = "<record Id=\"";
-    if let Some(pos) = text.find(find) {
-      let text = &text[pos + find.len()..];
-      let find = "\">";
-      if let Some(pos) = text.find(find) {
-        let text = &text[pos + find.len()..];
-        if let Some(pos) = text.find("</record>") {
-          if let Some(result) = JSON::godot_singleton().parse(GodotString::from(&text[..pos])) {
-            let json = result.to_ref().result();
-            if json.try_to_dictionary().is_some() {
-              return Some(json);
-            }
-          }
-        }
-      }
-    }
+  let pos = some!(text.find(&find), None);
+  let text = &text[pos + find.len()..];
+
+  // From that point, find the record tag.
+  let find = format!("<record Id=\"{}\">", id);
+  let pos = some!(text.find(&find), None);
+  let text = &text[pos + find.len()..];
+
+  // Find the record end tag.
+  let pos = some!(text.find("</record>"), None);
+  let text = &text[..pos];
+
+  // Parse the JSON text.
+  let result = some!(JSON::godot_singleton().parse(GodotString::from(text)), None);
+  let var = result.to_ref().result();
+  if var.try_to_dictionary().is_some() {
+    return Some(var);
   }
   None
 }
 
-fn set_json(text: &str, collection: &str, json: &str) -> Option<String> {
+fn set_json(text: &str, collection: &str, var: &Variant) -> Option<String> {
+  // Get the avatar ID
+  let id = some!(get_avatar_id(text), None);
+
+  // Find the collection tag.
   let find = format!("<collection name=\"{}\">", collection);
-  if let Some(pos) = text.find(&find) {
-    let start = pos + find.len();
-    let slice = &text[start..];
-    let find = "<record Id=\"";
-    if let Some(pos) = slice.find(find) {
-      let pos = pos + find.len();
-      let slice = &slice[pos..];
-      let start = start + pos;
-      let find = "\">";
-      if let Some(pos) = slice.find(find) {
-        let pos = pos + find.len();
-        let slice = &slice[pos..];
-        let start = start + pos;
-        if let Some(pos) = slice.find("</record>") {
-          let end = start + pos;
-          let parts = [&text[..start], json, &text[end..]];
-          let mut result = String::new();
-          result.reserve(parts[0].len() + parts[1].len() + parts[2].len());
-          result.push_str(parts[0]);
-          result.push_str(parts[1]);
-          result.push_str(parts[2]);
-          return Some(result);
-        }
-      }
-    }
-  }
-  None
+  let start = some!(text.find(&find), None) + find.len();
+  let slice = &text[start..];
+
+  // From that point, find the record tag.
+  let find = format!("<record Id=\"{}\">", id);
+  let pos = some!(slice.find(&find), None) + find.len();
+  let slice = &slice[pos..];
+  let start = start + pos;
+
+  // Find the record end tag.
+  let pos = some!(slice.find("</record>"), None);
+  let end = start + pos;
+
+  // Convert the dictionary to JSON text.
+  let dict = some!(var.try_to_dictionary(), None);
+  let json = dict.to_json();
+  let json = json.to_utf8();
+  let json = json.as_str();
+
+  // Concatenate the XML with the new JSON.
+  let parts = [&text[..start], json, &text[end..]];
+  let mut result = String::new();
+  result.reserve(parts[0].len() + parts[1].len() + parts[2].len());
+  result.push_str(parts[0]);
+  result.push_str(parts[1]);
+  result.push_str(parts[2]);
+  Some(result)
 }
 
-fn find_date(skills: &Variant) -> Option<GodotString> {
-  if let Some(dict) = skills.try_to_dictionary() {
-    let t = Variant::from_str("t");
-    for (_, value) in dict.iter() {
-      if let Some(value) = value.get(&t) {
-        return Some(value.to_godot_string());
-      }
+fn find_date(var: &Variant) -> Option<GodotString> {
+  let dict = some!(var.try_to_dictionary(), None);
+  let t = Variant::from_str("t");
+  for (_, var) in dict.iter() {
+    if let Some(var) = var.get(&t) {
+      return Some(var.to_godot_string());
     }
   }
   None
@@ -785,32 +816,20 @@ impl GameInfo {
   }
 
   fn save(&mut self) -> bool {
-    if let Some(json) = self.gold.try_to_dictionary() {
-      let json = json.to_json();
-      let json = json.to_utf8();
-      let json = json.as_str();
-      if let Some(xml) = set_json(&self.xml, "UserGold", json) {
-        if let Some(json) = self.character.try_to_dictionary() {
-          let json = json.to_json();
-          let json = json.to_utf8();
-          let json = json.as_str();
-          if let Some(xml) = set_json(&xml, "CharacterSheet", json) {
-            match File::create(self.path.to_utf8().as_str()) {
-              Ok(mut file) => match file.write_all(xml.as_bytes()) {
-                Ok(()) => return true,
-                Err(err) => {
-                  if let Some(err) = err.get_ref() {
-                    godot_print!("Unable to save: {:?}", err);
-                  }
-                }
-              },
-              Err(err) => {
-                if let Some(err) = err.get_ref() {
-                  godot_print!("Unable to save: {:?}", err);
-                }
-              }
-            }
+    let xml = some!(set_json(&self.xml, "UserGold", &self.gold), false);
+    let xml = some!(set_json(&xml, "CharacterSheet", &self.character), false);
+    match File::create(self.path.to_utf8().as_str()) {
+      Ok(mut file) => match file.write_all(xml.as_bytes()) {
+        Ok(()) => return true,
+        Err(err) => {
+          if let Some(err) = err.get_ref() {
+            godot_print!("Unable to save: {:?}", err);
           }
+        }
+      },
+      Err(err) => {
+        if let Some(err) = err.get_ref() {
+          godot_print!("Unable to save: {:?}", err);
         }
       }
     }
@@ -840,33 +859,31 @@ impl GameInfo {
   }
 
   fn get_skill_exp(&self, key: &GodotString) -> Option<i64> {
-    self
-      .skills
-      .get(&Variant::from_godot_string(key))
-      .get(&self.x)
-      .to_int()
+    let var = Variant::from_godot_string(key);
+    self.skills.get(&var).get(&self.x).to_int()
   }
 
-  fn set_skill_exp(&mut self, key: &GodotString, exp: i64) {
+  fn set_skill_exp(&mut self, key: &GodotString, exp: i64) -> bool {
     let key = Variant::from_godot_string(key);
-    if let Some(mut skill) = self.skills.get(&key) {
-      if let Some(cur) = skill.get(&self.x).to_int() {
+    if let Some(mut dict) = self.skills.get(&key) {
+      if let Some(cur) = dict.get(&self.x).to_int() {
         // Change it only if it's different.
         if exp != cur {
-          skill.set(&self.x, &Variant::from_i64(exp));
+          dict.set(&self.x, &Variant::from_i64(exp));
+          return true;
         }
-        return;
+        return false;
       }
     }
 
     // Add a new dictionary for the skill ID.
-    let skill = Dictionary::new();
-    skill.insert(&self.x, exp);
-    skill.insert(&self.t, self.date.clone());
-    skill.insert(&self.m, 0i64);
-    self
-      .skills
-      .set(&key, &Variant::from_dictionary(&skill.into_shared()));
+    let dict = Dictionary::new();
+    dict.insert(&self.x, exp);
+    dict.insert(&self.t, self.date.clone());
+    dict.insert(&self.m, 0i64);
+    let var = Variant::from_dictionary(&dict.into_shared());
+    self.skills.set(&key, &var);
+    true
   }
 
   fn remove_skill(&mut self, key: &GodotString) {
