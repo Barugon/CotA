@@ -699,8 +699,6 @@ fn get_avatar_id(text: &str) -> Option<GodotString> {
 fn get_json(text: &str, collection: &str) -> Option<Variant> {
   // Get the avatar ID
   let id = some!(get_avatar_id(text), None);
-  // let id = id.to_utf8();
-  // let id = id.as_str();
 
   // Find the collection tag.
   let find = format!("<collection name=\"{}\">", collection);
