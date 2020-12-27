@@ -122,12 +122,9 @@ impl Stats {
       RESISTS_ID => {
         if let Some(avatar) = self.get_current_avatar(owner) {
           if let Some(ts) = self.get_current_date(owner) {
-            self.populate_stats(
-              owner,
-              Some(avatar.to_utf8().as_str()),
-              Some(ts),
-              StatOpts::Resists,
-            );
+            let avatar = avatar.to_utf8();
+            let avatar = avatar.as_str();
+            self.populate_stats(owner, Some(avatar), Some(ts), StatOpts::Resists);
           }
         }
       }
@@ -143,12 +140,9 @@ impl Stats {
       RESET_ID => {
         if let Some(avatar) = self.get_current_avatar(owner) {
           if let Some(ts) = self.get_current_date(owner) {
-            self.populate_stats(
-              owner,
-              Some(avatar.to_utf8().as_str()),
-              Some(ts),
-              StatOpts::None,
-            );
+            let avatar = avatar.to_utf8();
+            let avatar = avatar.as_str();
+            self.populate_stats(owner, Some(avatar), Some(ts), StatOpts::None);
           }
         }
       }
@@ -163,7 +157,9 @@ impl Stats {
       self.config.set_avatar(Some(&avatar));
 
       if !avatar.is_empty() {
-        self.populate_dates(owner, Some(avatar.to_utf8().as_str()));
+        let avatar = avatar.to_utf8();
+        let avatar = avatar.as_str();
+        self.populate_dates(owner, Some(avatar));
         return;
       }
     }
@@ -176,12 +172,9 @@ impl Stats {
       if let Some(button) = owner.get_node_as::<OptionButton>(&self.dates) {
         let ts = button.get_item_id(item);
         if ts != 0 {
-          self.populate_stats(
-            owner,
-            Some(avatar.to_utf8().as_str()),
-            Some(ts),
-            StatOpts::None,
-          );
+          let avatar = avatar.to_utf8();
+          let avatar = avatar.as_str();
+          self.populate_stats(owner, Some(avatar), Some(ts), StatOpts::None);
           return;
         }
       }
@@ -201,14 +194,13 @@ impl Stats {
     if let Some(edit) = owner.get_node_as::<LineEdit>(&self.filter_edit) {
       let text = edit.text();
       if !text.is_empty() {
+        let text = text.to_utf8();
+        let text = text.as_str();
         if let Some(avatar) = self.get_current_avatar(owner) {
           if let Some(ts) = self.get_current_date(owner) {
-            self.populate_stats(
-              owner,
-              Some(avatar.to_utf8().as_str()),
-              Some(ts),
-              StatOpts::Filter(text.to_utf8().as_str()),
-            );
+            let avatar = avatar.to_utf8();
+            let avatar = avatar.as_str();
+            self.populate_stats(owner, Some(avatar), Some(ts), StatOpts::Filter(text));
           }
         }
       }

@@ -209,10 +209,9 @@ impl Config {
   }
 
   fn notes_key(avatar: &GodotString) -> GodotString {
-    GodotString::from(format!(
-      "{}_notes",
-      avatar.to_utf8().as_str().replace(' ', "_")
-    ))
+    let avatar = avatar.to_utf8();
+    let avatar = avatar.as_str();
+    GodotString::from(format!("{}_notes", avatar.replace(' ', "_")))
   }
 
   pub fn get_log_folder(&self) -> Option<GodotString> {
@@ -326,11 +325,8 @@ pub fn ascii_compare_ignore_case(left: &[u8], right: &[u8]) -> Ordering {
 
 pub fn get_locale() -> Locale {
   let names = Locale::available_names();
-  let name = OS::godot_singleton()
-    .get_locale()
-    .to_utf8()
-    .as_str()
-    .replace('_', "-");
+  let name = OS::godot_singleton().get_locale();
+  let name = name.to_utf8().as_str().replace('_', "-");
 
   // Search for an exact match.
   if let Ok(pos) =

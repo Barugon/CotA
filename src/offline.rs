@@ -172,9 +172,9 @@ impl Offline {
 
               // Set the status message.
               let path = path.to_utf8();
-              if let Some(path) = Path::new(path.as_str()).file_name() {
-                if let Some(path) = path.to_str() {
-                  self.set_status_message(owner, &format!("Editing \"{}\"", path));
+              if let Some(name) = Path::new(path.as_str()).file_name() {
+                if let Some(name) = name.to_str() {
+                  self.set_status_message(owner, &format!("Editing \"{}\"", name));
                 }
               }
 
@@ -195,11 +195,9 @@ impl Offline {
 
     // Set the status message.
     let path = path.to_utf8();
-    if let Some(path) = Path::new(path.as_str()).file_name() {
-      if let Some(path) = path.to_str() {
-        self.set_status_message(owner, &format!("Unable to edit \"{}\"", path));
-      }
-    }
+    let name = some!(Path::new(path.as_str()).file_name());
+    let name = some!(name.to_str());
+    self.set_status_message(owner, &format!("Unable to edit \"{}\"", name));
   }
 
   #[export]
@@ -211,9 +209,9 @@ impl Offline {
     let game_info = self.game_info.borrow();
     let game_info = some!(game_info.as_ref());
     let path = game_info.path().to_utf8();
-    let path = some!(Path::new(path.as_str()).file_name());
-    let path = some!(path.to_str());
-    self.set_status_message(owner, &format!("Unable to save \"{}\"", path));
+    let name = some!(Path::new(path.as_str()).file_name());
+    let name = some!(name.to_str());
+    self.set_status_message(owner, &format!("Unable to save \"{}\"", name));
   }
 
   fn skill_changed(&self, owner: TRef<Node>, tree: SkillTree) {
