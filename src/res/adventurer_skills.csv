@@ -131,7 +131,6 @@ Life,Healing Burst,3,84
 Life,Healing Grace,2,87
 Life,Healing Ray,2,82
 Life,Healing Touch,1,81
-Life,Healthy,5,151
 Life,Life Magic Specialization,20,2509
 Life,Life Power,4,89
 Life,Life Reach,4,90
@@ -202,7 +201,6 @@ Subterfuge,Camouflage,1,94
 Subterfuge,Distract,2,522
 Subterfuge,Engage Opponent,1,521
 Subterfuge,Opportunity Strike,2,1359
-Subterfuge,Pick Locks,2,519
 Subterfuge,Pick Pockets,2,518
 Subterfuge,Poison Weapon,2,517
 Subterfuge,Pugilism,1,3231
@@ -231,6 +229,7 @@ Tactics,Berserker's Stance,1,306
 Tactics,Defensive Stance,1,71
 Tactics,Elixir Extension,4,3554
 Tactics,Fortify Defenses,1,1358
+Tactics,Healthy,5,151
 Tactics,Heavy Lifter,4,156
 Tactics,Magic Warding,20,3751
 Tactics,Mounted Cary Capacity Focus,10,5776
