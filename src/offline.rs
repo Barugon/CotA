@@ -813,7 +813,7 @@ impl GameInfo {
     None
   }
 
-  fn save(&mut self) -> bool {
+  fn save(&self) -> bool {
     let xml = some!(set_json(&self.xml, "UserGold", &self.gold), false);
     let xml = some!(set_json(&xml, "CharacterSheet", &self.character), false);
     match File::create(self.path.to_utf8().as_str()) {
