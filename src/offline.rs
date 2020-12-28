@@ -653,6 +653,8 @@ impl ToInt for Option<Variant> {
 struct GameInfo {
   // Save file path.
   path: GodotString,
+  // Avatar ID.
+  id: GodotString,
   // XML text.
   xml: String,
   // Dictionaries.
@@ -694,10 +696,7 @@ fn get_avatar_id(text: &str) -> Option<GodotString> {
   Some(id.to_godot_string())
 }
 
-fn get_json(text: &str, collection: &str) -> Option<Variant> {
-  // Get the avatar ID
-  let id = some!(get_avatar_id(text), None);
-
+fn get_json(text: &str, collection: &str, id: &str) -> Option<Variant> {
   // Find the collection tag.
   let find = format!("<collection name=\"{}\">", collection);
   let pos = some!(text.find(&find), None);
@@ -721,10 +720,7 @@ fn get_json(text: &str, collection: &str) -> Option<Variant> {
   None
 }
 
-fn set_json(text: &str, collection: &str, var: &Variant) -> Option<String> {
-  // Get the avatar ID
-  let id = some!(get_avatar_id(text), None);
-
+fn set_json(text: &str, collection: &str, id: &str, var: &Variant) -> Option<String> {
   // Find the collection tag.
   let find = format!("<collection name=\"{}\">", collection);
   let start = some!(text.find(&find), None) + find.len();
@@ -771,35 +767,43 @@ impl GameInfo {
   fn load(path: &GodotString) -> Option<Self> {
     match std::fs::read_to_string(path.to_utf8().as_str()) {
       Ok(xml) => {
-        // Find the 'CharacterSheet' JSON.
-        if let Some(character) = get_json(&xml, "CharacterSheet") {
-          // Get the skills dictionary.
-          let skills = some!(character.get(&Variant::from_str("sk2")), None);
-          // Find a date.
-          if let Some(date) = find_date(&skills) {
-            // Find the 'UserGold' json.
-            if let Some(gold) = get_json(&xml, "UserGold") {
-              return Some(GameInfo {
-                path: path.clone(),
-                xml,
-                character,
-                skills,
-                gold,
-                date,
-                ae: Variant::from_str("ae"),
-                g: Variant::from_str("g"),
-                m: Variant::from_str("m"),
-                t: Variant::from_str("t"),
-                x: Variant::from_str("x"),
-              });
+        // Get the avatar ID.
+        if let Some(avatar) = get_avatar_id(&xml) {
+          // Find the 'CharacterSheet' JSON.
+          let id = avatar.to_utf8();
+          let id = id.as_str();
+          if let Some(character) = get_json(&xml, "CharacterSheet", id) {
+            // Get the skills dictionary.
+            let skills = some!(character.get(&Variant::from_str("sk2")), None);
+            // Find a date.
+            if let Some(date) = find_date(&skills) {
+              // Find the 'UserGold' json.
+              if let Some(gold) = get_json(&xml, "UserGold", id) {
+                return Some(GameInfo {
+                  path: path.clone(),
+                  id: avatar,
+                  xml,
+                  character,
+                  skills,
+                  gold,
+                  date,
+                  ae: Variant::from_str("ae"),
+                  g: Variant::from_str("g"),
+                  m: Variant::from_str("m"),
+                  t: Variant::from_str("t"),
+                  x: Variant::from_str("x"),
+                });
+              } else {
+                godot_print!("Unable to find user gold");
+              }
             } else {
-              godot_print!("Unable to find user gold");
+              godot_print!("Unable to find the date/time");
             }
           } else {
-            godot_print!("Unable to find the date/time");
+            godot_print!("Unable to find character sheet");
           }
         } else {
-          godot_print!("Unable to find character sheet");
+          godot_print!("Unable to determine the current avatar");
         }
       }
       Err(err) => {
@@ -812,8 +816,10 @@ impl GameInfo {
   }
 
   fn save(&self) -> bool {
-    let xml = some!(set_json(&self.xml, "UserGold", &self.gold), false);
-    let xml = some!(set_json(&xml, "CharacterSheet", &self.character), false);
+    let id = self.id.to_utf8();
+    let id = id.as_str();
+    let xml = some!(set_json(&self.xml, "UserGold", id, &self.gold), false);
+    let xml = some!(set_json(&xml, "CharacterSheet", id, &self.character), false);
     match File::create(self.path.to_utf8().as_str()) {
       Ok(mut file) => match file.write_all(xml.as_bytes()) {
         Ok(()) => return true,
