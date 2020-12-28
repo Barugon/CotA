@@ -106,52 +106,43 @@ impl Experience {
 
       if let Some(item) = tree.get_selected() {
         let item = item.to_ref();
-        let visible = if let Some(parent) = item.get_parent() {
-          let parent = parent.to_ref();
-          !parent.is_collapsed()
+        let cur = current
+          .text()
+          .to_utf8()
+          .as_str()
+          .parse::<usize>()
+          .unwrap_or(0);
+        let cur_valid = cur >= 1 && cur < 200;
+        if cur_valid {
+          current.set(self.color_name.clone(), self.good_color.clone());
         } else {
-          false
-        };
+          current.set(self.color_name.clone(), self.bad_color.clone());
+        }
 
-        if visible {
-          let cur = current
-            .text()
-            .to_utf8()
-            .as_str()
-            .parse::<usize>()
-            .unwrap_or(0);
-          let cur_valid = cur >= 1 && cur < 200;
-          if cur_valid {
-            current.set(self.color_name.clone(), self.good_color.clone());
-          } else {
-            current.set(self.color_name.clone(), self.bad_color.clone());
-          }
+        let tgt = target
+          .text()
+          .to_utf8()
+          .as_str()
+          .parse::<usize>()
+          .unwrap_or(0);
+        let tgt_valid = tgt >= 1 && tgt <= 200 && (!cur_valid || tgt > cur);
+        if tgt_valid {
+          target.set(self.color_name.clone(), self.good_color.clone());
+        } else {
+          target.set(self.color_name.clone(), self.bad_color.clone());
+        }
 
-          let tgt = target
-            .text()
-            .to_utf8()
-            .as_str()
-            .parse::<usize>()
-            .unwrap_or(0);
-          let tgt_valid = tgt >= 1 && tgt <= 200 && (!cur_valid || tgt > cur);
-          if tgt_valid {
-            target.set(self.color_name.clone(), self.good_color.clone());
-          } else {
-            target.set(self.color_name.clone(), self.bad_color.clone());
-          }
-
-          if let Ok(mul) = item
-            .get_text(1)
-            .to_utf8()
-            .as_str()
-            .trim_end_matches('x')
-            .parse::<f64>()
-          {
-            if cur_valid && tgt_valid {
-              let val = SKILL_EXP_VALUES[tgt - 1] - SKILL_EXP_VALUES[cur - 1];
-              let val = (val as f64 * mul).ceil() as i64;
-              text = GodotString::from(val.to_formatted_string(&self.locale));
-            }
+        if let Ok(mul) = item
+          .get_text(1)
+          .to_utf8()
+          .as_str()
+          .trim_end_matches('x')
+          .parse::<f64>()
+        {
+          if cur_valid && tgt_valid {
+            let val = SKILL_EXP_VALUES[tgt - 1] - SKILL_EXP_VALUES[cur - 1];
+            let val = (val as f64 * mul).ceil() as i64;
+            text = GodotString::from(val.to_formatted_string(&self.locale));
           }
         }
       }
