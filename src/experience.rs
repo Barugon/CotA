@@ -75,9 +75,9 @@ impl Experience {
 
   #[export]
   fn item_collapsed(&self, owner: TRef<Node>, _item: Ref<TreeItem>) {
-    let tree = some!(owner.get_node_as::<Tree>(&self.tree));
     // This is a bit kludgy but the item is actually still selected
     // (but not highlighted) after the parent is collapsed.
+    let tree = some!(owner.get_node_as::<Tree>(&self.tree));
     if let Some(item) = tree.get_selected() {
       let item = item.to_ref();
       if let Some(parent) = item.get_parent() {
