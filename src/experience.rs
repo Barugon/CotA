@@ -3,7 +3,7 @@ use crate::util::*;
 use gdnative::api::*;
 use gdnative::prelude::*;
 use num_format::{Locale, ToFormattedString};
-use std::cell::RefCell;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 #[derive(NativeClass)]
 #[inherit(Node)]
@@ -16,7 +16,7 @@ pub struct Experience {
   good_color: Variant,
   bad_color: Variant,
   locale: Locale,
-  selected: RefCell<bool>,
+  selected: AtomicBool,
 }
 
 #[methods]
@@ -31,7 +31,7 @@ impl Experience {
       good_color: Variant::from_color(&Color::rgb(0.81, 0.81, 0.81)),
       bad_color: Variant::from_color(&Color::rgb(1.0, 0.0, 0.0)),
       locale: get_locale(),
-      selected: RefCell::new(false),
+      selected: AtomicBool::new(false),
     }
   }
 
@@ -69,7 +69,7 @@ impl Experience {
   #[export]
   fn item_selected(&self, owner: TRef<Node>) {
     let tree = some!(owner.get_node_as::<Tree>(&self.tree));
-    *self.selected.borrow_mut() = true;
+    self.selected.store(true, Ordering::Relaxed);
     self.update(owner, tree);
   }
 
@@ -82,12 +82,11 @@ impl Experience {
       let item = item.to_ref();
       if let Some(parent) = item.get_parent() {
         let parent = parent.to_ref();
-        if parent.is_collapsed() {
-          *self.selected.borrow_mut() = false;
+        if parent.is_collapsed() && self.selected.swap(false, Ordering::Relaxed) {
+          self.update(owner, tree);
         }
       }
     }
-    self.update(owner, tree);
   }
 
   #[export]
@@ -100,7 +99,7 @@ impl Experience {
     let mut text = GodotString::new();
     let result = some!(owner.get_node_as::<Label>(&self.result));
 
-    if *self.selected.borrow() {
+    if self.selected.load(Ordering::Relaxed) {
       let current = some!(owner.get_node_as::<LineEdit>(&self.current));
       let target = some!(owner.get_node_as::<LineEdit>(&self.target));
 
