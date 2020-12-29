@@ -654,7 +654,7 @@ struct GameInfo {
   // Save file path.
   path: GodotString,
   // Avatar ID.
-  id: GodotString,
+  toon: GodotString,
   // XML text.
   xml: String,
   // Dictionaries.
@@ -769,24 +769,29 @@ impl GameInfo {
       Ok(xml) => {
         // Get the avatar ID.
         let msg = "Unable to determine the current avatar";
-        let id = some!(get_avatar_id(&xml), msg, None);
-        let avatar = id.to_utf8();
-        let avatar = avatar.as_str();
+        let toon = some!(get_avatar_id(&xml), msg, None);
+        let id = toon.to_utf8();
+        let id = id.as_str();
+
         // Find the 'CharacterSheet' JSON.
         let msg = "Unable to find character sheet";
-        let character = some!(get_json(&xml, "CharacterSheet", avatar), msg, None);
+        let character = some!(get_json(&xml, "CharacterSheet", id), msg, None);
+
         // Get the skills dictionary.
         let msg = "Skills not found";
         let skills = some!(character.get(&Variant::from_str("sk2")), msg, None);
+
+        // Find the 'UserGold' json.
+        let msg = "Unable to find user gold";
+        let gold = some!(get_json(&xml, "UserGold", id), msg, None);
+
         // Find a date.
         let msg = "Unable to find the date/time";
         let date = some!(find_date(&skills), msg, None);
-        // Find the 'UserGold' json.
-        let msg = "Unable to find user gold";
-        let gold = some!(get_json(&xml, "UserGold", avatar), msg, None);
+
         return Some(GameInfo {
           path: path.clone(),
-          id,
+          toon,
           xml,
           character,
           skills,
@@ -809,10 +814,20 @@ impl GameInfo {
   }
 
   fn save(&self) -> bool {
-    let id = self.id.to_utf8();
+    let id = self.toon.to_utf8();
     let id = id.as_str();
-    let xml = some!(set_json(&self.xml, "UserGold", id, &self.gold), false);
-    let xml = some!(set_json(&xml, "CharacterSheet", id, &self.character), false);
+
+    // Set UserGold.
+    let tag = "UserGold";
+    let msg = "Unable to set UserGold";
+    let xml = some!(set_json(&self.xml, tag, id, &self.gold), msg, false);
+
+    // Set CharacterSheet.
+    let tag = "CharacterSheet";
+    let msg = "Unable to set CharacterSheet";
+    let xml = some!(set_json(&xml, tag, id, &self.character), msg, false);
+
+    // Create the save-game file and store the XML data.
     match File::create(self.path.to_utf8().as_str()) {
       Ok(mut file) => match file.write_all(xml.as_bytes()) {
         Ok(()) => return true,
