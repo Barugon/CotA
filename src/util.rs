@@ -18,6 +18,15 @@ macro_rules! some {
       None => return $ret,
     }
   };
+  ($opt:expr, $msg:expr, $ret:expr) => {
+    match $opt {
+      Some(val) => val,
+      None => {
+        godot_print!("{}", $msg);
+        return $ret;
+      }
+    }
+  };
 }
 
 #[macro_export]
