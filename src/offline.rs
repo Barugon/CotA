@@ -768,43 +768,36 @@ impl GameInfo {
     match std::fs::read_to_string(path.to_utf8().as_str()) {
       Ok(xml) => {
         // Get the avatar ID.
-        if let Some(avatar) = get_avatar_id(&xml) {
-          // Find the 'CharacterSheet' JSON.
-          let id = avatar.to_utf8();
-          let id = id.as_str();
-          if let Some(character) = get_json(&xml, "CharacterSheet", id) {
-            // Get the skills dictionary.
-            let skills = some!(character.get(&Variant::from_str("sk2")), None);
-            // Find a date.
-            if let Some(date) = find_date(&skills) {
-              // Find the 'UserGold' json.
-              if let Some(gold) = get_json(&xml, "UserGold", id) {
-                return Some(GameInfo {
-                  path: path.clone(),
-                  id: avatar,
-                  xml,
-                  character,
-                  skills,
-                  gold,
-                  date,
-                  ae: Variant::from_str("ae"),
-                  g: Variant::from_str("g"),
-                  m: Variant::from_str("m"),
-                  t: Variant::from_str("t"),
-                  x: Variant::from_str("x"),
-                });
-              } else {
-                godot_print!("Unable to find user gold");
-              }
-            } else {
-              godot_print!("Unable to find the date/time");
-            }
-          } else {
-            godot_print!("Unable to find character sheet");
-          }
-        } else {
-          godot_print!("Unable to determine the current avatar");
-        }
+        let msg = "Unable to determine the current avatar";
+        let id = some!(get_avatar_id(&xml), msg, None);
+        let avatar = id.to_utf8();
+        let avatar = avatar.as_str();
+        // Find the 'CharacterSheet' JSON.
+        let msg = "Unable to find character sheet";
+        let character = some!(get_json(&xml, "CharacterSheet", avatar), msg, None);
+        // Get the skills dictionary.
+        let msg = "Skills not found";
+        let skills = some!(character.get(&Variant::from_str("sk2")), msg, None);
+        // Find a date.
+        let msg = "Unable to find the date/time";
+        let date = some!(find_date(&skills), msg, None);
+        // Find the 'UserGold' json.
+        let msg = "Unable to find user gold";
+        let gold = some!(get_json(&xml, "UserGold", avatar), msg, None);
+        return Some(GameInfo {
+          path: path.clone(),
+          id,
+          xml,
+          character,
+          skills,
+          gold,
+          date,
+          ae: Variant::from_str("ae"),
+          g: Variant::from_str("g"),
+          m: Variant::from_str("m"),
+          t: Variant::from_str("t"),
+          x: Variant::from_str("x"),
+        });
       }
       Err(err) => {
         if let Some(err) = err.get_ref() {
