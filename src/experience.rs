@@ -96,40 +96,38 @@ impl Experience {
   }
 
   fn update(&self, owner: TRef<Node>, tree: TRef<Tree>) {
+    let current = some!(owner.get_node_as::<LineEdit>(&self.current));
+    let cur = current
+      .text()
+      .to_utf8()
+      .as_str()
+      .parse::<usize>()
+      .unwrap_or(0);
+    let cur_valid = cur >= 1 && cur < 200;
+    if cur_valid {
+      current.set(self.color_name.clone(), self.good_color.clone());
+    } else {
+      current.set(self.color_name.clone(), self.bad_color.clone());
+    }
+
+    let target = some!(owner.get_node_as::<LineEdit>(&self.target));
+    let tgt = target
+      .text()
+      .to_utf8()
+      .as_str()
+      .parse::<usize>()
+      .unwrap_or(0);
+    let tgt_valid = tgt >= 1 && tgt <= 200 && (!cur_valid || tgt > cur);
+    if tgt_valid {
+      target.set(self.color_name.clone(), self.good_color.clone());
+    } else {
+      target.set(self.color_name.clone(), self.bad_color.clone());
+    }
+
     let mut text = GodotString::new();
-    let result = some!(owner.get_node_as::<Label>(&self.result));
-
     if self.selected.load(Ordering::Relaxed) {
-      let current = some!(owner.get_node_as::<LineEdit>(&self.current));
-      let target = some!(owner.get_node_as::<LineEdit>(&self.target));
-
       if let Some(item) = tree.get_selected() {
         let item = item.to_ref();
-        let cur = current
-          .text()
-          .to_utf8()
-          .as_str()
-          .parse::<usize>()
-          .unwrap_or(0);
-        let cur_valid = cur >= 1 && cur < 200;
-        if cur_valid {
-          current.set(self.color_name.clone(), self.good_color.clone());
-        } else {
-          current.set(self.color_name.clone(), self.bad_color.clone());
-        }
-
-        let tgt = target
-          .text()
-          .to_utf8()
-          .as_str()
-          .parse::<usize>()
-          .unwrap_or(0);
-        let tgt_valid = tgt >= 1 && tgt <= 200 && (!cur_valid || tgt > cur);
-        if tgt_valid {
-          target.set(self.color_name.clone(), self.good_color.clone());
-        } else {
-          target.set(self.color_name.clone(), self.bad_color.clone());
-        }
 
         if let Ok(mul) = item
           .get_text(1)
@@ -147,6 +145,7 @@ impl Experience {
       }
     }
 
+    let result = some!(owner.get_node_as::<Label>(&self.result));
     result.set_text(text);
   }
 
