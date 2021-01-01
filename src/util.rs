@@ -35,7 +35,7 @@ macro_rules! ok {
     match $res {
       Ok(val) => val,
       Err(err) => {
-        godot_print!("{:?}", err);
+        godot_print!("{}", err);
         return;
       }
     }
@@ -44,7 +44,7 @@ macro_rules! ok {
     match $res {
       Ok(val) => val,
       Err(err) => {
-        godot_print!("{:?}", err);
+        godot_print!("{}", err);
         return $ret;
       }
     }
@@ -126,11 +126,8 @@ impl GetNodeAs for TRef<'_, Node> {
     if let Some(node) = self.get_node(NodePath::new(path)) {
       let node = node.to_ref().cast();
       if node.is_none() {
-        godot_print!(
-          "Unable to cast node {} as {:?}",
-          path,
-          std::any::type_name::<T>()
-        );
+        let t = std::any::type_name::<T>();
+        godot_print!("Unable to cast node {} as {}", path, t);
       }
       return node;
     } else {
@@ -160,7 +157,7 @@ impl ConnectTo for TRef<'_, Node> {
       }
 
       if let Err(err) = node.connect(signal, self, slot, VariantArray::new_shared(), 0) {
-        godot_print!("Unable to connect {}: {:?}", slot, err);
+        godot_print!("Unable to connect {}: {}", slot, err);
       } else {
         return true;
       }
@@ -283,7 +280,9 @@ impl Config {
     } else if config.has_section_key(self.section.clone(), key.clone()) {
       config.erase_section_key(self.section.clone(), key.clone());
     }
-    let _ = config.save(self.cfg_path.clone());
+    if let Err(err) = config.save(self.cfg_path.clone()) {
+      godot_print!("Unable to save config: {}", err);
+    }
   }
 }
 
