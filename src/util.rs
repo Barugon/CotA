@@ -280,6 +280,7 @@ impl Config {
     } else if config.has_section_key(self.section.clone(), key.clone()) {
       config.erase_section_key(self.section.clone(), key.clone());
     }
+
     if let Err(err) = config.save(self.cfg_path.clone()) {
       godot_print!("Unable to save config: {}", err);
     }
