@@ -103,7 +103,7 @@ impl Experience {
       .as_str()
       .parse::<usize>()
       .unwrap_or(0);
-    let cur_valid = cur >= 1 && cur < 200;
+    let cur_valid = (1..200).contains(&cur);
     if cur_valid {
       current.set(self.color_name.clone(), self.good_color.clone());
     } else {
@@ -117,7 +117,7 @@ impl Experience {
       .as_str()
       .parse::<usize>()
       .unwrap_or(0);
-    let tgt_valid = tgt >= 1 && tgt <= 200 && (!cur_valid || tgt > cur);
+    let tgt_valid = (1..=200).contains(&tgt) && (!cur_valid || tgt > cur);
     if tgt_valid {
       target.set(self.color_name.clone(), self.good_color.clone());
     } else {
