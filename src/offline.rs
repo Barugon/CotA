@@ -778,7 +778,7 @@ impl GameInfo {
         let character = some!(get_json(&xml, "CharacterSheet", id), msg, None);
 
         // Get the skills dictionary.
-        let msg = "Skills not found";
+        let msg = "Skills dictionary not found";
         let skills = some!(character.get(&Variant::from_str("sk2")), msg, None);
 
         // Find the 'UserGold' json.
