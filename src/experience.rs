@@ -115,7 +115,7 @@ impl Experience {
       .as_str()
       .parse::<usize>()
       .unwrap_or(0);
-    let tgt_valid = (1..=200).contains(&tgt) && (!cur_valid || tgt > cur);
+    let tgt_valid = (2..=200).contains(&tgt) && (!cur_valid || tgt > cur);
     if tgt_valid {
       target.set(self.color_name.clone(), self.good_color.clone());
     } else {
