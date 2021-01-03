@@ -78,14 +78,12 @@ impl Experience {
     // The item is actually still selected (but not
     // highlighted) after the parent is collapsed.
     let tree = some!(owner.get_node_as::<Tree>(&self.tree));
-    if let Some(item) = tree.get_selected() {
-      let item = item.to_ref();
-      if let Some(parent) = item.get_parent() {
-        let parent = parent.to_ref();
-        if parent.is_collapsed() && self.selected.swap(false, Ordering::Relaxed) {
-          self.update(owner, tree);
-        }
-      }
+    let item = some!(tree.get_selected());
+    let item = item.to_ref();
+    let parent = some!(item.get_parent());
+    let parent = parent.to_ref();
+    if parent.is_collapsed() && self.selected.swap(false, Ordering::Relaxed) {
+      self.update(owner, tree);
     }
   }
 
