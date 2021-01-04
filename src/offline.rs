@@ -873,16 +873,16 @@ impl GameInfo {
     self.skills.get(&var).get(&self.x).to_int()
   }
 
-  fn set_skill_exp(&mut self, key: &GodotString, exp: i64) -> bool {
+  fn set_skill_exp(&mut self, key: &GodotString, exp: i64) {
     let key = Variant::from_godot_string(key);
     if let Some(mut dict) = self.skills.get(&key) {
       if let Some(cur) = dict.get(&self.x).to_int() {
         // Change it only if it's different.
         if exp != cur {
           dict.set(&self.x, &Variant::from_i64(exp));
-          return true;
+          return;
         }
-        return false;
+        return;
       }
     }
 
@@ -893,7 +893,6 @@ impl GameInfo {
     dict.insert(&self.m, 0i64);
     let var = Variant::from_dictionary(&dict.into_shared());
     self.skills.set(&key, &var);
-    true
   }
 
   fn remove_skill(&mut self, key: &GodotString) {
