@@ -174,7 +174,7 @@ impl Offline {
               let path = path.to_utf8();
               if let Some(name) = Path::new(path.as_str()).file_name() {
                 if let Some(name) = name.to_str() {
-                  self.set_status_message(owner, &format!("Editing \"{}\"", name));
+                  self.set_status_message(owner, &format!(r#"Editing "{}""#, name));
                 }
               }
 
@@ -197,7 +197,7 @@ impl Offline {
     let path = path.to_utf8();
     let name = some!(Path::new(path.as_str()).file_name());
     let name = some!(name.to_str());
-    self.set_status_message(owner, &format!("Unable to edit \"{}\"", name));
+    self.set_status_message(owner, &format!(r#"Unable to edit "{}""#, name));
   }
 
   #[export]
@@ -211,7 +211,7 @@ impl Offline {
     let path = game_info.path().to_utf8();
     let name = some!(Path::new(path.as_str()).file_name());
     let name = some!(name.to_str());
-    self.set_status_message(owner, &format!("Unable to save \"{}\"", name));
+    self.set_status_message(owner, &format!(r#"Unable to save "{}""#, name));
   }
 
   fn skill_changed(&self, owner: TRef<Node>, tree: SkillTree) {
@@ -673,12 +673,12 @@ struct GameInfo {
 
 fn get_avatar_id(text: &str) -> Option<GodotString> {
   // Find the 'User' collection tag.
-  let find = "<collection name=\"User\">";
+  let find = r#"<collection name="User">"#;
   let pos = some!(text.find(find), None);
   let text = &text[pos + find.len()..];
 
   // Find the record tag.
-  let find = "<record Id=\"000000000000000000000001\">";
+  let find = r#"<record Id="000000000000000000000001">"#;
   let pos = some!(text.find(find), None);
   let text = &text[pos + find.len()..];
 
@@ -698,12 +698,12 @@ fn get_avatar_id(text: &str) -> Option<GodotString> {
 
 fn get_json(text: &str, collection: &str, id: &str) -> Option<Variant> {
   // Find the collection tag.
-  let find = format!("<collection name=\"{}\">", collection);
+  let find = format!(r#"<collection name="{}">"#, collection);
   let pos = some!(text.find(&find), None);
   let text = &text[pos + find.len()..];
 
   // From that point, find the record tag.
-  let find = format!("<record Id=\"{}\">", id);
+  let find = format!(r#"<record Id="{}">"#, id);
   let pos = some!(text.find(&find), None);
   let text = &text[pos + find.len()..];
 
@@ -722,12 +722,12 @@ fn get_json(text: &str, collection: &str, id: &str) -> Option<Variant> {
 
 fn set_json(text: &str, collection: &str, id: &str, var: &Variant) -> Option<String> {
   // Find the collection tag.
-  let find = format!("<collection name=\"{}\">", collection);
+  let find = format!(r#"<collection name="{}">"#, collection);
   let start = some!(text.find(&find), None) + find.len();
   let slice = &text[start..];
 
   // From that point, find the record tag.
-  let find = format!("<record Id=\"{}\">", id);
+  let find = format!(r#"<record Id="{}">"#, id);
   let pos = some!(slice.find(&find), None) + find.len();
   let slice = &slice[pos..];
   let start = start + pos;
