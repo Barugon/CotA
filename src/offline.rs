@@ -783,7 +783,7 @@ impl GameInfo {
 
         // Find the 'UserGold' json.
         let msg = "Unable to find user gold";
-        let gold = some!(get_json(&xml, "UserGold", id), msg, None);
+        let gold = some!(get_json(&xml, "UserGold", "000000000000000000000001"), msg, None);
 
         // Find a date.
         let msg = "Unable to find the date/time";
@@ -820,7 +820,7 @@ impl GameInfo {
     // Set UserGold.
     let tag = "UserGold";
     let msg = "Unable to set UserGold";
-    let xml = some!(set_json(&self.xml, tag, id, &self.gold), msg, false);
+    let xml = some!(set_json(&self.xml, tag, "000000000000000000000001", &self.gold), msg, false);
 
     // Set CharacterSheet.
     let tag = "CharacterSheet";
