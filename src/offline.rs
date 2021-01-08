@@ -4,6 +4,8 @@ use gdnative::api::*;
 use gdnative::prelude::*;
 use std::{cell::RefCell, fs::File, io::prelude::*, path::Path};
 
+const USER_ID: &str = "000000000000000000000001";
+
 enum SkillTree {
   Adventurer,
   Producer,
@@ -678,8 +680,8 @@ fn get_avatar_id(text: &str) -> Option<GodotString> {
   let text = &text[pos + find.len()..];
 
   // Find the record tag.
-  let find = r#"<record Id="000000000000000000000001">"#;
-  let pos = some!(text.find(find), None);
+  let find = format!(r#"<record Id="{}">"#, USER_ID);
+  let pos = some!(text.find(&find), None);
   let text = &text[pos + find.len()..];
 
   // Find the record end tag.
@@ -783,7 +785,7 @@ impl GameInfo {
 
         // Find the 'UserGold' json.
         let msg = "Unable to find user gold";
-        let gold = some!(get_json(&xml, "UserGold", "000000000000000000000001"), msg, None);
+        let gold = some!(get_json(&xml, "UserGold", USER_ID), msg, None);
 
         // Find a date.
         let msg = "Unable to find the date/time";
@@ -820,7 +822,7 @@ impl GameInfo {
     // Set UserGold.
     let tag = "UserGold";
     let msg = "Unable to set UserGold";
-    let xml = some!(set_json(&self.xml, tag, "000000000000000000000001", &self.gold), msg, false);
+    let xml = some!(set_json(&self.xml, tag, USER_ID, &self.gold), msg, false);
 
     // Set CharacterSheet.
     let tag = "CharacterSheet";
