@@ -36,7 +36,7 @@ margin_bottom = 22.0
 margin_right = 35.0
 margin_bottom = 22.0
 text = "File"
-items = [ "Log Folder...", null, 0, false, false, 0, 0, null, "", false, "", null, 0, false, true, -1, 0, null, "", true, "Quit", null, 0, false, false, 1, 0, null, "", false ]
+items = [ "Log Folder...", null, 0, false, false, 0, 0, null, "", false, "Search Logs...", null, 0, false, false, 1, 0, null, "", false, "", null, 0, false, true, -1, 0, null, "", true, "Quit", null, 0, false, false, 2, 0, null, "", false ]
 switch_on_hover = true
 
 [node name="View" type="MenuButton" parent="VBox/Menu"]
@@ -750,9 +750,8 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 margin_left = -234.0
-margin_top = -201.5
-margin_right = 234.0
-margin_bottom = 201.5
+margin_top = -225.0
+rect_min_size = Vector2( 468, 450 )
 window_title = ""
 mode_overrides_title = false
 mode = 0
@@ -768,11 +767,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-margin_left = -115.5
+margin_left = -125.0
 margin_top = -35.0
-margin_right = 115.5
-margin_bottom = 35.0
-window_title = "Filter Stats"
+rect_min_size = Vector2( 250, 70 )
+window_title = "Filter Stats..."
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -789,7 +787,7 @@ __meta__ = {
 }
 
 [node name="FilterEdit" type="LineEdit" parent="FilterDialog/VBox"]
-margin_right = 215.0
+margin_right = 234.0
 margin_bottom = 22.0
 
 [node name="NotesDialog" type="ConfirmationDialog" parent="."]
@@ -797,10 +795,9 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-margin_left = -184.0
-margin_top = -187.5
-margin_right = 184.0
-margin_bottom = 187.5
+margin_left = -200.0
+margin_top = -225.0
+rect_min_size = Vector2( 400, 450 )
 window_title = "Notes"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -813,21 +810,86 @@ margin_left = 8.0
 margin_top = 8.0
 margin_right = -8.0
 margin_bottom = -38.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="NotesEdit" type="TextEdit" parent="NotesDialog/VBox"]
-margin_right = 352.0
-margin_bottom = 329.0
+margin_right = 384.0
+margin_bottom = 404.0
 size_flags_vertical = 3
+
+[node name="SearchDialog" type="ConfirmationDialog" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -125.0
+margin_top = -35.0
+rect_min_size = Vector2( 250, 100 )
+window_title = "Search Logs..."
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBox" type="VBoxContainer" parent="SearchDialog"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = -38.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="CheckBox" type="CheckBox" parent="SearchDialog/VBox"]
+margin_right = 234.0
+margin_bottom = 24.0
+text = "Use regular expression"
+
+[node name="SearchEdit" type="LineEdit" parent="SearchDialog/VBox"]
+margin_top = 28.0
+margin_right = 234.0
+margin_bottom = 50.0
+
+[node name="ResultsDialog" type="WindowDialog" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -200.0
+margin_top = -225.0
+rect_min_size = Vector2( 400, 450 )
+window_title = "Log Search Results"
+
+[node name="VBox" type="VBoxContainer" parent="ResultsDialog"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = -8.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ResultsEdit" type="TextEdit" parent="ResultsDialog/VBox"]
+margin_right = 384.0
+margin_bottom = 434.0
+size_flags_vertical = 3
+readonly = true
 
 [node name="AboutDialog" type="AcceptDialog" parent="."]
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-margin_left = -156.0
+margin_left = -150.0
 margin_top = -129.0
-margin_right = 156.0
-margin_bottom = 129.0
+margin_right = 66.0
+margin_bottom = -56.0
+rect_min_size = Vector2( 300, 258 )
 window_title = "Companion of the Avatar"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -845,20 +907,20 @@ __meta__ = {
 }
 
 [node name="Icon" type="TextureRect" parent="AboutDialog/VBox"]
-margin_right = 296.0
+margin_right = 284.0
 margin_bottom = 150.0
 texture = ExtResource( 4 )
 stretch_mode = 4
 
 [node name="Version" type="Label" parent="AboutDialog/VBox"]
 margin_top = 154.0
-margin_right = 296.0
+margin_right = 284.0
 margin_bottom = 176.0
 align = 1
 
 [node name="Creator" type="Label" parent="AboutDialog/VBox"]
 margin_top = 180.0
-margin_right = 296.0
+margin_right = 284.0
 margin_bottom = 202.0
 text = "Created by: Barugon"
 align = 1
@@ -868,9 +930,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-margin_left = -111.0
-margin_top = -42.5
-margin_right = 111.0
-margin_bottom = 42.5
+margin_left = -100.0
+margin_top = -42.0
 dialog_text = "There are unsaved changes!
 "
+__meta__ = {
+"_edit_use_anchors_": false
+}

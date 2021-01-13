@@ -12,6 +12,7 @@ use std::{
   fs,
   path::{Path, PathBuf},
   str::SplitWhitespace,
+  sync::Arc,
 };
 use thread_pool::*;
 
@@ -31,6 +32,11 @@ pub struct Stats {
   filter_edit: GodotString,
   notes_dialog: GodotString,
   notes_edit: GodotString,
+  search_dialog: GodotString,
+  search_edit: GodotString,
+  search_check: GodotString,
+  results_dialog: GodotString,
+  results_edit: GodotString,
 }
 
 enum StatOpts<'a> {
@@ -62,6 +68,11 @@ impl Stats {
       filter_edit: GodotString::from("/root/App/FilterDialog/VBox/FilterEdit"),
       notes_dialog: GodotString::from("/root/App/NotesDialog"),
       notes_edit: GodotString::from("/root/App/NotesDialog/VBox/NotesEdit"),
+      search_dialog: GodotString::from("/root/App/SearchDialog"),
+      search_edit: GodotString::from("/root/App/SearchDialog/VBox/SearchEdit"),
+      search_check: GodotString::from("/root/App/SearchDialog/VBox/CheckBox"),
+      results_dialog: GodotString::from("/root/App/ResultsDialog"),
+      results_edit: GodotString::from("/root/App/ResultsDialog/VBox/ResultsEdit"),
     }
   }
 
@@ -104,6 +115,14 @@ impl Stats {
       }
     }
 
+    // Connect the search dialog.
+    owner.connect_to(&self.search_dialog, "confirmed", "search_changed");
+    if let Some(dialog) = owner.get_node_as::<ConfirmationDialog>(&self.search_dialog) {
+      if let Some(edit) = owner.get_node(self.search_edit.clone()) {
+        dialog.register_text_enter(edit);
+      }
+    }
+
     // Set some stats tree properties.
     if let Some(tree) = owner.get_node_as::<Tree>(&self.tree) {
       tree.set_column_expand(0, true);
@@ -113,6 +132,17 @@ impl Stats {
       // tree.set_column_titles_visible(true);
     }
     self.populate_avatars(owner);
+  }
+
+  #[export]
+  fn search(&self, owner: TRef<Node>) {
+    if let Some(dialog) = owner.get_node_as::<ConfirmationDialog>(&self.search_dialog) {
+      if let Some(edit) = owner.get_node_as::<LineEdit>(&self.search_edit) {
+        dialog.popup_centered(Vector2::zero());
+        edit.grab_focus();
+        edit.select_all();
+      }
+    }
   }
 
   #[export]
@@ -126,14 +156,17 @@ impl Stats {
             let avatar = avatar.as_str();
             self.populate_stats(owner, Some(avatar), Some(ts), StatOpts::Resists);
           }
+        } else {
+          godot_print!("No avatar selected");
         }
       }
       FILTER_ID => {
         if let Some(dialog) = owner.get_node_as::<ConfirmationDialog>(&self.filter_dialog) {
           if let Some(edit) = owner.get_node_as::<LineEdit>(&self.filter_edit) {
-            edit.set_text(GodotString::new());
+            // edit.set_text(GodotString::new());
             dialog.popup_centered(Vector2::zero());
             edit.grab_focus();
+            edit.select_all();
           }
         }
       }
@@ -143,7 +176,11 @@ impl Stats {
             let avatar = avatar.to_utf8();
             let avatar = avatar.as_str();
             self.populate_stats(owner, Some(avatar), Some(ts), StatOpts::None);
+          } else {
+            godot_print!("No date/time selected");
           }
+        } else {
+          godot_print!("No avatar selected");
         }
       }
       _ => {}
@@ -235,6 +272,37 @@ impl Stats {
         self.config.set_notes(&avatar, Some(&text));
       }
     }
+  }
+
+  #[export]
+  fn search_changed(&self, owner: TRef<Node>) {
+    if let Some(edit) = owner.get_node_as::<LineEdit>(&self.search_edit) {
+      let text = edit.text();
+      if !text.is_empty() {
+        if let Some(check) = owner.get_node_as::<CheckBox>(&self.search_check) {
+          let search = if check.is_pressed() {
+            Search::R(ok!(Regex::new(text.to_utf8().as_str())))
+          } else {
+            Search::S(String::from(text.to_utf8().as_str()))
+          };
+          let text = if let Some(avatar) = self.get_current_avatar(owner) {
+            self.get_log_entries(avatar.to_utf8().as_str(), search)
+          } else {
+            String::new()
+          };
+          if let Some(dialog) = owner.get_node_as::<WindowDialog>(&self.results_dialog) {
+            if let Some(edit) = owner.get_node_as::<TextEdit>(&self.results_edit) {
+              edit.set_text(text);
+              dialog.popup_centered(Vector2::zero());
+            }
+          }
+        }
+      }
+    }
+  }
+
+  fn get_log_entries(&self, avatar: &str, search: Search) -> String {
+    self.data.borrow().get_log_entries(avatar, search)
   }
 
   fn get_avatars(&self) -> Vec<String> {
@@ -658,6 +726,11 @@ impl StatsData {
   }
 }
 
+enum Search {
+  S(String),
+  R(Regex),
+}
+
 /// Object that reads from SotA chat logs.
 struct LogData {
   folder: PathBuf,
@@ -728,11 +801,6 @@ impl LogData {
 
     let mut timestamps = Vec::new();
     for mut task in tasks {
-      // Yield the current thread until the task is done.
-      while task.current() {
-        std::thread::yield_now();
-      }
-
       // Concatenate the results.
       if let Some(mut result) = task.get() {
         timestamps.append(&mut result);
@@ -777,6 +845,62 @@ impl LogData {
     }
 
     None
+  }
+
+  fn get_log_entries(&self, avatar: &str, search: Search) -> String {
+    let tasks = {
+      let filenames = self.get_log_filenames(Some(avatar), None);
+      let search = Arc::new(search);
+      let mut tasks = Vec::with_capacity(filenames.len());
+      let mut pool = self.pool.borrow_mut();
+      for filename in filenames {
+        let path = self.folder.join(filename);
+        let search = Arc::clone(&search);
+        let task = pool.exec(move |cancel| {
+          let mut result = String::new();
+          if let Ok(text) = fs::read_to_string(&path) {
+            for line in text.lines() {
+              if cancel() {
+                break;
+              } else {
+                match search.as_ref() {
+                  Search::S(search) => {
+                    if line.contains(search) {
+                      result.push_str(line);
+                      result.push('\n');
+                    }
+                  }
+                  Search::R(search) => {
+                    if search.is_match(line) {
+                      result.push_str(line);
+                      result.push('\n');
+                    }
+                  }
+                }
+              }
+            }
+          }
+          Some(result)
+        });
+        tasks.push(task);
+      }
+      tasks
+    };
+
+    let mut results = Vec::with_capacity(tasks.len());
+    let mut size: usize = 0;
+    for mut task in tasks {
+      if let Some(result) = task.get() {
+        size += result.len();
+        results.push(result);
+      }
+    }
+
+    let mut text = String::with_capacity(size);
+    for result in results {
+      text.push_str(&result);
+    }
+    text
   }
 
   fn get_log_filenames(&self, avatar: Option<&str>, ts: Option<i64>) -> Vec<String> {

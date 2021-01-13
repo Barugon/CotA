@@ -18,6 +18,8 @@ pub struct App {
   portals_timer: GodotString,
   update_signal: GodotString,
   tabs: GodotString,
+  stats: GodotString,
+  search: GodotString,
 }
 
 #[methods]
@@ -36,8 +38,10 @@ impl App {
       about_dialog: GodotString::from("AboutDialog"),
       about_version: GodotString::from("AboutDialog/VBox/Version"),
       portals_timer: GodotString::from("VBox/Tabs/Portals/Timer"),
-      tabs: GodotString::from("VBox/Tabs"),
       update_signal: GodotString::from("timeout"),
+      tabs: GodotString::from("VBox/Tabs"),
+      stats: GodotString::from("VBox/Tabs/Stats"),
+      search: GodotString::from("search"),
     }
   }
 
@@ -51,9 +55,9 @@ impl App {
     owner.connect_to(&self.file, "id_pressed", "file_menu_select");
     if let Some(button) = owner.get_node_as::<MenuButton>(&self.file) {
       if let Some(popup) = button.get_popup() {
-        popup
-          .to_ref()
-          .set_shortcut(QUIT_ID, GlobalConstants::KEY_Q, true);
+        let popup = popup.to_ref();
+        popup.set_shortcut(QUIT_ID, GlobalConstants::KEY_Q, true);
+        popup.set_shortcut(SEARCH_ID, GlobalConstants::KEY_L, true);
       } else {
         godot_print!("Unable to get popup from File");
       }
@@ -78,6 +82,13 @@ impl App {
             dialog.set_current_path(folder);
           }
           dialog.popup_centered(Vector2::zero());
+        }
+      }
+      SEARCH_ID => {
+        if let Some(node) = owner.get_node(NodePath::new(&self.stats)) {
+          unsafe {
+            node.assume_safe().call(self.search.clone(), &[]);
+          }
         }
       }
       QUIT_ID => owner.propagate_notification(MainLoop::NOTIFICATION_WM_QUIT_REQUEST),
@@ -113,18 +124,16 @@ impl App {
   fn enable_stat_menus(&self, owner: TRef<Node>, enable: bool) {
     if let Some(menu) = owner.get_node_as::<MenuButton>(&self.file) {
       if let Some(popup) = menu.get_popup() {
-        popup
-          .to_ref()
-          .set_item_disabled(popup.to_ref().get_item_index(LOG_FOLDER_ID), !enable);
+        let popup = popup.to_ref();
+        popup.set_item_disabled(popup.get_item_index(LOG_FOLDER_ID), !enable);
       }
     }
 
     if let Some(menu) = owner.get_node_as::<MenuButton>(&self.view) {
       if let Some(popup) = menu.get_popup() {
-        for id in &[REFRESH_ID, RESISTS_ID, FILTER_ID, RESET_ID] {
-          popup
-            .to_ref()
-            .set_item_disabled(popup.to_ref().get_item_index(*id), !enable);
+        for id in &[REFRESH_ID, RESISTS_ID, FILTER_ID, RESET_ID, SEARCH_ID] {
+          let popup = popup.to_ref();
+          popup.set_item_disabled(popup.get_item_index(*id), !enable);
         }
       }
     }

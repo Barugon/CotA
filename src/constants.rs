@@ -5,7 +5,8 @@ pub const SKILL_EXP_VALUES: [i64; 200] = include!("res/skill_exp_values");
 
 // File menu.
 pub const LOG_FOLDER_ID: i64 = 0;
-pub const QUIT_ID: i64 = 1;
+pub const SEARCH_ID: i64 = 1;
+pub const QUIT_ID: i64 = 2;
 
 // View menu.
 pub const REFRESH_ID: i64 = 0;
