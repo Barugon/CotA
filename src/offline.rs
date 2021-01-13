@@ -95,17 +95,14 @@ impl Offline {
 
     if let Some(button) = owner.get_node_as::<Button>(&self.save) {
       if !button.is_disabled() {
-        if let Some(dialog) = owner.get_node_as::<ConfirmationDialog>(&self.confirm) {
-          *self.confirmation.borrow_mut() = Confirmation::Quit;
-          // Calling popup_centered directly from here causes an internal godot error.
-          unsafe {
-            dialog.call_deferred(
-              self.popup_centered.clone(),
-              &[Variant::from_vector2(&Vector2::zero())],
-            );
-          }
-          return;
-        }
+        *self.confirmation.borrow_mut() = Confirmation::Quit;
+        // Calling popup_centered directly from here causes an internal godot error.
+        owner.method_deferred(
+          &self.confirm,
+          &self.popup_centered,
+          &[Variant::from_vector2(&Vector2::zero())],
+        );
+        return;
       }
     }
     self.quit(owner);

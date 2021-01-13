@@ -137,6 +137,31 @@ impl GetNodeAs for TRef<'_, Node> {
   }
 }
 
+pub trait Method {
+  fn method(self, path: &GodotString, method: &GodotString, args: &[Variant]) -> Variant;
+  fn method_deferred(self, path: &GodotString, method: &GodotString, args: &[Variant]) -> Variant;
+}
+
+impl Method for TRef<'_, Node> {
+  fn method(self, path: &GodotString, method: &GodotString, args: &[Variant]) -> Variant {
+    if let Some(node) = self.get_node(NodePath::new(path)) {
+      unsafe {
+        return node.assume_safe().call(method.clone(), args);
+      }
+    }
+    Variant::new()
+  }
+
+  fn method_deferred(self, path: &GodotString, method: &GodotString, args: &[Variant]) -> Variant {
+    if let Some(node) = self.get_node(NodePath::new(path)) {
+      unsafe {
+        return node.assume_safe().call_deferred(method.clone(), args);
+      }
+    }
+    Variant::new()
+  }
+}
+
 pub trait ConnectTo {
   fn connect_to(self, path: &GodotString, signal: &str, slot: &str) -> bool;
 }

@@ -85,11 +85,7 @@ impl App {
         }
       }
       SEARCH_ID => {
-        if let Some(node) = owner.get_node(NodePath::new(&self.stats)) {
-          unsafe {
-            node.assume_safe().call(self.search.clone(), &[]);
-          }
-        }
+        owner.method(&self.stats, &self.search, &[]);
       }
       QUIT_ID => owner.propagate_notification(MainLoop::NOTIFICATION_WM_QUIT_REQUEST),
       _ => {}

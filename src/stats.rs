@@ -34,7 +34,7 @@ pub struct Stats {
   notes_edit: GodotString,
   search_dialog: GodotString,
   search_edit: GodotString,
-  search_check: GodotString,
+  regex_check: GodotString,
   results_dialog: GodotString,
   results_edit: GodotString,
 }
@@ -70,7 +70,7 @@ impl Stats {
       notes_edit: GodotString::from("/root/App/NotesDialog/VBox/NotesEdit"),
       search_dialog: GodotString::from("/root/App/SearchDialog"),
       search_edit: GodotString::from("/root/App/SearchDialog/VBox/SearchEdit"),
-      search_check: GodotString::from("/root/App/SearchDialog/VBox/CheckBox"),
+      regex_check: GodotString::from("/root/App/SearchDialog/VBox/CheckBox"),
       results_dialog: GodotString::from("/root/App/ResultsDialog"),
       results_edit: GodotString::from("/root/App/ResultsDialog/VBox/ResultsEdit"),
     }
@@ -132,17 +132,6 @@ impl Stats {
       // tree.set_column_titles_visible(true);
     }
     self.populate_avatars(owner);
-  }
-
-  #[export]
-  fn search(&self, owner: TRef<Node>) {
-    if let Some(dialog) = owner.get_node_as::<ConfirmationDialog>(&self.search_dialog) {
-      if let Some(edit) = owner.get_node_as::<LineEdit>(&self.search_edit) {
-        dialog.popup_centered(Vector2::zero());
-        edit.grab_focus();
-        edit.select_all();
-      }
-    }
   }
 
   #[export]
@@ -275,21 +264,35 @@ impl Stats {
   }
 
   #[export]
+  fn search(&self, owner: TRef<Node>) {
+    if let Some(dialog) = owner.get_node_as::<ConfirmationDialog>(&self.search_dialog) {
+      if let Some(edit) = owner.get_node_as::<LineEdit>(&self.search_edit) {
+        dialog.popup_centered(Vector2::zero());
+        edit.grab_focus();
+        edit.select_all();
+      }
+    }
+  }
+
+  #[export]
   fn search_changed(&self, owner: TRef<Node>) {
     if let Some(edit) = owner.get_node_as::<LineEdit>(&self.search_edit) {
       let text = edit.text();
       if !text.is_empty() {
-        if let Some(check) = owner.get_node_as::<CheckBox>(&self.search_check) {
-          let search = if check.is_pressed() {
+        if let Some(regex) = owner.get_node_as::<CheckBox>(&self.regex_check) {
+          // Get the search term.
+          let search = if regex.is_pressed() {
             Search::R(ok!(Regex::new(text.to_utf8().as_str())))
           } else {
             Search::S(String::from(text.to_utf8().as_str()))
           };
+          // Find matching log entries.
           let text = if let Some(avatar) = self.get_current_avatar(owner) {
             self.get_log_entries(avatar.to_utf8().as_str(), search)
           } else {
             String::new()
           };
+          // Display the log entries in a dialog.
           if let Some(dialog) = owner.get_node_as::<WindowDialog>(&self.results_dialog) {
             if let Some(edit) = owner.get_node_as::<TextEdit>(&self.results_edit) {
               edit.set_text(text);
