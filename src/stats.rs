@@ -287,7 +287,7 @@ impl Stats {
           };
           // Find matching log entries.
           let text = if let Some(avatar) = self.get_current_avatar(owner) {
-            self.get_log_entries(avatar.to_utf8().as_str(), search)
+            self.find_log_entries(avatar.to_utf8().as_str(), search)
           } else {
             String::new()
           };
@@ -304,8 +304,8 @@ impl Stats {
     }
   }
 
-  fn get_log_entries(&self, avatar: &str, search: Search) -> String {
-    self.data.borrow().get_log_entries(avatar, search)
+  fn find_log_entries(&self, avatar: &str, search: Search) -> String {
+    self.data.borrow().find_log_entries(avatar, search)
   }
 
   fn get_avatars(&self) -> Vec<String> {
@@ -850,7 +850,8 @@ impl LogData {
     None
   }
 
-  fn get_log_entries(&self, avatar: &str, search: Search) -> String {
+  /// Finds log entries matching the provided search term.
+  fn find_log_entries(&self, avatar: &str, search: Search) -> String {
     // Godot will choke if the text is too big, so we limit
     // it to the most recent megabyte of text.
     const LIMIT: usize = 1048576;
