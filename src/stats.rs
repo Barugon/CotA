@@ -152,7 +152,6 @@ impl Stats {
       FILTER_ID => {
         if let Some(dialog) = owner.get_node_as::<ConfirmationDialog>(&self.filter_dialog) {
           if let Some(edit) = owner.get_node_as::<LineEdit>(&self.filter_edit) {
-            // edit.set_text(GodotString::new());
             dialog.popup_centered(Vector2::zero());
             edit.grab_focus();
             edit.select_all();
@@ -282,7 +281,7 @@ impl Stats {
         if let Some(regex) = owner.get_node_as::<CheckBox>(&self.regex_check) {
           // Get the search term.
           let search = if regex.is_pressed() {
-            Search::R(ok!(Regex::new(text.to_utf8().as_str())))
+            Search::R(Box::new(ok!(Regex::new(text.to_utf8().as_str()))))
           } else {
             Search::S(String::from(text.to_utf8().as_str()))
           };
@@ -296,6 +295,7 @@ impl Stats {
           if let Some(dialog) = owner.get_node_as::<WindowDialog>(&self.results_dialog) {
             if let Some(edit) = owner.get_node_as::<TextEdit>(&self.results_edit) {
               edit.set_text(text);
+              edit.clear_undo_history();
               dialog.popup_centered(Vector2::zero());
             }
           }
@@ -731,7 +731,7 @@ impl StatsData {
 
 enum Search {
   S(String),
-  R(Regex),
+  R(Box<Regex>),
 }
 
 /// Object that reads from SotA chat logs.
@@ -851,9 +851,14 @@ impl LogData {
   }
 
   fn get_log_entries(&self, avatar: &str, search: Search) -> String {
+    // Godot will choke if the text is too big, so we limit
+    // it to the most recent megabyte of text.
+    const LIMIT: usize = 1048576;
+
     let tasks = {
+      // Work on files from newest to oldest.
       let mut filenames = self.get_log_filenames(Some(avatar), None);
-      filenames.sort_unstable();
+      filenames.sort_unstable_by(|a, b| b.cmp(a));
 
       let search = Arc::new(search);
       let mut tasks = Vec::with_capacity(filenames.len());
@@ -862,7 +867,8 @@ impl LogData {
         let path = self.folder.join(filename);
         let search = Arc::clone(&search);
         let task = pool.exec(move |cancel| {
-          let mut result = String::new();
+          let mut lines = Vec::new();
+          let mut size: usize = 0;
           if let Ok(text) = fs::read_to_string(&path) {
             for line in text.lines() {
               if cancel() {
@@ -871,39 +877,71 @@ impl LogData {
                 match search.as_ref() {
                   Search::S(search) => {
                     if line.contains(search) {
-                      result.push_str(line);
-                      result.push('\n');
+                      size += line.len();
+                      lines.push(line);
                     }
                   }
                   Search::R(search) => {
                     if search.is_match(line) {
-                      result.push_str(line);
-                      result.push('\n');
+                      size += line.len();
+                      lines.push(line);
                     }
                   }
                 }
+                // If the size limit is reached in one file then we're done.
+                if size >= LIMIT {
+                  break;
+                }
               }
             }
+            // Concatenate the lines in reverse order (newest to oldest).
+            let mut result = String::with_capacity(size + lines.len());
+            for line in lines.iter().rev() {
+              result.push_str(line);
+              result.push('\n');
+            }
+            return Some(result);
           }
-          Some(result)
+          None
         });
         tasks.push(task);
       }
       tasks
     };
 
+    // Collect the text from each task.
     let mut results = Vec::with_capacity(tasks.len());
     let mut size: usize = 0;
     for mut task in tasks {
-      if let Some(result) = task.get() {
+      if size >= LIMIT {
+        // Size limit reached. Cancel the remaining tasks.
+        task.cancel();
+      } else if let Some(result) = task.get() {
         size += result.len();
         results.push(result);
       }
     }
 
-    let mut text = String::with_capacity(size);
-    for result in results {
-      text.push_str(&result);
+    // Collect the lines of text up to the size limit.
+    size = 0;
+    let mut lines = Vec::new();
+    for result in &results {
+      for line in result.lines() {
+        if !line.is_empty() {
+          size += line.len();
+          lines.push(line);
+          if size >= LIMIT {
+            break;
+          }
+        }
+      }
+    }
+
+    // Concatenate the lines of text in reverse order.
+    let mut text = String::with_capacity(size + lines.len());
+    for line in lines.iter().rev() {
+      text.push_str(line);
+      text.push('\n');
     }
     text
   }
