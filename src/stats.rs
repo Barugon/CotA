@@ -852,7 +852,9 @@ impl LogData {
 
   fn get_log_entries(&self, avatar: &str, search: Search) -> String {
     let tasks = {
-      let filenames = self.get_log_filenames(Some(avatar), None);
+      let mut filenames = self.get_log_filenames(Some(avatar), None);
+      filenames.sort_unstable();
+
       let search = Arc::new(search);
       let mut tasks = Vec::with_capacity(filenames.len());
       let mut pool = self.pool.borrow_mut();
