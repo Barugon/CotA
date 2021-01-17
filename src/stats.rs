@@ -855,13 +855,12 @@ impl LogData {
     const LIMIT: usize = 1048576;
 
     let tasks = {
-      // Work on files from newest to oldest.
-      let mut filenames = self.get_log_filenames(Some(avatar), None);
-      filenames.sort_unstable_by(|a, b| b.cmp(a));
-
       let search = Arc::new(search);
+      let mut filenames = self.get_log_filenames(Some(avatar), None);
       let mut tasks = Vec::with_capacity(filenames.len());
       let mut pool = self.pool.borrow_mut();
+      // Work on files from newest to oldest.
+      filenames.sort_unstable_by(|a, b| b.cmp(a));
       for filename in filenames {
         let path = self.folder.join(filename);
         let search = Arc::clone(&search);
@@ -887,17 +886,19 @@ impl LogData {
                     }
                   }
                 }
-                // If the size limit is reached in one file then we're done.
-                if size >= LIMIT {
-                  break;
-                }
               }
             }
-            // Concatenate the lines in reverse order (newest to oldest).
             let mut result = String::with_capacity(size + lines.len());
+            size = 0;
+            // Concatenate the lines in reverse order (newest to oldest).
             for line in lines.iter().rev() {
               result.push_str(line);
               result.push('\n');
+              // If the ultimate size limit is reached then we're done.
+              size += line.len() + 1;
+              if size >= LIMIT {
+                break;
+              }
             }
             return Some(result);
           }
