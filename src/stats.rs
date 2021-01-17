@@ -776,8 +776,6 @@ impl LogData {
       let filenames = self.get_log_filenames(Some(avatar), None);
       let mut tasks = Vec::new();
       let mut pool = self.pool.borrow_mut();
-
-      // Use all the processing power available to load and parse the log files.
       for filename in filenames {
         let path = self.folder.join(filename.as_str());
         if let Some(date) = get_log_file_date(&path) {
