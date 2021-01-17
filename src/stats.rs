@@ -848,7 +848,7 @@ impl LogData {
     None
   }
 
-  /// Finds log entries matching the provided search term.
+  /// Find log entries matching the provided search term.
   fn find_log_entries(&self, avatar: &str, search: Search) -> String {
     // Godot will choke if the text is too big, so we limit
     // it to the most recent megabyte of text.
