@@ -303,6 +303,7 @@ pub struct Config {
   section: GodotString,
   folder_key: GodotString,
   avatar_key: GodotString,
+  notes_key: GodotString,
 }
 
 impl Config {
@@ -327,17 +328,12 @@ impl Config {
       section: GodotString::from("main"),
       folder_key: GodotString::from("log_folder"),
       avatar_key: GodotString::from("avatar"),
+      notes_key: GodotString::from("notes"),
     }
   }
 
-  fn notes_key(avatar: &GodotString) -> GodotString {
-    let avatar = avatar.to_utf8();
-    let avatar = avatar.as_str();
-    GodotString::from(format!("{}_notes", avatar.replace(' ', "_")))
-  }
-
   pub fn get_log_folder(&self) -> Option<GodotString> {
-    if let Some(folder) = self.get_value(&self.folder_key) {
+    if let Some(folder) = self.get_value(&self.section, &self.folder_key) {
       return Some(folder);
     } else if let Some(folder) = &self.log_path {
       return Some(folder.clone());
@@ -346,37 +342,37 @@ impl Config {
   }
 
   pub fn set_log_folder(&self, folder: Option<&GodotString>) {
-    self.set_value(&self.folder_key, folder);
+    self.set_value(&self.section, &self.folder_key, folder);
   }
 
   pub fn get_avatar(&self) -> Option<GodotString> {
-    self.get_value(&self.avatar_key)
+    self.get_value(&self.section, &self.avatar_key)
   }
 
   pub fn set_avatar(&self, avatar: Option<&GodotString>) {
-    self.set_value(&self.avatar_key, avatar);
+    self.set_value(&self.section, &self.avatar_key, avatar);
   }
 
   pub fn get_notes(&self, avatar: &GodotString) -> Option<GodotString> {
     if !avatar.is_empty() {
-      return self.get_value(&Config::notes_key(avatar));
+      return self.get_value(&avatar, &self.notes_key);
     }
     None
   }
 
   pub fn set_notes(&self, avatar: &GodotString, notes: Option<&GodotString>) {
     if !avatar.is_empty() {
-      self.set_value(&Config::notes_key(avatar), notes);
+      self.set_value(&avatar, &self.notes_key, notes);
     }
   }
 
-  fn get_value(&self, key: &GodotString) -> Option<GodotString> {
+  fn get_value(&self, section: &GodotString, key: &GodotString) -> Option<GodotString> {
     let config = ConfigFile::new();
     if !self.cfg_path.is_empty()
       && config.load(self.cfg_path.clone()).is_ok()
-      && config.has_section_key(self.section.clone(), key.clone())
+      && config.has_section_key(section.clone(), key.clone())
     {
-      let value = config.get_value(self.section.clone(), key.clone(), Variant::new());
+      let value = config.get_value(section.clone(), key.clone(), Variant::new());
       if !value.is_nil() {
         return Some(value.to_godot_string());
       }
@@ -384,17 +380,14 @@ impl Config {
     None
   }
 
-  fn set_value(&self, key: &GodotString, value: Option<&GodotString>) {
+  fn set_value(&self, section: &GodotString, key: &GodotString, value: Option<&GodotString>) {
     let config = ConfigFile::new();
     let _ = config.load(self.cfg_path.clone());
     if let Some(value) = value {
-      config.set_value(
-        self.section.clone(),
-        key.clone(),
-        Variant::from_godot_string(&value),
-      );
-    } else if config.has_section_key(self.section.clone(), key.clone()) {
-      config.erase_section_key(self.section.clone(), key.clone());
+      let var = Variant::from_godot_string(&value);
+      config.set_value(section.clone(), key.clone(), var);
+    } else if config.has_section_key(section.clone(), key.clone()) {
+      config.erase_section_key(section.clone(), key.clone());
     }
 
     if let Err(err) = config.save(self.cfg_path.clone()) {
