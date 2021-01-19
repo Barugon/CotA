@@ -7,7 +7,7 @@ Show the stats recorded to chat-logs via the `/stats` command.
 
 ![screenshot](https://a4.pbase.com/o12/09/605909/1/164136608.CbCEyC4W.Screenshotfrom20200627184723.png)
 
-Press Ctrl+R to get a list of effective resists or Ctrl+F to filter the stats.
+Press Ctrl+R to get a list of effective resists. Press Ctrl+F to filter the stats. Press Ctrl+L to search the log files.
 
 Portal chronometer.
 
