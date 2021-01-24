@@ -334,8 +334,10 @@ impl Config {
 
   pub fn get_log_folder(&self) -> Option<GodotString> {
     if let Some(folder) = self.get_value(&self.section, &self.folder_key) {
+      godot_print!("Log folder = {}", folder);
       return Some(folder);
     } else if let Some(folder) = &self.log_path {
+      godot_print!("Log folder = {}", folder);
       return Some(folder.clone());
     }
     None
