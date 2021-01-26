@@ -26,3 +26,5 @@ CotA uses the [Godot game engine](https://godotengine.org) for it's GUI, so ther
 - Linux: [cota.zip](https://github.com/Barugon/cota_build/raw/master/linux/cota.zip)
 - Windows: [cota.zip](https://github.com/Barugon/cota_build/raw/master/windows/cota.zip)
 - Mac: [cota.zip](https://github.com/Barugon/cota_build/raw/master/mac/cota.zip)
+
+> Note: if you're using Windows then you will need to right click cota.exe (once unzipped), select `Properties` and then check `Unblock`.
