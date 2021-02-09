@@ -513,11 +513,11 @@ pub fn get_locale() -> Locale {
 }
 
 pub trait ToDisplayString {
-  fn to_display_string(self, locale: &Locale) -> String;
+  fn to_display_string(self, locale: Locale) -> String;
 }
 
 impl ToDisplayString for f64 {
-  fn to_display_string(self, locale: &Locale) -> String {
+  fn to_display_string(self, locale: Locale) -> String {
     format!("{:.6}", self)
       .trim_end_matches('0')
       .trim_end_matches('.')

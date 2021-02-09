@@ -508,7 +508,7 @@ impl Stats {
                   if let Some(item) = tree.create_item(parent, -1) {
                     let item = item.to_ref();
                     let name = RESIST_NAMES[pos];
-                    let value = value.to_display_string(&locale);
+                    let value = value.to_display_string(locale);
                     let bg = *bg_color.get();
 
                     item.set_selectable(0, false);
@@ -543,7 +543,7 @@ impl Stats {
                 if let Ok(value) = value.replacen(',', ".", 1).parse::<f64>() {
                   if let Some(item) = tree.create_item(parent, -1) {
                     let item = item.to_ref();
-                    let value = &value.to_display_string(&locale);
+                    let value = &value.to_display_string(locale);
                     let bg = *bg_color.get();
 
                     item.set_selectable(0, false);
