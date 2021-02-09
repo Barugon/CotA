@@ -300,7 +300,8 @@ impl ToInt for Option<Variant> {
 pub struct Config {
   log_path: Option<GodotString>,
   cfg_path: GodotString,
-  section: GodotString,
+  main: GodotString,
+  _items: GodotString,
   folder_key: GodotString,
   avatar_key: GodotString,
   notes_key: GodotString,
@@ -325,7 +326,8 @@ impl Config {
     Config {
       log_path,
       cfg_path: GodotString::from("user://settings.cfg"),
-      section: GodotString::from("main"),
+      main: GodotString::from("main"),
+      _items: GodotString::from("items"),
       folder_key: GodotString::from("log_folder"),
       avatar_key: GodotString::from("avatar"),
       notes_key: GodotString::from("notes"),
@@ -333,7 +335,7 @@ impl Config {
   }
 
   pub fn get_log_folder(&self) -> Option<GodotString> {
-    if let Some(folder) = self.get_value(&self.section, &self.folder_key) {
+    if let Some(folder) = self.get_value(&self.main, &self.folder_key) {
       godot_print!("Log folder = {}", folder);
       return Some(folder);
     } else if let Some(folder) = &self.log_path {
@@ -344,15 +346,15 @@ impl Config {
   }
 
   pub fn set_log_folder(&self, folder: Option<&GodotString>) {
-    self.set_value(&self.section, &self.folder_key, folder);
+    self.set_value(&self.main, &self.folder_key, folder);
   }
 
   pub fn get_avatar(&self) -> Option<GodotString> {
-    self.get_value(&self.section, &self.avatar_key)
+    self.get_value(&self.main, &self.avatar_key)
   }
 
   pub fn set_avatar(&self, avatar: Option<&GodotString>) {
-    self.set_value(&self.section, &self.avatar_key, avatar);
+    self.set_value(&self.main, &self.avatar_key, avatar);
   }
 
   pub fn get_notes(&self, avatar: &GodotString) -> Option<GodotString> {
@@ -368,12 +370,39 @@ impl Config {
     }
   }
 
-  fn get_value(&self, section: &GodotString, key: &GodotString) -> Option<GodotString> {
+  pub fn _get_items(&self) -> Vec<(GodotString, i64)> {
+    let mut items = Vec::new();
     let config = ConfigFile::new();
     if !self.cfg_path.is_empty()
       && config.load(self.cfg_path.clone()).is_ok()
-      && config.has_section_key(section.clone(), key.clone())
+      && config.has_section(self._items.clone())
     {
+      let names = config.get_section_keys(self._items.clone());
+      for index in 0..names.len() {
+        let name = names.get(index);
+        if !name.is_empty() {
+          let id = config.get_value(self._items.clone(), name.clone(), Variant::new());
+          if !id.is_nil() {
+            items.push((name, id.to_i64()));
+          }
+        }
+      }
+    }
+    items
+  }
+
+  pub fn _add_item(&self, name: GodotString, id: i64) {
+    let config = ConfigFile::new();
+    let _ = config.load(self.cfg_path.clone());
+    config.set_value(self._items.clone(), name, Variant::from_i64(id));
+    if let Err(err) = config.save(self.cfg_path.clone()) {
+      godot_print!("Unable to save config: {}", err);
+    }
+  }
+
+  fn get_value(&self, section: &GodotString, key: &GodotString) -> Option<GodotString> {
+    let config = ConfigFile::new();
+    if !self.cfg_path.is_empty() && config.load(self.cfg_path.clone()).is_ok() {
       let value = config.get_value(section.clone(), key.clone(), Variant::new());
       if !value.is_nil() {
         return Some(value.to_godot_string());
