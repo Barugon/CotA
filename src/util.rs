@@ -393,10 +393,15 @@ impl Config {
 
   pub fn _add_item(&self, name: GodotString, id: i64) {
     let config = ConfigFile::new();
-    let _ = config.load(self.cfg_path.clone());
+    if !self.cfg_path.is_empty() {
+      let _ = config.load(self.cfg_path.clone());
+    }
+
     config.set_value(self._items.clone(), name, Variant::from_i64(id));
-    if let Err(err) = config.save(self.cfg_path.clone()) {
-      godot_print!("Unable to save config: {}", err);
+    if !self.cfg_path.is_empty() {
+      if let Err(err) = config.save(self.cfg_path.clone()) {
+        godot_print!("Unable to save config: {}", err);
+      }
     }
   }
 
@@ -416,7 +421,10 @@ impl Config {
 
   fn set_value(&self, section: &GodotString, key: &GodotString, value: Option<&GodotString>) {
     let config = ConfigFile::new();
-    let _ = config.load(self.cfg_path.clone());
+    if !self.cfg_path.is_empty() {
+      let _ = config.load(self.cfg_path.clone());
+    }
+
     if let Some(value) = value {
       let var = Variant::from_godot_string(&value);
       config.set_value(section.clone(), key.clone(), var);
@@ -424,8 +432,10 @@ impl Config {
       config.erase_section_key(section.clone(), key.clone());
     }
 
-    if let Err(err) = config.save(self.cfg_path.clone()) {
-      godot_print!("Unable to save config: {}", err);
+    if !self.cfg_path.is_empty() {
+      if let Err(err) = config.save(self.cfg_path.clone()) {
+        godot_print!("Unable to save config: {}", err);
+      }
     }
   }
 }
