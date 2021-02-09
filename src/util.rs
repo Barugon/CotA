@@ -383,7 +383,10 @@ impl Config {
         if !name.is_empty() {
           let id = config.get_value(self._items.clone(), name.clone(), Variant::new());
           if !id.is_nil() {
-            items.push((name, id.to_i64()));
+            let id = id.to_i64();
+            if id != 0 {
+              items.push((name, id));
+            }
           }
         }
       }
