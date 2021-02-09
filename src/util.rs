@@ -402,7 +402,10 @@ impl Config {
 
   fn get_value(&self, section: &GodotString, key: &GodotString) -> Option<GodotString> {
     let config = ConfigFile::new();
-    if !self.cfg_path.is_empty() && config.load(self.cfg_path.clone()).is_ok() {
+    if !self.cfg_path.is_empty()
+      && config.load(self.cfg_path.clone()).is_ok()
+      && config.has_section_key(section.clone(), key.clone())
+    {
       let value = config.get_value(section.clone(), key.clone(), Variant::new());
       if !value.is_nil() {
         return Some(value.to_godot_string());
