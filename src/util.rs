@@ -394,7 +394,7 @@ impl Config {
   pub fn _add_item(&self, name: GodotString, id: i64) {
     let config = self.load();
     config.set_value(self._items.clone(), name, Variant::from_i64(id));
-    self.save(&config);
+    self.save(config);
   }
 
   fn get_value(&self, section: &GodotString, key: &GodotString) -> Option<GodotString> {
@@ -416,7 +416,7 @@ impl Config {
     } else if config.has_section_key(section.clone(), key.clone()) {
       config.erase_section_key(section.clone(), key.clone());
     }
-    self.save(&config);
+    self.save(config);
   }
 
   fn load(&self) -> Ref<ConfigFile, Unique> {
@@ -427,7 +427,7 @@ impl Config {
     config
   }
 
-  fn save(&self, config: &ConfigFile) {
+  fn save(&self, config: Ref<ConfigFile, Unique>) {
     if !self.cfg_path.is_empty() {
       if let Err(err) = config.save(self.cfg_path.clone()) {
         godot_print!("Unable to save config: {}", err);
