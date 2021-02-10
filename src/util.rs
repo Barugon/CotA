@@ -372,11 +372,8 @@ impl Config {
 
   pub fn _get_items(&self) -> Vec<(GodotString, i64)> {
     let mut items = Vec::new();
-    let config = ConfigFile::new();
-    if !self.cfg_path.is_empty()
-      && config.load(self.cfg_path.clone()).is_ok()
-      && config.has_section(self._items.clone())
-    {
+    let config = self.load();
+    if config.has_section(self._items.clone()) {
       let names = config.get_section_keys(self._items.clone());
       for index in 0..names.len() {
         let name = names.get(index);
@@ -395,25 +392,14 @@ impl Config {
   }
 
   pub fn _add_item(&self, name: GodotString, id: i64) {
-    let config = ConfigFile::new();
-    if !self.cfg_path.is_empty() {
-      let _ = config.load(self.cfg_path.clone());
-    }
-
+    let config = self.load();
     config.set_value(self._items.clone(), name, Variant::from_i64(id));
-    if !self.cfg_path.is_empty() {
-      if let Err(err) = config.save(self.cfg_path.clone()) {
-        godot_print!("Unable to save config: {}", err);
-      }
-    }
+    self.save(&config);
   }
 
   fn get_value(&self, section: &GodotString, key: &GodotString) -> Option<GodotString> {
-    let config = ConfigFile::new();
-    if !self.cfg_path.is_empty()
-      && config.load(self.cfg_path.clone()).is_ok()
-      && config.has_section_key(section.clone(), key.clone())
-    {
+    let config = self.load();
+    if config.has_section_key(section.clone(), key.clone()) {
       let value = config.get_value(section.clone(), key.clone(), Variant::new());
       if !value.is_nil() {
         return Some(value.to_godot_string());
@@ -423,22 +409,31 @@ impl Config {
   }
 
   fn set_value(&self, section: &GodotString, key: &GodotString, value: Option<&GodotString>) {
-    let config = ConfigFile::new();
-    if !self.cfg_path.is_empty() {
-      let _ = config.load(self.cfg_path.clone());
-    }
-
+    let config = self.load();
     if let Some(value) = value {
       let var = Variant::from_godot_string(&value);
       config.set_value(section.clone(), key.clone(), var);
     } else if config.has_section_key(section.clone(), key.clone()) {
       config.erase_section_key(section.clone(), key.clone());
     }
+    self.save(&config);
+  }
 
+  fn load(&self) -> Ref<ConfigFile, Unique> {
+    let config = ConfigFile::new();
+    if !self.cfg_path.is_empty() {
+      let _ = config.load(self.cfg_path.clone());
+    }
+    config
+  }
+
+  fn save(&self, config: &ConfigFile) {
     if !self.cfg_path.is_empty() {
       if let Err(err) = config.save(self.cfg_path.clone()) {
         godot_print!("Unable to save config: {}", err);
       }
+    } else {
+      godot_print!("Config file path is empty");
     }
   }
 }
