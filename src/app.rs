@@ -59,7 +59,7 @@ impl App {
         popup.set_shortcut(QUIT_ID, GlobalConstants::KEY_Q, true);
         popup.set_shortcut(SEARCH_ID, GlobalConstants::KEY_L, true);
       } else {
-        godot_print!("Unable to get popup from File");
+        godot_print!("Unable to get popup for {}", self.file);
       }
     }
 

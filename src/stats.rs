@@ -88,7 +88,7 @@ impl Stats {
         popup.set_shortcut(FILTER_ID, GlobalConstants::KEY_F, true);
         popup.set_shortcut(RESET_ID, GlobalConstants::KEY_ESCAPE, false);
       } else {
-        godot_print!("Unable to get popup from View");
+        godot_print!("Unable to get popup for {}", self.view);
       }
     }
 
