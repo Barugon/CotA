@@ -969,12 +969,10 @@ impl LogData {
       filenames
     );
 
-    for entry in entries {
-      if let Ok(entry) = entry {
-        if let Ok(filename) = entry.file_name().into_string() {
-          if regex.is_match(&filename) {
-            filenames.push(filename);
-          }
+    for entry in entries.flatten() {
+      if let Ok(filename) = entry.file_name().into_string() {
+        if regex.is_match(&filename) {
+          filenames.push(filename);
         }
       }
     }
