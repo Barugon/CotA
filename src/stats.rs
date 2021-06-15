@@ -1,4 +1,5 @@
 use crate::constants::*;
+use crate::thread_pool::*;
 use crate::util::*;
 use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
 use gdnative::api::*;
@@ -14,7 +15,6 @@ use std::{
   str::SplitWhitespace,
   sync::Arc,
 };
-use thread_pool::*;
 
 #[derive(NativeClass)]
 #[inherit(Node)]

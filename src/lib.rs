@@ -7,6 +7,7 @@ mod experience;
 mod offline;
 mod portals;
 mod stats;
+mod thread_pool;
 
 use crate::app::*;
 use crate::experience::*;
