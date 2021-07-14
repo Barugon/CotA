@@ -189,7 +189,7 @@ fn get_lost_vale_countdown() -> f64 {
 
   if seg < HSECS {
     // Lost vale is currently open.
-    -(HSECS - seg) as f64 / 60.0
+    (seg - HSECS) as f64 / 60.0
   } else if win < (22 * HSECS) {
     // First two 11 hour segments.
     (11 * HSECS - seg) as f64 / 60.0
